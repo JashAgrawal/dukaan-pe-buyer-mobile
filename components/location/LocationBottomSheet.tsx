@@ -1,4 +1,10 @@
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import {
   View,
   Text,
@@ -7,39 +13,48 @@ import {
   TextInput,
   ActivityIndicator,
   Image,
-} from 'react-native';
-import BottomSheet, { BottomSheetBackdrop } from '@gorhom/bottom-sheet';
-import { useLocation } from '@/hooks/useLocation';
-import { useGetCurrentLocation, useReverseGeocode } from '@/lib/api/services/locationService';
-import { useCheckPincodeServiceability } from '@/lib/api/services/addressService';
-import { router } from 'expo-router';
-import { IconSymbol } from '@/components/ui/IconSymbol';
+} from "react-native";
+import BottomSheet, { BottomSheetBackdrop } from "@gorhom/bottom-sheet";
+import { useLocation } from "@/hooks/useLocation";
+import {
+  useGetCurrentLocation,
+  useReverseGeocode,
+} from "@/lib/api/services/locationService";
+import { useCheckPincodeServiceability } from "@/lib/api/services/addressService";
+import { router } from "expo-router";
+import { IconSymbol } from "@/components/ui/IconSymbol";
 
-const LocationIcon = require('@/assets/images/location-icon.png');
+const LocationIcon = require("@/assets/images/location.png");
 
 type LocationBottomSheetProps = {
   isVisible: boolean;
   onClose: () => void;
 };
 
-export default function LocationBottomSheet({ isVisible, onClose }: LocationBottomSheetProps) {
-  const [pincode, setPincode] = useState('');
-  const [pincodeError, setPincodeError] = useState('');
+export default function LocationBottomSheet({
+  isVisible,
+  onClose,
+}: LocationBottomSheetProps) {
+  const [pincode, setPincode] = useState("");
+  const [pincodeError, setPincodeError] = useState("");
   const bottomSheetRef = useRef<BottomSheet>(null);
-  const snapPoints = useMemo(() => ['50%'], []);
-  
+  const snapPoints = useMemo(() => ["50%"], []);
+
   const { setLocation } = useLocation();
   const getCurrentLocationMutation = useGetCurrentLocation();
   const reverseGeocodeMutation = useReverseGeocode();
   const checkPincodeServiceabilityMutation = useCheckPincodeServiceability();
-  
+
   // Handle sheet changes
-  const handleSheetChanges = useCallback((index: number) => {
-    if (index === -1) {
-      onClose();
-    }
-  }, [onClose]);
-  
+  const handleSheetChanges = useCallback(
+    (index: number) => {
+      if (index === -1) {
+        onClose();
+      }
+    },
+    [onClose]
+  );
+
   // Handle backdrop press
   const renderBackdrop = useCallback(
     (props: any) => (
@@ -52,7 +67,7 @@ export default function LocationBottomSheet({ isVisible, onClose }: LocationBott
     ),
     []
   );
-  
+
   // Open/close the sheet based on isVisible prop
   useEffect(() => {
     if (isVisible) {
@@ -61,69 +76,71 @@ export default function LocationBottomSheet({ isVisible, onClose }: LocationBott
       bottomSheetRef.current?.close();
     }
   }, [isVisible]);
-  
+
   // Handle manual pincode entry
   const handlePincodeSubmit = async () => {
     if (!pincode || pincode.length !== 6) {
-      setPincodeError('Please enter a valid 6-digit pincode');
+      setPincodeError("Please enter a valid 6-digit pincode");
       return;
     }
-    
+
     try {
-      setPincodeError('');
-      
+      setPincodeError("");
+
       // Check if pincode is serviceable
-      const serviceabilityResult = await checkPincodeServiceabilityMutation.mutateAsync(pincode);
-      
+      const serviceabilityResult =
+        await checkPincodeServiceabilityMutation.mutateAsync(pincode);
+
       if (!serviceabilityResult.isServiceable) {
-        setPincodeError('This pincode is not serviceable in your area');
+        setPincodeError("This pincode is not serviceable in your area");
         return;
       }
-      
+
       // Set location with pincode
       await setLocation({
         pincode,
-        city: '',
-        state: '',
-        country: 'India',
+        city: "",
+        state: "",
+        country: "India",
         fullAddress: `Pincode: ${pincode}`,
-        source: 'manual',
+        source: "manual",
       });
-      
+
       // Close sheet and navigate
       onClose();
     } catch (error) {
-      console.error('Error setting pincode:', error);
-      setPincodeError('Failed to verify pincode. Please try again.');
+      console.error("Error setting pincode:", error);
+      setPincodeError("Failed to verify pincode. Please try again.");
     }
   };
-  
+
   // Handle current location detection
   const handleDetectLocation = async () => {
     try {
       // Get current coordinates
       const coords = await getCurrentLocationMutation.mutateAsync();
-      
+
       // Reverse geocode to get address
       const addressInfo = await reverseGeocodeMutation.mutateAsync({
         latitude: coords.latitude,
         longitude: coords.longitude,
       });
-      
+
       if (!addressInfo.pincode) {
-        throw new Error('Could not determine pincode from your location');
+        throw new Error("Could not determine pincode from your location");
       }
-      
+
       // Check if pincode is serviceable
-      const serviceabilityResult = await checkPincodeServiceabilityMutation.mutateAsync(
-        addressInfo.pincode
-      );
-      
+      const serviceabilityResult =
+        await checkPincodeServiceabilityMutation.mutateAsync(
+          addressInfo.pincode
+        );
+
       if (!serviceabilityResult.isServiceable) {
-        setPincodeError('Your location is not serviceable in your area');
+        setPincodeError("Your location is not serviceable in your area");
         return;
       }
-      
+
       // Set location
       await setLocation({
         pincode: addressInfo.pincode,
@@ -132,28 +149,30 @@ export default function LocationBottomSheet({ isVisible, onClose }: LocationBott
         country: addressInfo.country,
         fullAddress: addressInfo.fullAddress,
         coordinates: [coords.longitude, coords.latitude],
-        source: 'current',
+        source: "current",
       });
-      
+
       // Close sheet and navigate
       onClose();
     } catch (error) {
-      console.error('Error detecting location:', error);
-      setPincodeError('Failed to detect your location. Please try again or enter pincode manually.');
+      console.error("Error detecting location:", error);
+      setPincodeError(
+        "Failed to detect your location. Please try again or enter pincode manually."
+      );
     }
   };
-  
+
   // Handle search location
   const handleSearchLocation = () => {
     onClose();
-    router.push('/location/search');
+    router.push("/location/search" as any);
   };
-  
+
   const isLoading =
     getCurrentLocationMutation.isPending ||
     reverseGeocodeMutation.isPending ||
     checkPincodeServiceabilityMutation.isPending;
-  
+
   return (
     <BottomSheet
       ref={bottomSheetRef}
@@ -170,11 +189,11 @@ export default function LocationBottomSheet({ isVisible, onClose }: LocationBott
             We need your location to provide you quality experience.
           </Text>
         </View>
-        
+
         <View style={styles.iconContainer}>
           <Image source={LocationIcon} style={styles.locationIcon} />
         </View>
-        
+
         {/* Search location button */}
         <TouchableOpacity
           style={styles.searchButton}
@@ -184,20 +203,25 @@ export default function LocationBottomSheet({ isVisible, onClose }: LocationBott
           <IconSymbol name="search" size={20} color="#FFFFFF" />
           <Text style={styles.searchButtonText}>Search your location</Text>
         </TouchableOpacity>
-        
+
         {/* Manual pincode entry */}
         <View style={styles.pincodeContainer}>
           <TextInput
-            style={[styles.pincodeInput, pincodeError ? styles.inputError : null]}
+            style={[
+              styles.pincodeInput,
+              pincodeError ? styles.inputError : null,
+            ]}
             placeholder="Enter pincode manually"
             value={pincode}
             onChangeText={setPincode}
             keyboardType="number-pad"
             maxLength={6}
           />
-          {pincodeError ? <Text style={styles.errorText}>{pincodeError}</Text> : null}
+          {pincodeError ? (
+            <Text style={styles.errorText}>{pincodeError}</Text>
+          ) : null}
         </View>
-        
+
         {/* Set location button */}
         <TouchableOpacity
           style={styles.setLocationButton}
@@ -221,41 +245,41 @@ const styles = StyleSheet.create({
     padding: 20,
   },
   header: {
-    alignItems: 'center',
+    alignItems: "center",
     marginBottom: 20,
   },
   title: {
     fontSize: 20,
-    fontWeight: 'bold',
+    fontWeight: "bold",
     marginBottom: 8,
   },
   subtitle: {
     fontSize: 14,
-    color: '#666',
-    textAlign: 'center',
+    color: "#666",
+    textAlign: "center",
   },
   iconContainer: {
-    alignItems: 'center',
+    alignItems: "center",
     marginVertical: 20,
   },
   locationIcon: {
     width: 60,
     height: 60,
-    resizeMode: 'contain',
+    resizeMode: "contain",
   },
   searchButton: {
-    backgroundColor: '#8A3FFC',
+    backgroundColor: "#8A3FFC",
     borderRadius: 8,
     padding: 15,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
     marginBottom: 15,
   },
   searchButtonText: {
-    color: '#FFFFFF',
+    color: "#FFFFFF",
     fontSize: 16,
-    fontWeight: '600',
+    fontWeight: "600",
     marginLeft: 8,
   },
   pincodeContainer: {
@@ -263,27 +287,27 @@ const styles = StyleSheet.create({
   },
   pincodeInput: {
     borderWidth: 1,
-    borderColor: '#DDD',
+    borderColor: "#DDD",
     borderRadius: 8,
     padding: 15,
     fontSize: 16,
   },
   inputError: {
-    borderColor: 'red',
+    borderColor: "red",
   },
   errorText: {
-    color: 'red',
+    color: "red",
     marginTop: 5,
   },
   setLocationButton: {
-    backgroundColor: '#8A3FFC',
+    backgroundColor: "#8A3FFC",
     borderRadius: 8,
     padding: 15,
-    alignItems: 'center',
+    alignItems: "center",
   },
   setLocationButtonText: {
-    color: '#FFFFFF',
+    color: "#FFFFFF",
     fontSize: 16,
-    fontWeight: '600',
+    fontWeight: "600",
   },
 });
