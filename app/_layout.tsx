@@ -14,8 +14,12 @@ import "@/global.css";
 
 import { useColorScheme } from "@/hooks/useColorScheme";
 import { queryClient } from "@/lib/query/queryClient";
-// Import auth store instead of context
+// Import stores
 import "@/stores/authStore";
+import "@/stores/locationStore";
+
+// Import location detector
+import LocationDetector from "@/components/location/LocationDetector";
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
@@ -42,8 +46,10 @@ export default function RootLayout() {
         <Stack screenOptions={{ headerShown: false }}>
           <Stack.Screen name="(tabs)" />
           <Stack.Screen name="auth" />
+          <Stack.Screen name="location" />
           <Stack.Screen name="+not-found" />
         </Stack>
+        <LocationDetector />
         <StatusBar style="auto" />
       </ThemeProvider>
     </QueryClientProvider>

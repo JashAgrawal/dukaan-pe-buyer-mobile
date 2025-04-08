@@ -3,6 +3,7 @@ import React, { useEffect } from "react";
 import { Platform } from "react-native";
 
 import { useAuth } from "@/hooks/useAuth";
+import { useLocation } from "@/hooks/useLocation";
 
 import { HapticTab } from "@/components/HapticTab";
 import { IconSymbol } from "@/components/ui/IconSymbol";
@@ -12,14 +13,27 @@ import { useColorScheme } from "@/hooks/useColorScheme";
 
 export default function TabLayout() {
   const colorScheme = useColorScheme();
-  const { isAuthenticated, isLoading } = useAuth();
+  const { isAuthenticated, isLoading: isAuthLoading } = useAuth();
+  const { isLocationSet, isLoading: isLocationLoading } = useLocation();
 
   // Redirect to auth if not authenticated
   useEffect(() => {
-    if (!isLoading && !isAuthenticated) {
+    if (!isAuthLoading && !isAuthenticated) {
       router.replace("/auth/phone");
     }
-  }, [isLoading, isAuthenticated]);
+  }, [isAuthLoading, isAuthenticated]);
+
+  // Redirect to location search if authenticated but location not set
+  useEffect(() => {
+    if (
+      !isAuthLoading &&
+      isAuthenticated &&
+      !isLocationLoading &&
+      !isLocationSet
+    ) {
+      router.push("/location/search" as any);
+    }
+  }, [isAuthLoading, isAuthenticated, isLocationLoading, isLocationSet]);
 
   return (
     <Tabs
