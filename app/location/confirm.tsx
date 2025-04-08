@@ -5,18 +5,18 @@ import {
   StyleSheet,
   TouchableOpacity,
   ActivityIndicator,
-  Dimensions,
 } from "react-native";
 import { StatusBar } from "expo-status-bar";
 import { router, useLocalSearchParams } from "expo-router";
-import MapView, { Marker, PROVIDER_GOOGLE, Region } from "react-native-maps";
+import MapView, { Marker, PROVIDER_GOOGLE } from "react-native-maps";
 import { useLocation } from "@/hooks/useLocation";
-import { useCheckPincodeServiceability, useGetAddress } from "@/lib/api/services/addressService";
+import {
+  useCheckPincodeServiceability,
+  useGetAddress,
+} from "@/lib/api/services/addressService";
 import { useReverseGeocode } from "@/lib/api/services/locationService";
 import { LocationSource } from "@/stores/locationStore";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
-
-const { width } = Dimensions.get("window");
 
 export default function LocationConfirmScreen() {
   const params = useLocalSearchParams<{
@@ -34,9 +34,15 @@ export default function LocationConfirmScreen() {
   // State for location data
   const [isServiceable, setIsServiceable] = useState(true);
   const [serviceabilityMessage, setServiceabilityMessage] = useState("");
-  const [currentLatitude, setCurrentLatitude] = useState(parseFloat(params.latitude || "0"));
-  const [currentLongitude, setCurrentLongitude] = useState(parseFloat(params.longitude || "0"));
-  const [currentAddress, setCurrentAddress] = useState(params.fullAddress || "");
+  const [currentLatitude, setCurrentLatitude] = useState(
+    parseFloat(params.latitude || "0")
+  );
+  const [currentLongitude, setCurrentLongitude] = useState(
+    parseFloat(params.longitude || "0")
+  );
+  const [currentAddress, setCurrentAddress] = useState(
+    params.fullAddress || ""
+  );
   const [currentPincode, setCurrentPincode] = useState(params.pincode || "");
   const [currentCity, setCurrentCity] = useState(params.city || "");
   const [currentState, setCurrentState] = useState(params.state || "");
@@ -53,30 +59,45 @@ export default function LocationConfirmScreen() {
 
   const source = params.source as LocationSource;
 
-  // Check pincode serviceability when pincode changes
-  useEffect(() => {
-    const checkServiceability = async () => {
-      if (currentPincode) {
-        try {
-          setIsUpdatingLocation(true);
-          const result = await checkPincodeServiceabilityMutation.mutateAsync(currentPincode);
-          setIsServiceable(result.isServiceable);
-          setServiceabilityMessage(result.message);
-        } catch (error) {
-          console.error("Error checking pincode serviceability:", error);
-          setIsServiceable(false);
-          setServiceabilityMessage("Failed to check if this location is serviceable");
-        } finally {
-          setIsUpdatingLocation(false);
-        }
-      }
-    };
+  // Function to check pincode serviceability
+  const checkServiceability = async (pincode: string) => {
+    if (!pincode) return;
 
-    checkServiceability();
+    try {
+      setIsUpdatingLocation(true);
+      const result = await checkPincodeServiceabilityMutation.mutateAsync(
+        pincode
+      );
+      setIsServiceable(result.isServiceable);
+      setServiceabilityMessage(result.message);
+    } catch (error) {
+      console.error("Error checking pincode serviceability:", error);
+      setIsServiceable(false);
+      setServiceabilityMessage(
+        "Failed to check if this location is serviceable"
+      );
+    } finally {
+      setIsUpdatingLocation(false);
+    }
+  };
+
+  // Check serviceability on mount and when pincode changes
+  useEffect(() => {
+    checkServiceability(currentPincode);
   }, [currentPincode]);
 
+  // Initial serviceability check
+  useEffect(() => {
+    // This ensures we check serviceability when coming from search
+    if (params.pincode) {
+      checkServiceability(params.pincode);
+    }
+  }, []);
+
   // Handle marker drag end - update location details
-  const handleMarkerDragEnd = async (e: { nativeEvent: { coordinate: { latitude: number; longitude: number } } }) => {
+  const handleMarkerDragEnd = async (e: {
+    nativeEvent: { coordinate: { latitude: number; longitude: number } };
+  }) => {
     const { latitude, longitude } = e.nativeEvent.coordinate;
     setCurrentLatitude(latitude);
     setCurrentLongitude(longitude);
@@ -91,11 +112,18 @@ export default function LocationConfirmScreen() {
 
       // Update state with new address details
       setCurrentAddress(addressInfo.fullAddress);
-      setCurrentPincode(addressInfo.pincode);
       setCurrentCity(addressInfo.city);
       setCurrentState(addressInfo.state);
       setCurrentCountry(addressInfo.country);
 
+      // Update pincode and explicitly check serviceability
+      const newPincode = addressInfo.pincode;
+      setCurrentPincode(newPincode);
+
+      // Explicitly check serviceability for the new pincode
+      if (newPincode) {
+        await checkServiceability(newPincode);
+      }
     } catch (error) {
       console.error("Error updating location:", error);
       alert("Failed to get address details for the selected location.");
@@ -107,6 +135,8 @@ export default function LocationConfirmScreen() {
   // Handle confirm location
   const handleConfirmLocation = async () => {
     try {
+      await checkServiceability(currentPincode);
+
       await setLocation({
         pincode: currentPincode,
         city: currentCity,
@@ -126,9 +156,9 @@ export default function LocationConfirmScreen() {
     }
   };
 
-  const isLoading = 
-    checkPincodeServiceabilityMutation.isPending || 
-    reverseGeocodeMutation.isPending || 
+  const isLoading =
+    checkPincodeServiceabilityMutation.isPending ||
+    reverseGeocodeMutation.isPending ||
     isUpdatingLocation;
 
   return (
@@ -183,14 +213,21 @@ export default function LocationConfirmScreen() {
               {currentAddress}
             </Text>
           </View>
-          <TouchableOpacity style={styles.changeButton} onPress={() => router.back()}>
+          <TouchableOpacity
+            style={styles.changeButton}
+            onPress={() => router.back()}
+          >
             <Text style={styles.changeButtonText}>Change</Text>
           </TouchableOpacity>
         </View>
 
         {/* Serviceability message */}
         {isLoading ? (
-          <ActivityIndicator size="small" color="#8A3FFC" style={styles.loader} />
+          <ActivityIndicator
+            size="small"
+            color="#8A3FFC"
+            style={styles.loader}
+          />
         ) : (
           <Text
             style={[
@@ -230,11 +267,11 @@ const styles = StyleSheet.create({
   },
   map: {
     width: "100%",
-    height: "60%",
+    height: "75%",
   },
   mapPlaceholder: {
     width: "100%",
-    height: "60%",
+    height: "75%",
     backgroundColor: "#F5F5F5",
     justifyContent: "center",
     alignItems: "center",
@@ -261,8 +298,8 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     backgroundColor: "#FFFFFF",
-    borderTopLeftRadius: 16,
-    borderTopRightRadius: 16,
+    borderTopLeftRadius: 32,
+    borderTopRightRadius: 32,
     padding: 20,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: -2 },
@@ -313,9 +350,9 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   dragInstructionText: {
-    fontSize: 14,
+    fontSize: 12,
     color: "#666",
-    marginBottom: 16,
+    marginBottom: 8,
     textAlign: "center",
     fontStyle: "italic",
   },

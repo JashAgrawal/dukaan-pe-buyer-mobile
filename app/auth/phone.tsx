@@ -129,6 +129,9 @@ export default function PhoneScreen() {
   );
 }
 
+// Default font style to apply to all text components
+const fontFamily = "Jost";
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -184,6 +187,7 @@ const styles = StyleSheet.create({
   welcomeSubtitle: {
     fontSize: 16,
     color: "#666666",
+    fontFamily,
   },
   inputContainer: {
     marginTop: 40,
@@ -202,16 +206,19 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: "#000000",
     marginRight: 10,
+    fontFamily,
   },
   phoneInput: {
     flex: 1,
     fontSize: 16,
     color: "#000000",
+    fontFamily,
   },
   infoText: {
     fontSize: 14,
     color: "#666666",
     marginTop: 10,
+    fontFamily,
   },
   continueButton: {
     backgroundColor: "#8A3FFC",
@@ -226,6 +233,7 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: "bold",
     color: "#FFFFFF",
+    fontFamily,
   },
   termsContainer: {
     marginTop: 20,

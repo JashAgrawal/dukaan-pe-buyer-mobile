@@ -307,7 +307,8 @@ const styles = StyleSheet.create({
     alignItems: "center",
     paddingHorizontal: 16,
     paddingTop: 16,
-    paddingBottom: 8,
+    paddingBottom: 4,
+    marginTop: 24,
   },
   backButton: {
     padding: 8,
@@ -321,7 +322,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     marginHorizontal: 16,
-    marginVertical: 12,
+    marginVertical: 4,
     backgroundColor: "#F5F5F5",
     borderRadius: 8,
     paddingHorizontal: 12,
@@ -342,6 +343,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     borderBottomWidth: 1,
     borderBottomColor: "#F0F0F0",
+    marginTop: 2,
   },
   currentLocationText: {
     fontSize: 16,

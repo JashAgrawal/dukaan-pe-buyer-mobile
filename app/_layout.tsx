@@ -18,8 +18,9 @@ import { queryClient } from "@/lib/query/queryClient";
 import "@/stores/authStore";
 import "@/stores/locationStore";
 
-// Import location detector
+// Import components
 import LocationDetector from "@/components/location/LocationDetector";
+import FontProvider from "@/components/providers/FontProvider";
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
@@ -27,7 +28,17 @@ SplashScreen.preventAutoHideAsync();
 export default function RootLayout() {
   const colorScheme = useColorScheme();
   const [loaded] = useFonts({
-    SpaceMono: require("../assets/fonts/SpaceMono-Regular.ttf"),
+    // Load Jost font family
+    "Jost-Regular": require("../assets/fonts/Jost-Regular.ttf"),
+    "Jost-Medium": require("../assets/fonts/Jost.ttf"),
+    "Jost-Bold": require("../assets/fonts/Jost.ttf"),
+    Jost: require("../assets/fonts/Jost-Regular.ttf"),
+
+    // Load Montserrat font family
+    "Montserrat-Regular": require("../assets/fonts/Montserrat.ttf"),
+    "Montserrat-Medium": require("../assets/fonts/Montserrat.ttf"),
+    "Montserrat-Bold": require("../assets/fonts/Montserrat.ttf"),
+    Montserrat: require("../assets/fonts/Montserrat.ttf"),
   });
 
   useEffect(() => {
@@ -43,14 +54,16 @@ export default function RootLayout() {
   return (
     <QueryClientProvider client={queryClient}>
       <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
-        <Stack screenOptions={{ headerShown: false }}>
-          <Stack.Screen name="(tabs)" />
-          <Stack.Screen name="auth" />
-          <Stack.Screen name="location" />
-          <Stack.Screen name="+not-found" />
-        </Stack>
-        <LocationDetector />
-        <StatusBar style="auto" />
+        <FontProvider>
+          <Stack screenOptions={{ headerShown: false }}>
+            <Stack.Screen name="(tabs)" />
+            <Stack.Screen name="auth" />
+            <Stack.Screen name="location" />
+            <Stack.Screen name="+not-found" />
+          </Stack>
+          <LocationDetector />
+          <StatusBar style="auto" />
+        </FontProvider>
       </ThemeProvider>
     </QueryClientProvider>
   );

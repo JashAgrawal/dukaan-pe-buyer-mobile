@@ -10,6 +10,11 @@ module.exports = {
         themeGrayDark: "#696969",
         themeGrayLight: "#D4D4D4",
       },
+      fontFamily: {
+        sans: ["Jost", "system-ui", "sans-serif"],
+        jost: ["Jost", "system-ui", "sans-serif"],
+        montserrat: ["Montserrat", "system-ui", "sans-serif"],
+      },
     },
   },
   plugins: [],
