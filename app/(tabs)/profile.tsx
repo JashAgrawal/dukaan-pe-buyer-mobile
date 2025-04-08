@@ -1,14 +1,10 @@
 import React from "react";
-import {
-  View,
-  Text,
-  StyleSheet,
-  TouchableOpacity,
-  ScrollView,
-} from "react-native";
+import { View, StyleSheet, TouchableOpacity, ScrollView } from "react-native";
 import { useAuth } from "@/hooks/useAuth";
 import { StatusBar } from "expo-status-bar";
 import { IconSymbol } from "@/components/ui/IconSymbol";
+import { Typography, H1 } from "@/components/ui/Typography";
+import LocationHeader from "@/components/location/LocationHeader";
 
 export default function ProfileScreen() {
   const { user, logout } = useAuth();
@@ -23,22 +19,30 @@ export default function ProfileScreen() {
 
   return (
     <View style={styles.container}>
-      <StatusBar style="light" />
+      <StatusBar style="dark" />
+
+      <LocationHeader />
 
       {/* Header */}
       <View style={styles.header}>
-        <Text style={styles.headerTitle}>Profile</Text>
+        <H1 style={styles.headerTitle}>Profile</H1>
       </View>
 
       <ScrollView style={styles.content}>
         {/* User info section */}
         <View style={styles.userInfoContainer}>
           <View style={styles.avatarContainer}>
-            <Text style={styles.avatarText}>{user?.name?.[0] || "U"}</Text>
+            <Typography style={styles.avatarText}>
+              {user?.name?.[0] || "U"}
+            </Typography>
           </View>
           <View style={styles.userDetails}>
-            <Text style={styles.userName}>{user?.name || "User"}</Text>
-            <Text style={styles.userPhone}>{user?.mobileNumber || ""}</Text>
+            <Typography style={styles.userName}>
+              {user?.name || "User"}
+            </Typography>
+            <Typography style={styles.userPhone}>
+              {user?.mobileNumber || ""}
+            </Typography>
           </View>
         </View>
 
@@ -46,42 +50,44 @@ export default function ProfileScreen() {
         <View style={styles.optionsContainer}>
           <TouchableOpacity style={styles.optionItem}>
             <IconSymbol name="person.fill" size={24} color="#8A3FFC" />
-            <Text style={styles.optionText}>Edit Profile</Text>
+            <Typography style={styles.optionText}>Edit Profile</Typography>
             <IconSymbol name="chevron.right" size={20} color="#999999" />
           </TouchableOpacity>
 
           <TouchableOpacity style={styles.optionItem}>
             <IconSymbol name="location.fill" size={24} color="#8A3FFC" />
-            <Text style={styles.optionText}>Addresses</Text>
+            <Typography style={styles.optionText}>Addresses</Typography>
             <IconSymbol name="chevron.right" size={20} color="#999999" />
           </TouchableOpacity>
 
           <TouchableOpacity style={styles.optionItem}>
             <IconSymbol name="bag.fill" size={24} color="#8A3FFC" />
-            <Text style={styles.optionText}>Orders</Text>
+            <Typography style={styles.optionText}>Orders</Typography>
             <IconSymbol name="chevron.right" size={20} color="#999999" />
           </TouchableOpacity>
 
           <TouchableOpacity style={styles.optionItem}>
             <IconSymbol name="heart.fill" size={24} color="#8A3FFC" />
-            <Text style={styles.optionText}>Wishlist</Text>
+            <Typography style={styles.optionText}>Wishlist</Typography>
             <IconSymbol name="chevron.right" size={20} color="#999999" />
           </TouchableOpacity>
 
           <TouchableOpacity style={styles.optionItem}>
             <IconSymbol name="bell.fill" size={24} color="#8A3FFC" />
-            <Text style={styles.optionText}>Notifications</Text>
+            <Typography style={styles.optionText}>Notifications</Typography>
             <IconSymbol name="chevron.right" size={20} color="#999999" />
           </TouchableOpacity>
         </View>
 
         {/* Account section */}
         <View style={styles.sectionContainer}>
-          <Text style={styles.sectionTitle}>Account</Text>
+          <Typography style={styles.sectionTitle}>Account</Typography>
 
           <TouchableOpacity style={styles.optionItem}>
             <IconSymbol name="lock.fill" size={24} color="#8A3FFC" />
-            <Text style={styles.optionText}>Privacy & Security</Text>
+            <Typography style={styles.optionText}>
+              Privacy & Security
+            </Typography>
             <IconSymbol name="chevron.right" size={20} color="#999999" />
           </TouchableOpacity>
 
@@ -91,24 +97,24 @@ export default function ProfileScreen() {
               size={24}
               color="#8A3FFC"
             />
-            <Text style={styles.optionText}>Help & Support</Text>
+            <Typography style={styles.optionText}>Help & Support</Typography>
             <IconSymbol name="chevron.right" size={20} color="#999999" />
           </TouchableOpacity>
 
           <TouchableOpacity style={styles.optionItem}>
             <IconSymbol name="doc.text.fill" size={24} color="#8A3FFC" />
-            <Text style={styles.optionText}>Terms & Policies</Text>
+            <Typography style={styles.optionText}>Terms & Policies</Typography>
             <IconSymbol name="chevron.right" size={20} color="#999999" />
           </TouchableOpacity>
         </View>
 
         {/* Logout button */}
         <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
-          <Text style={styles.logoutButtonText}>Logout</Text>
+          <Typography style={styles.logoutButtonText}>Logout</Typography>
         </TouchableOpacity>
 
         <View style={styles.versionContainer}>
-          <Text style={styles.versionText}>Version 1.0.0</Text>
+          <Typography style={styles.versionText}>Version 1.0.0</Typography>
         </View>
       </ScrollView>
     </View>
@@ -118,18 +124,18 @@ export default function ProfileScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#F8F8F8",
+    backgroundColor: "#FFFFFF",
+    paddingTop: 32,
   },
   header: {
-    backgroundColor: "#8A3FFC",
-    paddingTop: 60,
+    paddingTop: 20,
     paddingBottom: 20,
     paddingHorizontal: 20,
   },
   headerTitle: {
     fontSize: 24,
     fontWeight: "bold",
-    color: "#FFFFFF",
+    color: "#000000",
   },
   content: {
     flex: 1,

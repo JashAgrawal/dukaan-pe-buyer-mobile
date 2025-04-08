@@ -1,65 +1,111 @@
-import { Image, StyleSheet, Platform, View } from "react-native";
+import React from "react";
+import {
+  Image,
+  StyleSheet,
+  Platform,
+  View,
+  ScrollView,
+  TouchableOpacity,
+} from "react-native";
+import { StatusBar } from "expo-status-bar";
+import Animated, { FadeInDown, FadeInRight } from "react-native-reanimated";
 
-import { HelloWave } from "@/components/HelloWave";
-import ParallaxScrollView from "@/components/ParallaxScrollView";
-import { ThemedText } from "@/components/ThemedText";
-import { ThemedView } from "@/components/ThemedView";
+import { Typography, H1, H2, Body1 } from "@/components/ui/Typography";
+import { IconSymbol } from "@/components/ui/IconSymbol";
 import LocationHeader from "@/components/location/LocationHeader";
+import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 
 export default function HomeScreen() {
   return (
     <View style={styles.container}>
+      <StatusBar style="dark" />
       <LocationHeader />
-      <ParallaxScrollView
-        headerBackgroundColor={{ light: "#A1CEDC", dark: "#1D3D47" }}
-        headerImage={
-          <Image
-            source={require("@/assets/images/partial-react-logo.png")}
-            style={styles.reactLogo}
-          />
-        }
+
+      <ScrollView
+        style={styles.scrollView}
+        showsVerticalScrollIndicator={false}
       >
-        <ThemedView style={styles.titleContainer}>
-          <ThemedText type="title">Welcome!</ThemedText>
-          <HelloWave />
-        </ThemedView>
-        <ThemedView style={styles.stepContainer}>
-          <ThemedText type="subtitle">Step 1: Try it</ThemedText>
-          <ThemedText>
-            Edit{" "}
-            <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText>{" "}
-            to see changes. Press{" "}
-            <ThemedText type="defaultSemiBold">
-              {Platform.select({
-                ios: "cmd + d",
-                android: "cmd + m",
-                web: "F12",
-              })}
-            </ThemedText>{" "}
-            to open developer tools.
-          </ThemedText>
-        </ThemedView>
-        <ThemedView style={styles.stepContainer}>
-          <ThemedText type="subtitle">Step 2: Explore</ThemedText>
-          <ThemedText>
-            Tap the Explore tab to learn more about what's included in this
-            starter app.
-          </ThemedText>
-        </ThemedView>
-        <ThemedView style={styles.stepContainer}>
-          <ThemedText type="subtitle">Step 3: Get a fresh start</ThemedText>
-          <ThemedText>
-            When you're ready, run{" "}
-            <ThemedText type="defaultSemiBold">
-              npm run reset-project
-            </ThemedText>{" "}
-            to get a fresh <ThemedText type="defaultSemiBold">app</ThemedText>{" "}
-            directory. This will move the current{" "}
-            <ThemedText type="defaultSemiBold">app</ThemedText> to{" "}
-            <ThemedText type="defaultSemiBold">app-example</ThemedText>.
-          </ThemedText>
-        </ThemedView>
-      </ParallaxScrollView>
+        {/* Hero Section */}
+        <Animated.View
+          style={styles.heroSection}
+          entering={FadeInDown.duration(800).springify()}
+        >
+          <H1 style={styles.heroTitle}>Welcome to Dukaan</H1>
+          <Body1 style={styles.heroSubtitle}>
+            Discover amazing products at great prices
+          </Body1>
+
+          <View style={styles.searchBar}>
+            <MaterialIcons name="search" size={20} color="#999" />
+            <Body1 style={styles.searchText}>Search for products...</Body1>
+          </View>
+        </Animated.View>
+
+        {/* Categories Section */}
+        <View style={styles.sectionContainer}>
+          <View style={styles.sectionHeader}>
+            <H2 style={styles.sectionTitle}>Categories</H2>
+            <TouchableOpacity>
+              <Body1 style={styles.seeAllText}>See All</Body1>
+            </TouchableOpacity>
+          </View>
+
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            style={styles.categoriesContainer}
+          >
+            {["Fashion", "Electronics", "Home", "Beauty", "Sports"].map(
+              (category, index) => (
+                <Animated.View
+                  key={category}
+                  style={styles.categoryItem}
+                  entering={FadeInRight.delay(index * 100).duration(400)}
+                >
+                  <View style={styles.categoryIcon}>
+                    <IconSymbol name="list.bullet" size={24} color="#8A3FFC" />
+                  </View>
+                  <Body1 style={styles.categoryText}>{category}</Body1>
+                </Animated.View>
+              )
+            )}
+          </ScrollView>
+        </View>
+
+        {/* Featured Products Section */}
+        <View style={styles.sectionContainer}>
+          <View style={styles.sectionHeader}>
+            <H2 style={styles.sectionTitle}>Featured Products</H2>
+            <TouchableOpacity>
+              <Body1 style={styles.seeAllText}>See All</Body1>
+            </TouchableOpacity>
+          </View>
+
+          <View style={styles.productsGrid}>
+            {[1, 2, 3, 4].map((item) => (
+              <Animated.View
+                key={item}
+                style={styles.productCard}
+                entering={FadeInDown.delay(item * 100).duration(400)}
+              >
+                <View style={styles.productImageContainer}>
+                  <View style={styles.productImage} />
+                  <TouchableOpacity style={styles.wishlistButton}>
+                    <IconSymbol name="heart.fill" size={16} color="#FF5757" />
+                  </TouchableOpacity>
+                </View>
+                <View style={styles.productInfo}>
+                  <Body1 style={styles.productName}>Product {item}</Body1>
+                  <Body1 style={styles.productPrice}>₹999</Body1>
+                </View>
+              </Animated.View>
+            ))}
+          </View>
+        </View>
+
+        {/* Spacing at the bottom for tab bar */}
+        <View style={styles.bottomSpacing} />
+      </ScrollView>
     </View>
   );
 }
@@ -67,22 +113,114 @@ export default function HomeScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    paddingTop: 32,
+    backgroundColor: "#FFFFFF",
+    paddingTop: Platform.OS === "android" ? 32 : 0,
   },
-  titleContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 8,
+  scrollView: {
+    flex: 1,
   },
-  stepContainer: {
-    gap: 8,
+  heroSection: {
+    padding: 20,
+    paddingTop: 10,
+  },
+  heroTitle: {
+    fontSize: 28,
     marginBottom: 8,
   },
-  reactLogo: {
-    height: 178,
-    width: 290,
-    bottom: 0,
-    left: 0,
+  heroSubtitle: {
+    color: "#666666",
+    marginBottom: 20,
+  },
+  searchBar: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#F5F5F5",
+    borderRadius: 10,
+    padding: 12,
+    marginVertical: 10,
+  },
+  searchText: {
+    marginLeft: 10,
+    color: "#999999",
+  },
+  sectionContainer: {
+    marginTop: 20,
+  },
+  sectionHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    paddingHorizontal: 20,
+    marginBottom: 15,
+  },
+  sectionTitle: {
+    fontSize: 20,
+  },
+  seeAllText: {
+    color: "#8A3FFC",
+  },
+  categoriesContainer: {
+    paddingLeft: 20,
+  },
+  categoryItem: {
+    alignItems: "center",
+    marginRight: 20,
+    width: 80,
+  },
+  categoryIcon: {
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    backgroundColor: "#F0E6FF",
+    justifyContent: "center",
+    alignItems: "center",
+    marginBottom: 8,
+  },
+  categoryText: {
+    textAlign: "center",
+  },
+  productsGrid: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    paddingHorizontal: 10,
+  },
+  productCard: {
+    width: "50%",
+    padding: 10,
+  },
+  productImageContainer: {
+    position: "relative",
+    borderRadius: 10,
+    overflow: "hidden",
+  },
+  productImage: {
+    width: "100%",
+    height: 150,
+    backgroundColor: "#F5F5F5",
+    borderRadius: 10,
+  },
+  wishlistButton: {
     position: "absolute",
+    top: 10,
+    right: 10,
+    backgroundColor: "rgba(255, 255, 255, 0.8)",
+    borderRadius: 15,
+    width: 30,
+    height: 30,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  productInfo: {
+    marginTop: 8,
+  },
+  productName: {
+    marginBottom: 4,
+  },
+  productPrice: {
+    fontWeight: "bold",
+    color: "#8A3FFC",
+  },
+  bottomSpacing: {
+    height: 100,
   },
 });

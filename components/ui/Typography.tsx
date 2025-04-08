@@ -1,11 +1,21 @@
-import React from 'react';
-import { Text, TextProps, StyleSheet } from 'react-native';
-import { useThemeColor } from '@/hooks/useThemeColor';
+import React from "react";
+import { Text, TextProps, StyleSheet } from "react-native";
+import { useThemeColor } from "@/hooks/useThemeColor";
 
 export type TypographyProps = TextProps & {
-  variant?: 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6' | 'body1' | 'body2' | 'caption' | 'button';
-  font?: 'jost' | 'montserrat';
-  weight?: 'regular' | 'medium' | 'bold';
+  variant?:
+    | "h1"
+    | "h2"
+    | "h3"
+    | "h4"
+    | "h5"
+    | "h6"
+    | "body1"
+    | "body2"
+    | "caption"
+    | "button";
+  font?: "jost" | "montserrat";
+  weight?: "regular" | "medium" | "bold";
   color?: string;
   lightColor?: string;
   darkColor?: string;
@@ -13,37 +23,40 @@ export type TypographyProps = TextProps & {
 
 export function Typography({
   style,
-  variant = 'body1',
-  font = 'jost',
-  weight = 'regular',
+  variant = "body1",
+  font = "jost",
+  weight = "regular",
   color,
   lightColor,
   darkColor,
   children,
   ...rest
 }: TypographyProps) {
-  const themeColor = useThemeColor({ light: lightColor, dark: darkColor }, 'text');
+  const themeColor = useThemeColor(
+    { light: lightColor, dark: darkColor },
+    "text"
+  );
   const textColor = color || themeColor;
 
   // Determine font family based on font and weight
-  let fontFamily = 'Jost';
-  if (font === 'montserrat') {
-    fontFamily = 'Montserrat';
-    if (weight === 'medium') fontFamily = 'Montserrat-Medium';
-    if (weight === 'bold') fontFamily = 'Montserrat-Bold';
+  let fontFamily = "Jost";
+  if (font === "montserrat") {
+    fontFamily = "Montserrat";
+    if (weight === "medium") fontFamily = "Montserrat-Medium";
+    if (weight === "bold") fontFamily = "Montserrat-Bold";
   } else {
     // Default to Jost
-    if (weight === 'medium') fontFamily = 'Jost-Medium';
-    if (weight === 'bold') fontFamily = 'Jost-Bold';
+    if (weight === "medium") fontFamily = "Jost-Medium";
+    if (weight === "bold") fontFamily = "Jost-Bold";
   }
 
   return (
     <Text
       style={[
-        { color: textColor, fontFamily },
+        { color: "black", fontFamily },
         styles[variant],
-        weight === 'medium' && styles.medium,
-        weight === 'bold' && styles.bold,
+        weight === "medium" && styles.medium,
+        weight === "bold" && styles.bold,
         style,
       ]}
       {...rest}
@@ -93,53 +106,53 @@ const styles = StyleSheet.create({
   button: {
     fontSize: 16,
     lineHeight: 24,
-    textTransform: 'uppercase',
+    textTransform: "uppercase",
   },
   medium: {
-    fontWeight: '500',
+    fontWeight: "500",
   },
   bold: {
-    fontWeight: 'bold',
+    fontWeight: "bold",
   },
 });
 
 // Export convenience components
-export const H1 = (props: Omit<TypographyProps, 'variant'>) => (
+export const H1 = (props: Omit<TypographyProps, "variant">) => (
   <Typography variant="h1" weight="bold" {...props} />
 );
 
-export const H2 = (props: Omit<TypographyProps, 'variant'>) => (
+export const H2 = (props: Omit<TypographyProps, "variant">) => (
   <Typography variant="h2" weight="bold" {...props} />
 );
 
-export const H3 = (props: Omit<TypographyProps, 'variant'>) => (
+export const H3 = (props: Omit<TypographyProps, "variant">) => (
   <Typography variant="h3" weight="bold" {...props} />
 );
 
-export const H4 = (props: Omit<TypographyProps, 'variant'>) => (
+export const H4 = (props: Omit<TypographyProps, "variant">) => (
   <Typography variant="h4" weight="bold" {...props} />
 );
 
-export const H5 = (props: Omit<TypographyProps, 'variant'>) => (
+export const H5 = (props: Omit<TypographyProps, "variant">) => (
   <Typography variant="h5" weight="bold" {...props} />
 );
 
-export const H6 = (props: Omit<TypographyProps, 'variant'>) => (
+export const H6 = (props: Omit<TypographyProps, "variant">) => (
   <Typography variant="h6" weight="bold" {...props} />
 );
 
-export const Body1 = (props: Omit<TypographyProps, 'variant'>) => (
+export const Body1 = (props: Omit<TypographyProps, "variant">) => (
   <Typography variant="body1" {...props} />
 );
 
-export const Body2 = (props: Omit<TypographyProps, 'variant'>) => (
+export const Body2 = (props: Omit<TypographyProps, "variant">) => (
   <Typography variant="body2" {...props} />
 );
 
-export const Caption = (props: Omit<TypographyProps, 'variant'>) => (
+export const Caption = (props: Omit<TypographyProps, "variant">) => (
   <Typography variant="caption" {...props} />
 );
 
-export const Button = (props: Omit<TypographyProps, 'variant'>) => (
+export const Button = (props: Omit<TypographyProps, "variant">) => (
   <Typography variant="button" weight="medium" {...props} />
 );

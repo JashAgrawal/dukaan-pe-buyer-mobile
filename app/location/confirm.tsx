@@ -17,6 +17,7 @@ import {
 import { useReverseGeocode } from "@/lib/api/services/locationService";
 import { LocationSource } from "@/stores/locationStore";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
+import { Typography } from "@/components/ui/Typography";
 
 export default function LocationConfirmScreen() {
   const params = useLocalSearchParams<{
@@ -201,7 +202,13 @@ export default function LocationConfirmScreen() {
 
       {/* Location details */}
       <View style={styles.locationDetailsContainer}>
-        <Text style={styles.locationDetailsTitle}>Select location</Text>
+        <Typography
+          font="jost"
+          weight="bold"
+          style={styles.locationDetailsTitle}
+        >
+          Select location
+        </Typography>
 
         <View style={styles.locationDetails}>
           <MaterialIcons name="location-on" size={24} color="#8A3FFC" />
@@ -309,13 +316,13 @@ const styles = StyleSheet.create({
   },
   locationDetailsTitle: {
     fontSize: 18,
-    fontWeight: "bold",
-    marginBottom: 16,
+    // fontWeight: "600",
+    marginBottom: 8,
   },
   locationDetails: {
     flexDirection: "row",
     alignItems: "center",
-    marginBottom: 16,
+    marginBottom: 8,
   },
   locationTextContainer: {
     flex: 1,
@@ -341,7 +348,8 @@ const styles = StyleSheet.create({
   serviceabilityMessage: {
     fontSize: 14,
     color: "#4CAF50",
-    marginBottom: 16,
+    marginBottom: 8,
+    textAlign: "center",
   },
   notServiceableMessage: {
     color: "#F44336",
