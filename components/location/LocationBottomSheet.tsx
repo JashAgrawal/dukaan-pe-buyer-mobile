@@ -23,6 +23,7 @@ import {
 import { useCheckPincodeServiceability } from "@/lib/api/services/addressService";
 import { router } from "expo-router";
 import { IconSymbol } from "@/components/ui/IconSymbol";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
 
 const LocationIcon = require("@/assets/images/location.png");
 
@@ -174,68 +175,70 @@ export default function LocationBottomSheet({
     checkPincodeServiceabilityMutation.isPending;
 
   return (
-    <BottomSheet
-      ref={bottomSheetRef}
-      index={-1}
-      snapPoints={snapPoints}
-      onChange={handleSheetChanges}
-      enablePanDownToClose
-      backdropComponent={renderBackdrop}
-    >
-      <View style={styles.container}>
-        <View style={styles.header}>
-          <Text style={styles.title}>Set your device location</Text>
-          <Text style={styles.subtitle}>
-            We need your location to provide you quality experience.
-          </Text>
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <BottomSheet
+        ref={bottomSheetRef}
+        index={-1}
+        snapPoints={snapPoints}
+        onChange={handleSheetChanges}
+        enablePanDownToClose
+        backdropComponent={renderBackdrop}
+      >
+        <View style={styles.container}>
+          <View style={styles.header}>
+            <Text style={styles.title}>Set your device location</Text>
+            <Text style={styles.subtitle}>
+              We need your location to provide you quality experience.
+            </Text>
+          </View>
+
+          <View style={styles.iconContainer}>
+            <Image source={LocationIcon} style={styles.locationIcon} />
+          </View>
+
+          {/* Search location button */}
+          <TouchableOpacity
+            style={styles.searchButton}
+            onPress={handleSearchLocation}
+            disabled={isLoading}
+          >
+            <IconSymbol name="00.circle.hi" size={20} color="#FFFFFF" />
+            <Text style={styles.searchButtonText}>Search your location</Text>
+          </TouchableOpacity>
+
+          {/* Manual pincode entry */}
+          <View style={styles.pincodeContainer}>
+            <TextInput
+              style={[
+                styles.pincodeInput,
+                pincodeError ? styles.inputError : null,
+              ]}
+              placeholder="Enter pincode manually"
+              value={pincode}
+              onChangeText={setPincode}
+              keyboardType="number-pad"
+              maxLength={6}
+            />
+            {pincodeError ? (
+              <Text style={styles.errorText}>{pincodeError}</Text>
+            ) : null}
+          </View>
+
+          {/* Set location button */}
+          <TouchableOpacity
+            style={styles.setLocationButton}
+            onPress={handleDetectLocation}
+            disabled={isLoading}
+          >
+            {isLoading ? (
+              <ActivityIndicator color="#FFFFFF" size="small" />
+            ) : (
+              <Text style={styles.setLocationButtonText}>Set Location</Text>
+            )}
+          </TouchableOpacity>
         </View>
-
-        <View style={styles.iconContainer}>
-          <Image source={LocationIcon} style={styles.locationIcon} />
-        </View>
-
-        {/* Search location button */}
-        <TouchableOpacity
-          style={styles.searchButton}
-          onPress={handleSearchLocation}
-          disabled={isLoading}
-        >
-          <IconSymbol name="search" size={20} color="#FFFFFF" />
-          <Text style={styles.searchButtonText}>Search your location</Text>
-        </TouchableOpacity>
-
-        {/* Manual pincode entry */}
-        <View style={styles.pincodeContainer}>
-          <TextInput
-            style={[
-              styles.pincodeInput,
-              pincodeError ? styles.inputError : null,
-            ]}
-            placeholder="Enter pincode manually"
-            value={pincode}
-            onChangeText={setPincode}
-            keyboardType="number-pad"
-            maxLength={6}
-          />
-          {pincodeError ? (
-            <Text style={styles.errorText}>{pincodeError}</Text>
-          ) : null}
-        </View>
-
-        {/* Set location button */}
-        <TouchableOpacity
-          style={styles.setLocationButton}
-          onPress={handleDetectLocation}
-          disabled={isLoading}
-        >
-          {isLoading ? (
-            <ActivityIndicator color="#FFFFFF" size="small" />
-          ) : (
-            <Text style={styles.setLocationButtonText}>Set Location</Text>
-          )}
-        </TouchableOpacity>
-      </View>
-    </BottomSheet>
+      </BottomSheet>
+    </GestureHandlerRootView>
   );
 }
 

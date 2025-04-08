@@ -1,8 +1,8 @@
-import * as Location from 'expo-location';
-import { useMutation } from '@tanstack/react-query';
+import * as Location from "expo-location";
+import { useMutation } from "@tanstack/react-query";
 
 // Google Maps API key - should be in environment variables
-const GOOGLE_MAPS_API_KEY = process.env.EXPO_PUBLIC_GOOGLE_MAPS_API_KEY || '';
+const GOOGLE_MAPS_API_KEY = process.env.EXPO_PUBLIC_GOOGLE_MAPS_API_KEY || "";
 
 // Get current location
 export const getCurrentLocation = async (): Promise<{
@@ -11,16 +11,16 @@ export const getCurrentLocation = async (): Promise<{
 }> => {
   // Request permissions
   const { status } = await Location.requestForegroundPermissionsAsync();
-  
-  if (status !== 'granted') {
-    throw new Error('Location permission not granted');
+
+  if (status !== "granted") {
+    throw new Error("Location permission not granted");
   }
-  
+
   // Get current position
   const location = await Location.getCurrentPositionAsync({
-    accuracy: Location.Accuracy.Balanced,
+    accuracy: Location.Accuracy.High,
   });
-  
+
   return {
     latitude: location.coords.latitude,
     longitude: location.coords.longitude,
@@ -44,14 +44,14 @@ export const reverseGeocode = async (
       latitude,
       longitude,
     });
-    
+
     if (results && results.length > 0) {
       const location = results[0];
       return {
-        pincode: location.postalCode || '',
-        city: location.city || '',
-        state: location.region || '',
-        country: location.country || '',
+        pincode: location.postalCode || "",
+        city: location.city || "",
+        state: location.region || "",
+        country: location.country || "",
         fullAddress: [
           location.street,
           location.city,
@@ -60,39 +60,39 @@ export const reverseGeocode = async (
           location.country,
         ]
           .filter(Boolean)
-          .join(', '),
+          .join(", "),
       };
     }
-    
+
     // Fallback to Google Maps API if Expo's geocoding fails or is incomplete
     if (GOOGLE_MAPS_API_KEY) {
       const response = await fetch(
         `https://maps.googleapis.com/maps/api/geocode/json?latlng=${latitude},${longitude}&key=${GOOGLE_MAPS_API_KEY}`
       );
-      
+
       const data = await response.json();
-      
-      if (data.status === 'OK' && data.results && data.results.length > 0) {
+
+      if (data.status === "OK" && data.results && data.results.length > 0) {
         const result = data.results[0];
-        
+
         // Extract address components
-        let pincode = '';
-        let city = '';
-        let state = '';
-        let country = '';
-        
+        let pincode = "";
+        let city = "";
+        let state = "";
+        let country = "";
+
         for (const component of result.address_components) {
-          if (component.types.includes('postal_code')) {
+          if (component.types.includes("postal_code")) {
             pincode = component.long_name;
-          } else if (component.types.includes('locality')) {
+          } else if (component.types.includes("locality")) {
             city = component.long_name;
-          } else if (component.types.includes('administrative_area_level_1')) {
+          } else if (component.types.includes("administrative_area_level_1")) {
             state = component.long_name;
-          } else if (component.types.includes('country')) {
+          } else if (component.types.includes("country")) {
             country = component.long_name;
           }
         }
-        
+
         return {
           pincode,
           city,
@@ -102,52 +102,58 @@ export const reverseGeocode = async (
         };
       }
     }
-    
-    throw new Error('Failed to get address from coordinates');
+
+    throw new Error("Failed to get address from coordinates");
   } catch (error) {
-    console.error('Error in reverse geocoding:', error);
+    console.error("Error in reverse geocoding:", error);
     throw error;
   }
 };
 
 // Search places (for autocomplete)
-export const searchPlaces = async (query: string): Promise<Array<{
-  placeId: string;
-  description: string;
-  mainText: string;
-  secondaryText: string;
-}>> => {
+export const searchPlaces = async (
+  query: string
+): Promise<
+  Array<{
+    placeId: string;
+    description: string;
+    mainText: string;
+    secondaryText: string;
+  }>
+> => {
   if (!GOOGLE_MAPS_API_KEY || !query) {
     return [];
   }
-  
+
   try {
     const response = await fetch(
       `https://maps.googleapis.com/maps/api/place/autocomplete/json?input=${encodeURIComponent(
         query
       )}&key=${GOOGLE_MAPS_API_KEY}&components=country:in`
     );
-    
+
     const data = await response.json();
-    
-    if (data.status === 'OK' && data.predictions) {
+
+    if (data.status === "OK" && data.predictions) {
       return data.predictions.map((prediction: any) => ({
         placeId: prediction.place_id,
         description: prediction.description,
-        mainText: prediction.structured_formatting?.main_text || '',
-        secondaryText: prediction.structured_formatting?.secondary_text || '',
+        mainText: prediction.structured_formatting?.main_text || "",
+        secondaryText: prediction.structured_formatting?.secondary_text || "",
       }));
     }
-    
+
     return [];
   } catch (error) {
-    console.error('Error searching places:', error);
+    console.error("Error searching places:", error);
     return [];
   }
 };
 
 // Get place details
-export const getPlaceDetails = async (placeId: string): Promise<{
+export const getPlaceDetails = async (
+  placeId: string
+): Promise<{
   latitude: number;
   longitude: number;
   pincode: string;
@@ -157,41 +163,41 @@ export const getPlaceDetails = async (placeId: string): Promise<{
   fullAddress: string;
 }> => {
   if (!GOOGLE_MAPS_API_KEY || !placeId) {
-    throw new Error('Missing API key or place ID');
+    throw new Error("Missing API key or place ID");
   }
-  
+
   try {
     const response = await fetch(
       `https://maps.googleapis.com/maps/api/place/details/json?place_id=${placeId}&fields=geometry,address_component,formatted_address&key=${GOOGLE_MAPS_API_KEY}`
     );
-    
+
     const data = await response.json();
-    
-    if (data.status === 'OK' && data.result) {
+
+    if (data.status === "OK" && data.result) {
       const result = data.result;
-      
+
       // Extract coordinates
       const latitude = result.geometry?.location?.lat;
       const longitude = result.geometry?.location?.lng;
-      
+
       // Extract address components
-      let pincode = '';
-      let city = '';
-      let state = '';
-      let country = '';
-      
+      let pincode = "";
+      let city = "";
+      let state = "";
+      let country = "";
+
       for (const component of result.address_components) {
-        if (component.types.includes('postal_code')) {
+        if (component.types.includes("postal_code")) {
           pincode = component.long_name;
-        } else if (component.types.includes('locality')) {
+        } else if (component.types.includes("locality")) {
           city = component.long_name;
-        } else if (component.types.includes('administrative_area_level_1')) {
+        } else if (component.types.includes("administrative_area_level_1")) {
           state = component.long_name;
-        } else if (component.types.includes('country')) {
+        } else if (component.types.includes("country")) {
           country = component.long_name;
         }
       }
-      
+
       return {
         latitude,
         longitude,
@@ -202,10 +208,10 @@ export const getPlaceDetails = async (placeId: string): Promise<{
         fullAddress: result.formatted_address,
       };
     }
-    
-    throw new Error('Failed to get place details');
+
+    throw new Error("Failed to get place details");
   } catch (error) {
-    console.error('Error getting place details:', error);
+    console.error("Error getting place details:", error);
     throw error;
   }
 };
@@ -219,8 +225,13 @@ export const useGetCurrentLocation = () => {
 
 export const useReverseGeocode = () => {
   return useMutation({
-    mutationFn: ({ latitude, longitude }: { latitude: number; longitude: number }) =>
-      reverseGeocode(latitude, longitude),
+    mutationFn: ({
+      latitude,
+      longitude,
+    }: {
+      latitude: number;
+      longitude: number;
+    }) => reverseGeocode(latitude, longitude),
   });
 };
 

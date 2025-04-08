@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from "react";
 import {
   View,
   Text,
@@ -6,17 +6,17 @@ import {
   TouchableOpacity,
   ActivityIndicator,
   Dimensions,
-} from 'react-native';
-import { StatusBar } from 'expo-status-bar';
-import { router, useLocalSearchParams } from 'expo-router';
-import MapView, { Marker, PROVIDER_GOOGLE } from 'react-native-maps';
-import { useLocation } from '@/hooks/useLocation';
-import { useCheckPincodeServiceability } from '@/lib/api/services/addressService';
-import { useGetAddress } from '@/lib/api/services/addressService';
-import { IconSymbol } from '@/components/ui/IconSymbol';
-import { LocationSource } from '@/stores/locationStore';
+} from "react-native";
+import { StatusBar } from "expo-status-bar";
+import { router, useLocalSearchParams } from "expo-router";
+import MapView, { Marker, PROVIDER_GOOGLE, Region } from "react-native-maps";
+import { useLocation } from "@/hooks/useLocation";
+import { useCheckPincodeServiceability, useGetAddress } from "@/lib/api/services/addressService";
+import { useReverseGeocode } from "@/lib/api/services/locationService";
+import { LocationSource } from "@/stores/locationStore";
+import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 
-const { width } = Dimensions.get('window');
+const { width } = Dimensions.get("window");
 
 export default function LocationConfirmScreen() {
   const params = useLocalSearchParams<{
@@ -30,80 +30,132 @@ export default function LocationConfirmScreen() {
     source: string;
     addressId?: string;
   }>();
-  
+
+  // State for location data
   const [isServiceable, setIsServiceable] = useState(true);
-  const [serviceabilityMessage, setServiceabilityMessage] = useState('');
-  
+  const [serviceabilityMessage, setServiceabilityMessage] = useState("");
+  const [currentLatitude, setCurrentLatitude] = useState(parseFloat(params.latitude || "0"));
+  const [currentLongitude, setCurrentLongitude] = useState(parseFloat(params.longitude || "0"));
+  const [currentAddress, setCurrentAddress] = useState(params.fullAddress || "");
+  const [currentPincode, setCurrentPincode] = useState(params.pincode || "");
+  const [currentCity, setCurrentCity] = useState(params.city || "");
+  const [currentState, setCurrentState] = useState(params.state || "");
+  const [currentCountry, setCurrentCountry] = useState(params.country || "");
+  const [isUpdatingLocation, setIsUpdatingLocation] = useState(false);
+
+  const mapRef = useRef<MapView>(null);
+
+  // Hooks
   const { setLocation } = useLocation();
   const checkPincodeServiceabilityMutation = useCheckPincodeServiceability();
-  const { data: savedAddress } = useGetAddress(params.addressId || '');
-  
-  const latitude = parseFloat(params.latitude || '0');
-  const longitude = parseFloat(params.longitude || '0');
+  const reverseGeocodeMutation = useReverseGeocode();
+  const { data: savedAddress } = useGetAddress(params.addressId || "");
+
   const source = params.source as LocationSource;
-  
-  // Check pincode serviceability on mount
+
+  // Check pincode serviceability when pincode changes
   useEffect(() => {
     const checkServiceability = async () => {
-      if (params.pincode) {
+      if (currentPincode) {
         try {
-          const result = await checkPincodeServiceabilityMutation.mutateAsync(params.pincode);
+          setIsUpdatingLocation(true);
+          const result = await checkPincodeServiceabilityMutation.mutateAsync(currentPincode);
           setIsServiceable(result.isServiceable);
           setServiceabilityMessage(result.message);
         } catch (error) {
-          console.error('Error checking pincode serviceability:', error);
+          console.error("Error checking pincode serviceability:", error);
           setIsServiceable(false);
-          setServiceabilityMessage('Failed to check if this location is serviceable');
+          setServiceabilityMessage("Failed to check if this location is serviceable");
+        } finally {
+          setIsUpdatingLocation(false);
         }
       }
     };
-    
+
     checkServiceability();
-  }, [params.pincode]);
-  
+  }, [currentPincode]);
+
+  // Handle marker drag end - update location details
+  const handleMarkerDragEnd = async (e: { nativeEvent: { coordinate: { latitude: number; longitude: number } } }) => {
+    const { latitude, longitude } = e.nativeEvent.coordinate;
+    setCurrentLatitude(latitude);
+    setCurrentLongitude(longitude);
+
+    try {
+      setIsUpdatingLocation(true);
+      // Reverse geocode to get address details
+      const addressInfo = await reverseGeocodeMutation.mutateAsync({
+        latitude,
+        longitude,
+      });
+
+      // Update state with new address details
+      setCurrentAddress(addressInfo.fullAddress);
+      setCurrentPincode(addressInfo.pincode);
+      setCurrentCity(addressInfo.city);
+      setCurrentState(addressInfo.state);
+      setCurrentCountry(addressInfo.country);
+
+    } catch (error) {
+      console.error("Error updating location:", error);
+      alert("Failed to get address details for the selected location.");
+    } finally {
+      setIsUpdatingLocation(false);
+    }
+  };
+
   // Handle confirm location
   const handleConfirmLocation = async () => {
     try {
       await setLocation({
-        pincode: params.pincode,
-        city: params.city,
-        state: params.state,
-        country: params.country,
-        fullAddress: params.fullAddress,
-        coordinates: longitude && latitude ? [longitude, latitude] : undefined,
+        pincode: currentPincode,
+        city: currentCity,
+        state: currentState,
+        country: currentCountry,
+        fullAddress: currentAddress,
+        coordinates: [currentLongitude, currentLatitude],
         source,
         selectedAddress: savedAddress || undefined,
       });
-      
+
       // Navigate back to home or previous screen
-      router.replace('/(tabs)');
+      router.replace("/(tabs)");
     } catch (error) {
-      console.error('Error setting location:', error);
-      alert('Failed to set location. Please try again.');
+      console.error("Error setting location:", error);
+      alert("Failed to set location. Please try again.");
     }
   };
-  
-  const isLoading = checkPincodeServiceabilityMutation.isPending;
-  
+
+  const isLoading = 
+    checkPincodeServiceabilityMutation.isPending || 
+    reverseGeocodeMutation.isPending || 
+    isUpdatingLocation;
+
   return (
     <View style={styles.container}>
       <StatusBar style="dark" />
-      
+
       {/* Map view */}
-      {latitude && longitude ? (
+      {currentLatitude && currentLongitude ? (
         <MapView
+          ref={mapRef}
           style={styles.map}
           provider={PROVIDER_GOOGLE}
           initialRegion={{
-            latitude,
-            longitude,
+            latitude: currentLatitude,
+            longitude: currentLongitude,
             latitudeDelta: 0.005,
             longitudeDelta: 0.005,
           }}
         >
           <Marker
-            coordinate={{ latitude, longitude }}
+            coordinate={{
+              latitude: currentLatitude,
+              longitude: currentLongitude,
+            }}
             pinColor="#8A3FFC"
+            draggable
+            onDragEnd={handleMarkerDragEnd}
           />
         </MapView>
       ) : (
@@ -111,37 +163,31 @@ export default function LocationConfirmScreen() {
           <Text>Map not available</Text>
         </View>
       )}
-      
+
       {/* Back button */}
-      <TouchableOpacity
-        style={styles.backButton}
-        onPress={() => router.back()}
-      >
-        <IconSymbol name="arrow-back" size={24} color="#000" />
+      <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
+        <MaterialIcons name="arrow-back" size={24} color="#000000" />
       </TouchableOpacity>
-      
+
       {/* Location details */}
       <View style={styles.locationDetailsContainer}>
         <Text style={styles.locationDetailsTitle}>Select location</Text>
-        
+
         <View style={styles.locationDetails}>
-          <IconSymbol name="location-on" size={24} color="#8A3FFC" />
+          <MaterialIcons name="location-on" size={24} color="#8A3FFC" />
           <View style={styles.locationTextContainer}>
             <Text style={styles.locationName}>
-              {params.city || params.state || 'Selected location'}
+              {currentCity || currentState || "Selected location"}
             </Text>
             <Text style={styles.locationAddress} numberOfLines={2}>
-              {params.fullAddress}
+              {currentAddress}
             </Text>
           </View>
-          <TouchableOpacity
-            style={styles.changeButton}
-            onPress={() => router.back()}
-          >
+          <TouchableOpacity style={styles.changeButton} onPress={() => router.back()}>
             <Text style={styles.changeButtonText}>Change</Text>
           </TouchableOpacity>
         </View>
-        
+
         {/* Serviceability message */}
         {isLoading ? (
           <ActivityIndicator size="small" color="#8A3FFC" style={styles.loader} />
@@ -155,7 +201,12 @@ export default function LocationConfirmScreen() {
             {serviceabilityMessage}
           </Text>
         )}
-        
+
+        {/* Drag instruction */}
+        <Text style={styles.dragInstructionText}>
+          Drag the marker to adjust your exact location
+        </Text>
+
         {/* Confirm button */}
         <TouchableOpacity
           style={[
@@ -175,45 +226,45 @@ export default function LocationConfirmScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: "#FFFFFF",
   },
   map: {
-    width: '100%',
-    height: '60%',
+    width: "100%",
+    height: "60%",
   },
   mapPlaceholder: {
-    width: '100%',
-    height: '60%',
-    backgroundColor: '#F5F5F5',
-    justifyContent: 'center',
-    alignItems: 'center',
+    width: "100%",
+    height: "60%",
+    backgroundColor: "#F5F5F5",
+    justifyContent: "center",
+    alignItems: "center",
   },
   backButton: {
-    position: 'absolute',
+    position: "absolute",
     top: 16,
     left: 16,
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: '#FFFFFF',
-    justifyContent: 'center',
-    alignItems: 'center',
-    shadowColor: '#000',
+    backgroundColor: "#FFFFFF",
+    justifyContent: "center",
+    alignItems: "center",
+    shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
     elevation: 2,
   },
   locationDetailsContainer: {
-    position: 'absolute',
+    position: "absolute",
     bottom: 0,
     left: 0,
     right: 0,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: "#FFFFFF",
     borderTopLeftRadius: 16,
     borderTopRightRadius: 16,
     padding: 20,
-    shadowColor: '#000',
+    shadowColor: "#000",
     shadowOffset: { width: 0, height: -2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
@@ -221,12 +272,12 @@ const styles = StyleSheet.create({
   },
   locationDetailsTitle: {
     fontSize: 18,
-    fontWeight: 'bold',
+    fontWeight: "bold",
     marginBottom: 16,
   },
   locationDetails: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     marginBottom: 16,
   },
   locationTextContainer: {
@@ -235,11 +286,11 @@ const styles = StyleSheet.create({
   },
   locationName: {
     fontSize: 16,
-    fontWeight: '500',
+    fontWeight: "500",
   },
   locationAddress: {
     fontSize: 14,
-    color: '#666',
+    color: "#666",
     marginTop: 2,
   },
   changeButton: {
@@ -247,32 +298,39 @@ const styles = StyleSheet.create({
     paddingVertical: 6,
   },
   changeButtonText: {
-    color: '#8A3FFC',
-    fontWeight: '500',
+    color: "#8A3FFC",
+    fontWeight: "500",
   },
   serviceabilityMessage: {
     fontSize: 14,
-    color: '#4CAF50',
+    color: "#4CAF50",
     marginBottom: 16,
   },
   notServiceableMessage: {
-    color: '#F44336',
+    color: "#F44336",
   },
   loader: {
     marginBottom: 16,
   },
+  dragInstructionText: {
+    fontSize: 14,
+    color: "#666",
+    marginBottom: 16,
+    textAlign: "center",
+    fontStyle: "italic",
+  },
   confirmButton: {
-    backgroundColor: '#8A3FFC',
+    backgroundColor: "#8A3FFC",
     borderRadius: 8,
     padding: 16,
-    alignItems: 'center',
+    alignItems: "center",
   },
   disabledButton: {
-    backgroundColor: '#CCCCCC',
+    backgroundColor: "#CCCCCC",
   },
   confirmButtonText: {
-    color: '#FFFFFF',
+    color: "#FFFFFF",
     fontSize: 16,
-    fontWeight: '600',
+    fontWeight: "600",
   },
 });
