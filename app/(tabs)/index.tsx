@@ -1,30 +1,19 @@
 import React from "react";
-import {
-  Image,
-  StyleSheet,
-  Platform,
-  View,
-  ScrollView,
-  TouchableOpacity,
-} from "react-native";
+import { StyleSheet, View, TouchableOpacity } from "react-native";
 import { StatusBar } from "expo-status-bar";
 import Animated, { FadeInDown, FadeInRight } from "react-native-reanimated";
 
 import { Typography, H1, H2, Body1 } from "@/components/ui/Typography";
 import { IconSymbol } from "@/components/ui/IconSymbol";
-import LocationHeader from "@/components/location/LocationHeader";
-import MaterialIcons from "@expo/vector-icons/MaterialIcons";
+import AppHeader from "@/components/ui/AppHeader";
+import ScrollAwareWrapper from "@/components/ui/ScrollAwareWrapper";
 
 export default function HomeScreen() {
   return (
     <View style={styles.container}>
       <StatusBar style="dark" />
-      <LocationHeader />
 
-      <ScrollView
-        style={styles.scrollView}
-        showsVerticalScrollIndicator={false}
-      >
+      <ScrollAwareWrapper headerComponent={<AppHeader />}>
         {/* Hero Section */}
         <Animated.View
           style={styles.heroSection}
@@ -34,11 +23,6 @@ export default function HomeScreen() {
           <Body1 style={styles.heroSubtitle}>
             Discover amazing products at great prices
           </Body1>
-
-          <View style={styles.searchBar}>
-            <MaterialIcons name="search" size={20} color="#999" />
-            <Body1 style={styles.searchText}>Search for products...</Body1>
-          </View>
         </Animated.View>
 
         {/* Categories Section */}
@@ -50,11 +34,7 @@ export default function HomeScreen() {
             </TouchableOpacity>
           </View>
 
-          <ScrollView
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            style={styles.categoriesContainer}
-          >
+          <View style={styles.categoriesContainer}>
             {["Fashion", "Electronics", "Home", "Beauty", "Sports"].map(
               (category, index) => (
                 <Animated.View
@@ -69,7 +49,7 @@ export default function HomeScreen() {
                 </Animated.View>
               )
             )}
-          </ScrollView>
+          </View>
         </View>
 
         {/* Featured Products Section */}
@@ -105,7 +85,7 @@ export default function HomeScreen() {
 
         {/* Spacing at the bottom for tab bar */}
         <View style={styles.bottomSpacing} />
-      </ScrollView>
+      </ScrollAwareWrapper>
     </View>
   );
 }
@@ -114,14 +94,15 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#FFFFFF",
-    paddingTop: Platform.OS === "android" ? 32 : 0,
   },
   scrollView: {
     flex: 1,
   },
+  scrollContent: {
+    paddingTop: 16,
+  },
   heroSection: {
     padding: 20,
-    paddingTop: 10,
   },
   heroTitle: {
     fontSize: 28,
@@ -130,18 +111,6 @@ const styles = StyleSheet.create({
   heroSubtitle: {
     color: "#666666",
     marginBottom: 20,
-  },
-  searchBar: {
-    flexDirection: "row",
-    alignItems: "center",
-    backgroundColor: "#F5F5F5",
-    borderRadius: 10,
-    padding: 12,
-    marginVertical: 10,
-  },
-  searchText: {
-    marginLeft: 10,
-    color: "#999999",
   },
   sectionContainer: {
     marginTop: 20,
@@ -160,12 +129,14 @@ const styles = StyleSheet.create({
     color: "#8A3FFC",
   },
   categoriesContainer: {
-    paddingLeft: 20,
+    flexDirection: "row",
+    paddingHorizontal: 10,
+    flexWrap: "wrap",
   },
   categoryItem: {
     alignItems: "center",
-    marginRight: 20,
-    width: 80,
+    width: "20%",
+    marginBottom: 20,
   },
   categoryIcon: {
     width: 60,
@@ -178,6 +149,7 @@ const styles = StyleSheet.create({
   },
   categoryText: {
     textAlign: "center",
+    fontSize: 12,
   },
   productsGrid: {
     flexDirection: "row",

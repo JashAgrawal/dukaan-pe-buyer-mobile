@@ -1,15 +1,16 @@
 import { Tabs, router } from "expo-router";
 import React, { useEffect } from "react";
-// No need to import BottomTabBarProps here
+import Animated, { useAnimatedStyle } from "react-native-reanimated";
+import { View, StyleSheet } from "react-native";
+import { BottomTabBarProps } from "@react-navigation/bottom-tabs";
 
 import { useAuth } from "@/hooks/useAuth";
 import { useLocation } from "@/hooks/useLocation";
 
-import CustomTabBar from "@/components/ui/CustomTabBar";
 import { IconSymbol } from "@/components/ui/IconSymbol";
-// import TabBarBackground from "@/components/ui/TabBarBackground";
 import { Colors } from "@/constants/Colors";
 import { useColorScheme } from "@/hooks/useColorScheme";
+import { tabBarTranslateY } from "@/components/ui/ScrollAwareWrapper";
 
 export default function TabLayout() {
   const colorScheme = useColorScheme();
@@ -22,7 +23,7 @@ export default function TabLayout() {
       router.replace("/auth/phone");
     }
   }, [isAuthLoading, isAuthenticated]);
-
+  
   // Redirect to location search if authenticated but location not set
   useEffect(() => {
     if (
@@ -35,14 +36,44 @@ export default function TabLayout() {
     }
   }, [isAuthLoading, isAuthenticated, isLocationLoading, isLocationSet]);
 
+  // Create animated style for the tab bar
+  const tabBarAnimatedStyle = useAnimatedStyle(() => {
+    return {
+      transform: [{ translateY: tabBarTranslateY.value }],
+    };
+  });
+
+  // Custom tab bar component that wraps the default tab bar with animation
+  const renderTabBar = (props: BottomTabBarProps) => {
+    return (
+      <Animated.View style={[styles.tabBarContainer, tabBarAnimatedStyle]}>
+        <View style={styles.tabBarContent}>
+          {/* @ts-ignore - This is the default tab bar */}
+          <Tabs.DefaultTabBar {...props} />
+        </View>
+      </Animated.View>
+    );
+  };
+
   return (
     <Tabs
+      tabBar={renderTabBar}
       screenOptions={{
         tabBarActiveTintColor: Colors[colorScheme ?? "light"].tint,
         tabBarInactiveTintColor: Colors[colorScheme ?? "light"].tabIconDefault,
         headerShown: false,
+        tabBarStyle: {
+          backgroundColor: "#FFFFFF",
+          height: 90,
+          paddingBottom: 10,
+          paddingTop: 10,
+        },
+        tabBarLabelStyle: {
+          fontFamily: "Jost-Medium",
+          fontSize: 12,
+          marginTop: 4,
+        },
       }}
-      tabBar={(props) => <CustomTabBar {...props} />}
     >
       <Tabs.Screen
         name="index"
@@ -92,3 +123,24 @@ export default function TabLayout() {
     </Tabs>
   );
 }
+
+const styles = StyleSheet.create({
+  tabBarContainer: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    backgroundColor: 'transparent',
+  },
+  tabBarContent: {
+    backgroundColor: '#FFFFFF',
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: -2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 5,
+    overflow: 'hidden',
+  },
+});

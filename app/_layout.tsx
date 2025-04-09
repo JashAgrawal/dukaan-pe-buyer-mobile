@@ -55,7 +55,12 @@ export default function RootLayout() {
     <QueryClientProvider client={queryClient}>
       <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
         <FontProvider>
-          <Stack screenOptions={{ headerShown: false }}>
+          <Stack
+            screenOptions={{
+              headerShown: false,
+              contentStyle: { backgroundColor: "white" },
+            }}
+          >
             <Stack.Screen name="(tabs)" />
             <Stack.Screen name="auth" />
             <Stack.Screen name="location" />

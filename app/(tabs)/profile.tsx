@@ -4,7 +4,8 @@ import { useAuth } from "@/hooks/useAuth";
 import { StatusBar } from "expo-status-bar";
 import { IconSymbol } from "@/components/ui/IconSymbol";
 import { Typography, H1 } from "@/components/ui/Typography";
-import LocationHeader from "@/components/location/LocationHeader";
+import AppHeader from "@/components/ui/AppHeader";
+import ScrollAwareWrapper from "@/components/ui/ScrollAwareWrapper";
 
 export default function ProfileScreen() {
   const { user, logout } = useAuth();
@@ -21,14 +22,11 @@ export default function ProfileScreen() {
     <View style={styles.container}>
       <StatusBar style="dark" />
 
-      <LocationHeader />
-
-      {/* Header */}
-      <View style={styles.header}>
-        <H1 style={styles.headerTitle}>Profile</H1>
-      </View>
-
-      <ScrollView style={styles.content}>
+      <ScrollAwareWrapper headerComponent={<AppHeader />}>
+        {/* Header */}
+        <View style={styles.header}>
+          <H1 style={styles.headerTitle}>Profile</H1>
+        </View>
         {/* User info section */}
         <View style={styles.userInfoContainer}>
           <View style={styles.avatarContainer}>
@@ -116,7 +114,7 @@ export default function ProfileScreen() {
         <View style={styles.versionContainer}>
           <Typography style={styles.versionText}>Version 1.0.0</Typography>
         </View>
-      </ScrollView>
+      </ScrollAwareWrapper>
     </View>
   );
 }
