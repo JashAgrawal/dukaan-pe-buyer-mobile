@@ -17,16 +17,23 @@ import { queryClient } from "@/lib/query/queryClient";
 // Import stores
 import "@/stores/authStore";
 import "@/stores/locationStore";
+import "@/stores/useSearchStore";
 
 // Import components
 import LocationDetector from "@/components/location/LocationDetector";
 import FontProvider from "@/components/providers/FontProvider";
+
+// Import hooks
+import { useSearchInit } from "@/hooks/useSearchInit";
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
   const colorScheme = useColorScheme();
+
+  // Initialize search store
+  useSearchInit();
   const [loaded] = useFonts({
     // Load Jost font family
     "Jost-Regular": require("../assets/fonts/Jost-Regular.ttf"),
@@ -64,6 +71,8 @@ export default function RootLayout() {
             <Stack.Screen name="(tabs)" />
             <Stack.Screen name="auth" />
             <Stack.Screen name="location" />
+            <Stack.Screen name="search" />
+            <Stack.Screen name="store" />
             <Stack.Screen name="+not-found" />
           </Stack>
           <LocationDetector />

@@ -7,6 +7,12 @@ export interface SearchItem {
   name: string;
   category: string;
   imageUrl?: string;
+  tagline?: string;
+  rating?: number;
+  reviewCount?: number;
+  price?: number;
+  storeId?: string;
+  storeName?: string;
 }
 
 interface SearchState {
@@ -24,8 +30,9 @@ interface SearchState {
   setIsSearching: (isSearching: boolean) => void;
   setSearchResults: (results: SearchItem[]) => void;
 
-  // Mock search function (in a real app, this would call an API)
+  // API search functions
   performSearch: (query: string) => void;
+  loadPopularStores: () => void;
 }
 
 // Initial popular stores data will be loaded from the service
@@ -81,6 +88,16 @@ export const useSearchStore = create<SearchState>()(
             searchResults: [],
             isSearching: false,
           });
+        }
+      },
+
+      // Load popular stores from API
+      loadPopularStores: async () => {
+        try {
+          const stores = await getPopularStores();
+          set({ popularStores: stores });
+        } catch (error) {
+          console.error("Error loading popular stores:", error);
         }
       },
     }),

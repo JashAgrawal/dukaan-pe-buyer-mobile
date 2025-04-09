@@ -1,16 +1,15 @@
 import React from "react";
 import {
   View,
-  TextInput,
   StyleSheet,
   TouchableOpacity,
-  Pressable,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { Typography, Body1 } from "@/components/ui/Typography";
+import { Typography } from "@/components/ui/Typography";
 import { IconSymbol } from "@/components/ui/IconSymbol";
 import { useLocation } from "@/hooks/useLocation";
 import { router } from "expo-router";
+import SearchBar from "@/components/search/SearchBar";
 
 interface AppHeaderProps {
   onLocationPress?: () => void;
@@ -40,23 +39,22 @@ export default function AppHeader({
       {/* Location Section */}
       <View style={styles.headerTop}>
         <TouchableOpacity
-          style={styles.locationContainer}
+          style={styles.locationButton}
           onPress={handleLocationPress}
         >
-          <IconSymbol name="location-on" size={24} color="#8A3FFC" />
+          <IconSymbol name="location.fill" size={20} color="#8A3FFC" />
           <View style={styles.locationTextContainer}>
-            <View style={styles.locationTextRow}>
-              <Typography style={styles.locationText} numberOfLines={1}>
-                {isLocationSet ? city || "Andheri West" : "Set your location"}
-              </Typography>
-              <IconSymbol name="keyboard-arrow-down" size={16} color="#000" />
-            </View>
-            <Typography style={styles.addressText} numberOfLines={1}>
-              {isLocationSet
-                ? `${pincode || ""} area north street`
-                : "C31 area north street"}
+            <Typography style={styles.locationLabel}>
+              {isLocationSet ? "Delivering to" : "Set your location"}
             </Typography>
+            {isLocationSet && city && (
+              <Typography style={styles.locationText}>
+                {city}
+                {pincode ? ` - ${pincode}` : ""}
+              </Typography>
+            )}
           </View>
+          <IconSymbol name="chevron.down" size={16} color="#666" />
         </TouchableOpacity>
 
         <View style={styles.headerActions}>
@@ -64,26 +62,23 @@ export default function AppHeader({
             style={styles.iconButton}
             onPress={handleNotificationPress}
           >
-            <IconSymbol name="notifications" size={24} color="#000" />
+            <IconSymbol name="bell" size={24} color="#000" />
           </TouchableOpacity>
           <TouchableOpacity
             style={styles.iconButton}
             onPress={handleProfilePress}
           >
             <View style={styles.profileIcon}>
-              <IconSymbol name="person" size={20} color="#FFF" />
+              <IconSymbol name="person.fill" size={16} color="#FFF" />
             </View>
           </TouchableOpacity>
         </View>
       </View>
 
       {/* Search Bar */}
-      <Pressable style={styles.searchBar} onPress={handleSearchPress}>
-        <IconSymbol name="search" size={20} color="#999" />
-        <Body1 style={styles.searchText}>
-          Search for stores, products & more
-        </Body1>
-      </Pressable>
+      <View style={styles.searchBarContainer}>
+        <SearchBar onPress={handleSearchPress} />
+      </View>
     </View>
   );
 }
@@ -100,29 +95,23 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    marginBottom: 12,
   },
-  locationContainer: {
+  locationButton: {
     flexDirection: "row",
     alignItems: "center",
-    flex: 1,
+    paddingVertical: 8,
   },
   locationTextContainer: {
-    marginLeft: 4,
-    flex: 2,
+    marginHorizontal: 8,
   },
-  locationTextRow: {
-    flexDirection: "row",
-    alignItems: "center",
-  },
-  locationText: {
-    fontSize: 16,
-    fontWeight: "600",
-    color: "#000",
-  },
-  addressText: {
+  locationLabel: {
     fontSize: 12,
     color: "#666",
+  },
+  locationText: {
+    fontSize: 14,
+    fontWeight: "500",
+    color: "#000",
   },
   headerActions: {
     flexDirection: "row",
@@ -140,17 +129,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
   },
-  searchBar: {
-    flexDirection: "row",
-    alignItems: "center",
-    backgroundColor: "#F5F5F5",
-    borderRadius: 8,
-    paddingHorizontal: 12,
-    paddingVertical: 10,
-  },
-  searchText: {
-    marginLeft: 8,
-    color: "#999",
-    flex: 1,
+  searchBarContainer: {
+    marginTop: 12,
   },
 });
