@@ -1,15 +1,12 @@
 import React from "react";
-import {
-  View,
-  StyleSheet,
-  TouchableOpacity,
-} from "react-native";
+import { View, StyleSheet, TouchableOpacity } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Typography } from "@/components/ui/Typography";
 import { IconSymbol } from "@/components/ui/IconSymbol";
 import { useLocation } from "@/hooks/useLocation";
 import { router } from "expo-router";
 import SearchBar from "@/components/search/SearchBar";
+import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 
 interface AppHeaderProps {
   onLocationPress?: () => void;
@@ -42,7 +39,7 @@ export default function AppHeader({
           style={styles.locationButton}
           onPress={handleLocationPress}
         >
-          <IconSymbol name="location.fill" size={20} color="#8A3FFC" />
+          <MaterialIcons name="location-on" size={20} color="#8A3FFC" />
           <View style={styles.locationTextContainer}>
             <Typography style={styles.locationLabel}>
               {isLocationSet ? "Delivering to" : "Set your location"}
@@ -54,7 +51,7 @@ export default function AppHeader({
               </Typography>
             )}
           </View>
-          <IconSymbol name="chevron.down" size={16} color="#666" />
+          <MaterialIcons name="change-circle" size={16} color="#666" />
         </TouchableOpacity>
 
         <View style={styles.headerActions}>
@@ -62,7 +59,7 @@ export default function AppHeader({
             style={styles.iconButton}
             onPress={handleNotificationPress}
           >
-            <IconSymbol name="bell" size={24} color="#000" />
+            <MaterialIcons name="notifications-none" size={24} color="#000" />
           </TouchableOpacity>
           <TouchableOpacity
             style={styles.iconButton}

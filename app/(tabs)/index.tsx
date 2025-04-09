@@ -7,6 +7,7 @@ import { Typography, H1, H2, Body1 } from "@/components/ui/Typography";
 import { IconSymbol } from "@/components/ui/IconSymbol";
 import AppHeader from "@/components/ui/AppHeader";
 import ScrollAwareWrapper from "@/components/ui/ScrollAwareWrapper";
+import BannerCarousel from "@/components/home/BannerCarousel";
 
 export default function HomeScreen() {
   return (
@@ -14,16 +15,10 @@ export default function HomeScreen() {
       <StatusBar style="dark" />
 
       <ScrollAwareWrapper headerComponent={<AppHeader />}>
-        {/* Hero Section */}
-        <Animated.View
-          style={styles.heroSection}
-          entering={FadeInDown.duration(800).springify()}
-        >
-          <H1 style={styles.heroTitle}>Welcome to Dukaan</H1>
-          <Body1 style={styles.heroSubtitle}>
-            Discover amazing products at great prices
-          </Body1>
-        </Animated.View>
+        {/* Promo Banner Carousel */}
+        <View style={styles.heroSection}>
+          <BannerCarousel />
+        </View>
 
         {/* Categories Section */}
         <View style={styles.sectionContainer}>
@@ -102,15 +97,9 @@ const styles = StyleSheet.create({
     paddingTop: 16,
   },
   heroSection: {
-    padding: 20,
-  },
-  heroTitle: {
-    fontSize: 28,
-    marginBottom: 8,
-  },
-  heroSubtitle: {
-    color: "#666666",
-    marginBottom: 20,
+    paddingHorizontal: 20,
+    paddingTop: 20,
+    paddingBottom: 0,
   },
   sectionContainer: {
     marginTop: 20,
