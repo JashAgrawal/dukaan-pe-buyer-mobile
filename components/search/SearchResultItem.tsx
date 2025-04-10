@@ -3,6 +3,7 @@ import { View, StyleSheet, TouchableOpacity, Image } from "react-native";
 import { Typography } from "@/components/ui/Typography";
 import { SearchItem } from "@/stores/useSearchStore";
 import { MaterialIcons } from "@expo/vector-icons";
+import { getImageUrl } from "@/lib/helpers";
 
 interface SearchResultItemProps {
   item: SearchItem;
@@ -21,7 +22,10 @@ export default function SearchResultItem({
     >
       <View style={styles.imageContainer}>
         {item.imageUrl ? (
-          <Image source={{ uri: item.imageUrl }} style={styles.image} />
+          <Image
+            source={{ uri: getImageUrl(item.imageUrl) }}
+            style={styles.image}
+          />
         ) : (
           <View style={styles.placeholderImage} />
         )}

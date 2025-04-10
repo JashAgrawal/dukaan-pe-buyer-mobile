@@ -9,8 +9,12 @@ import AppHeader from "@/components/ui/AppHeader";
 import ScrollAwareWrapper from "@/components/ui/ScrollAwareWrapper";
 import BannerCarousel from "@/components/home/BannerCarousel";
 import CategoryScroller from "@/components/home/CategoryScroller";
+import BrandScroller from "@/components/home/BrandScroller";
+import useTopBrands from "@/hooks/useTopBrands";
 
 export default function HomeScreen() {
+  // Fetch top brands from API
+  const { brands, isLoading, error } = useTopBrands(4);
   return (
     <View style={styles.container}>
       <StatusBar style="dark" />
@@ -25,6 +29,22 @@ export default function HomeScreen() {
         <View style={styles.sectionContainer}>
           <Animated.View entering={FadeInRight.duration(600).springify()}>
             <CategoryScroller />
+          </Animated.View>
+        </View>
+
+        {/* Top Brands Section */}
+        <View style={styles.sectionContainer}>
+          <Animated.View
+            entering={FadeInRight.duration(600).springify().delay(200)}
+          >
+            <BrandScroller
+              title="Top Brands"
+              subtitle="Visit & Recommend"
+              brands={brands}
+              isLoading={isLoading}
+              error={error}
+              onSeeAllPress={() => console.log("See all brands pressed")}
+            />
           </Animated.View>
         </View>
 

@@ -11,6 +11,7 @@ import {
 import { MaterialIcons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import { Category, getCategories } from "@/lib/api/services/categoryService";
+import { getImageUrl } from "@/lib/helpers";
 
 // Map of category names to icon names
 const CATEGORY_ICONS: Record<string, string> = {
@@ -150,8 +151,13 @@ export default function CategoryScroller({
             /> */}
             {category.image ? (
               <Image
-                source={{ uri: category.image }}
-                style={{ width: 24, height: 24 }}
+                source={{ uri: `${getImageUrl(category.image)}` }}
+                style={{
+                  width: "100%",
+                  height: "100%",
+                  borderRadius: 999,
+                  objectFit: "cover",
+                }}
               />
             ) : (
               <MaterialIcons

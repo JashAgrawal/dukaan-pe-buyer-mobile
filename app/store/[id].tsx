@@ -14,6 +14,7 @@ import { MaterialIcons } from "@expo/vector-icons";
 import { Typography, H1, Body1 } from "@/components/ui/Typography";
 import { useSearchStore, SearchItem } from "@/stores/useSearchStore";
 import { getStoreById } from "@/lib/api/services/searchService";
+import { getImageUrl } from "@/lib/helpers";
 
 export default function StoreDetailScreen() {
   const insets = useSafeAreaInsets();
@@ -124,11 +125,14 @@ export default function StoreDetailScreen() {
         <View style={styles.storeImageContainer}>
           {store.mainImage ? (
             <Image
-              source={{ uri: store.mainImage }}
+              source={{ uri: getImageUrl(store.mainImage) }}
               style={styles.storeImage}
             />
           ) : store.logo ? (
-            <Image source={{ uri: store.logo }} style={styles.storeImage} />
+            <Image
+              source={{ uri: getImageUrl(store.logo) }}
+              style={styles.storeImage}
+            />
           ) : (
             <View style={styles.placeholderImage}>
               <MaterialIcons name="store" size={48} color="#999" />
