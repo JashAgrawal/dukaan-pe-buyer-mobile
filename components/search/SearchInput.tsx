@@ -1,6 +1,12 @@
-import React, { forwardRef, useImperativeHandle, useRef } from 'react';
-import { View, StyleSheet, TextInput, TouchableOpacity, Platform } from 'react-native';
-import { IconSymbol } from '@/components/ui/IconSymbol';
+import React, { forwardRef, useImperativeHandle, useRef } from "react";
+import {
+  View,
+  StyleSheet,
+  TextInput,
+  TouchableOpacity,
+  Platform,
+} from "react-native";
+import { MaterialIcons } from "@expo/vector-icons";
 
 interface SearchInputProps {
   value: string;
@@ -19,33 +25,41 @@ export interface SearchInputRef {
 }
 
 const SearchInput = forwardRef<SearchInputRef, SearchInputProps>(
-  ({ 
-    value, 
-    onChangeText, 
-    placeholder = 'Search for stores, products & more', 
-    onFocus, 
-    onBlur,
-    onClear,
-    autoFocus = false
-  }, ref) => {
+  (
+    {
+      value,
+      onChangeText,
+      placeholder = "Search for stores, products & more",
+      onFocus,
+      onBlur,
+      onClear,
+      autoFocus = false,
+    },
+    ref
+  ) => {
     const inputRef = useRef<TextInput>(null);
-    
+
     // Expose methods to parent component
     useImperativeHandle(ref, () => ({
       focus: () => inputRef.current?.focus(),
       blur: () => inputRef.current?.blur(),
       clear: () => inputRef.current?.clear(),
     }));
-    
+
     const handleClear = () => {
-      onChangeText('');
+      onChangeText("");
       if (onClear) onClear();
     };
-    
+
     return (
       <View style={styles.container}>
-        <IconSymbol name="search" size={20} color="#999" style={styles.searchIcon} />
-        
+        <MaterialIcons
+          name="search"
+          size={20}
+          color="#999"
+          style={styles.searchIcon}
+        />
+
         <TextInput
           ref={inputRef}
           style={styles.input}
@@ -58,13 +72,10 @@ const SearchInput = forwardRef<SearchInputRef, SearchInputProps>(
           autoFocus={autoFocus}
           clearButtonMode="while-editing"
         />
-        
-        {value.length > 0 && Platform.OS !== 'ios' && (
-          <TouchableOpacity 
-            style={styles.clearButton}
-            onPress={handleClear}
-          >
-            <IconSymbol name="xmark.circle.fill" size={20} color="#999" />
+
+        {value.length > 0 && Platform.OS !== "ios" && (
+          <TouchableOpacity style={styles.clearButton} onPress={handleClear}>
+            <MaterialIcons name="cancel" size={20} color="#999" />
           </TouchableOpacity>
         )}
       </View>
@@ -74,9 +85,9 @@ const SearchInput = forwardRef<SearchInputRef, SearchInputProps>(
 
 const styles = StyleSheet.create({
   container: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#F5F5F5',
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#F5F5F5",
     borderRadius: 8,
     paddingHorizontal: 12,
     height: 44,
@@ -86,9 +97,9 @@ const styles = StyleSheet.create({
   },
   input: {
     flex: 1,
-    height: '100%',
+    height: "100%",
     fontSize: 16,
-    fontFamily: 'Jost-Regular',
+    fontFamily: "Jost-Regular",
   },
   clearButton: {
     padding: 4,

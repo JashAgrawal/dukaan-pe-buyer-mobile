@@ -2,9 +2,9 @@ import React from "react";
 import { StyleSheet, View, TouchableOpacity } from "react-native";
 import { StatusBar } from "expo-status-bar";
 import Animated, { FadeInDown, FadeInRight } from "react-native-reanimated";
+import { MaterialIcons } from "@expo/vector-icons";
 
 import { Typography, H1, H2, Body1 } from "@/components/ui/Typography";
-import { IconSymbol } from "@/components/ui/IconSymbol";
 import AppHeader from "@/components/ui/AppHeader";
 import ScrollAwareWrapper from "@/components/ui/ScrollAwareWrapper";
 import BannerCarousel from "@/components/home/BannerCarousel";
@@ -38,7 +38,7 @@ export default function HomeScreen() {
                   entering={FadeInRight.delay(index * 100).duration(400)}
                 >
                   <View style={styles.categoryIcon}>
-                    <IconSymbol name="list.bullet" size={24} color="#8A3FFC" />
+                    <MaterialIcons name="category" size={24} color="#8A3FFC" />
                   </View>
                   <Body1 style={styles.categoryText}>{category}</Body1>
                 </Animated.View>
@@ -66,7 +66,7 @@ export default function HomeScreen() {
                 <View style={styles.productImageContainer}>
                   <View style={styles.productImage} />
                   <TouchableOpacity style={styles.wishlistButton}>
-                    <IconSymbol name="heart.fill" size={16} color="#FF5757" />
+                    <MaterialIcons name="favorite" size={16} color="#FF5757" />
                   </TouchableOpacity>
                 </View>
                 <View style={styles.productInfo}>

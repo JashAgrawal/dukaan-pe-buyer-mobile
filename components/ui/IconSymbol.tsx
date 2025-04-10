@@ -11,6 +11,7 @@ const MAPPING = {
   // See SF Symbols in the SF Symbols app on Mac.
   "house.fill": "home",
   "heart.fill": "favorite",
+  "star.fill": "star",
   qrcode: "qr-code-scanner",
   "list.bullet": "category",
   "person.fill": "person",
@@ -51,6 +52,7 @@ export function IconSymbol({
     <MaterialIcons
       color={color}
       size={size}
+      // @ts-ignore
       name={MAPPING[name] ?? name}
       style={style}
     />

@@ -25,7 +25,7 @@ export default function TabLayout() {
       router.replace("/auth/phone");
     }
   }, [isAuthLoading, isAuthenticated]);
-  
+
   // Redirect to location search if authenticated but location not set
   useEffect(() => {
     if (
@@ -48,11 +48,11 @@ export default function TabLayout() {
   // Custom tab bar component with our own implementation
   const renderTabBar = (props: BottomTabBarProps) => {
     return (
-      <Animated.View 
+      <Animated.View
         style={[
-          styles.tabBarContainer, 
+          styles.tabBarContainer,
           tabBarAnimatedStyle,
-          { paddingBottom: insets.bottom || 10 }
+          { paddingBottom: insets.bottom || 10 },
         ]}
       >
         <View style={styles.tabBarContent}>
@@ -103,7 +103,9 @@ export default function TabLayout() {
                   key={route.key}
                   accessibilityRole="button"
                   accessibilityState={isFocused ? { selected: true } : {}}
-                  accessibilityLabel={options.tabBarAccessibilityLabel as string | undefined}
+                  accessibilityLabel={
+                    options.tabBarAccessibilityLabel as string | undefined
+                  }
                   testID={(options as any).tabBarTestID}
                   onPress={onPress}
                   onLongPress={onLongPress}

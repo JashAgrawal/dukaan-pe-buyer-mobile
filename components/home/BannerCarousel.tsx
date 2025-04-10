@@ -1,9 +1,9 @@
-import React, { useState, useRef } from 'react';
-import { View, StyleSheet, ScrollView, Dimensions } from 'react-native';
-import Animated, { FadeInDown } from 'react-native-reanimated';
-import PromoBanner from './PromoBanner';
+import React, { useState, useRef } from "react";
+import { View, StyleSheet, ScrollView, Dimensions } from "react-native";
+import Animated, { FadeInDown } from "react-native-reanimated";
+import PromoBanner from "./PromoBanner";
 
-const { width } = Dimensions.get('window');
+const { width } = Dimensions.get("window");
 const BANNER_WIDTH = width - 40; // 20px padding on each side
 
 interface BannerCarouselProps {
@@ -17,42 +17,42 @@ export default function BannerCarousel({
 }: BannerCarouselProps) {
   const [activeIndex, setActiveIndex] = useState(0);
   const scrollViewRef = useRef<ScrollView>(null);
-  
+
   // Banner data
   const banners = [
     {
-      title: 'Discover the best',
-      subtitle: 'through your',
-      highlightedText: 'products',
-      features: ['No Ads', 'No search', 'Trusted recommends'],
-      backgroundColor: '#000',
-      textColor: '#FFF',
-      highlightColor: '#CCFF00',
+      title: "Discover the best",
+      subtitle: "through your",
+      highlightedText: "products",
+      features: ["No Ads", "No search", "Trusted recommends"],
+      backgroundColor: "#000",
+      textColor: "#FFF",
+      highlightColor: "#CCFF00",
     },
     {
-      title: 'Shop with',
-      subtitle: 'your favorite',
-      highlightedText: 'stores',
-      features: ['Free delivery', 'Best prices', 'Exclusive deals'],
-      backgroundColor: '#8A3FFC',
-      textColor: '#FFF',
-      highlightColor: '#FFD700',
+      title: "Shop with",
+      subtitle: "your favorite",
+      highlightedText: "stores",
+      features: ["Free delivery", "Best prices", "Exclusive deals"],
+      backgroundColor: "#8A3FFC",
+      textColor: "#FFF",
+      highlightColor: "#FFD700",
     },
     {
-      title: 'Scan & Pay',
-      subtitle: 'for instant',
-      highlightedText: 'rewards',
-      features: ['Cashback', 'Loyalty points', 'Special offers'],
-      backgroundColor: '#005249',
-      textColor: '#FFF',
-      highlightColor: '#FF9500',
+      title: "Scan & Pay",
+      subtitle: "for instant",
+      highlightedText: "rewards",
+      features: ["Cashback", "Loyalty points", "Special offers"],
+      backgroundColor: "#005249",
+      textColor: "#FFF",
+      highlightColor: "#FF9500",
     },
   ];
-  
+
   // Auto play functionality
   React.useEffect(() => {
     let interval: NodeJS.Timeout;
-    
+
     if (autoPlay) {
       interval = setInterval(() => {
         const nextIndex = (activeIndex + 1) % banners.length;
@@ -63,12 +63,12 @@ export default function BannerCarousel({
         });
       }, autoPlayInterval);
     }
-    
+
     return () => {
       if (interval) clearInterval(interval);
     };
   }, [activeIndex, autoPlay, autoPlayInterval, banners.length]);
-  
+
   // Handle scroll
   const handleScroll = (event: any) => {
     const contentOffsetX = event.nativeEvent.contentOffset.x;
@@ -77,9 +77,9 @@ export default function BannerCarousel({
       setActiveIndex(newIndex);
     }
   };
-  
+
   return (
-    <Animated.View 
+    <Animated.View
       style={styles.container}
       entering={FadeInDown.duration(800).springify()}
     >
@@ -106,7 +106,7 @@ export default function BannerCarousel({
           </View>
         ))}
       </ScrollView>
-      
+
       {/* Pagination dots */}
       <View style={styles.pagination}>
         {banners.map((_, index) => (
@@ -125,7 +125,7 @@ export default function BannerCarousel({
 
 const styles = StyleSheet.create({
   container: {
-    width: '100%',
+    width: "100%",
   },
   scrollContent: {
     paddingHorizontal: 0,
@@ -135,22 +135,22 @@ const styles = StyleSheet.create({
     paddingHorizontal: 0,
   },
   pagination: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginTop: 12,
+    flexDirection: "row",
+    justifyContent: "center",
+    alignItems: "center",
+    // marginTop: 12,
   },
   paginationDot: {
-    width: 8,
-    height: 8,
+    width: 6,
+    height: 2,
     borderRadius: 4,
-    backgroundColor: '#D9D9D9',
+    backgroundColor: "#D9D9D9",
     marginHorizontal: 4,
   },
   paginationDotActive: {
-    backgroundColor: '#8A3FFC',
-    width: 12,
-    height: 12,
+    backgroundColor: "#8A3FFC",
+    width: 16,
+    height: 4,
     borderRadius: 6,
   },
 });

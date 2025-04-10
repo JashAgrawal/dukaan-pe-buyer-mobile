@@ -66,7 +66,7 @@ export default function AppHeader({
             onPress={handleProfilePress}
           >
             <View style={styles.profileIcon}>
-              <IconSymbol name="person.fill" size={16} color="#FFF" />
+              <MaterialIcons name="person" size={16} color="#FFF" />
             </View>
           </TouchableOpacity>
         </View>
