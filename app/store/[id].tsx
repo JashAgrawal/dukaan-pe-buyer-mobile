@@ -4,17 +4,16 @@ import {
   StyleSheet,
   TouchableOpacity,
   ScrollView,
-  Image,
   ActivityIndicator,
 } from "react-native";
 import { StatusBar } from "expo-status-bar";
 import { router, useLocalSearchParams } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { MaterialIcons } from "@expo/vector-icons";
-import { Typography, H1, Body1 } from "@/components/ui/Typography";
+import { Typography, Body1 } from "@/components/ui/Typography";
 import { useSearchStore, SearchItem } from "@/stores/useSearchStore";
 import { getStoreById } from "@/lib/api/services/searchService";
-import { getImageUrl } from "@/lib/helpers";
+import StoreHero from "@/components/store/StoreHero";
 
 export default function StoreDetailScreen() {
   const insets = useSafeAreaInsets();
@@ -22,6 +21,7 @@ export default function StoreDetailScreen() {
   const [store, setStore] = useState<any | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
+  const [isFavorite, setIsFavorite] = useState(false);
 
   useEffect(() => {
     const fetchStoreDetails = async () => {
@@ -107,62 +107,46 @@ export default function StoreDetailScreen() {
     );
   }
 
-  return (
-    <View style={[styles.container, { paddingTop: insets.top }]}>
-      <StatusBar style="dark" />
+  const handleToggleFavorite = () => {
+    setIsFavorite(!isFavorite);
+    // Here you would also call an API to update the favorite status
+  };
 
-      <View style={styles.header}>
-        <TouchableOpacity
-          style={styles.backButton}
-          onPress={() => router.back()}
-        >
-          <MaterialIcons name="arrow-back" size={24} color="#000" />
-        </TouchableOpacity>
-        <Typography style={styles.headerTitle}>{store.name}</Typography>
-      </View>
+  return (
+    <View style={styles.container}>
+      <StatusBar style="light" />
 
       <ScrollView style={styles.content}>
-        <View style={styles.storeImageContainer}>
-          {store.mainImage ? (
-            <Image
-              source={{ uri: getImageUrl(store.mainImage) }}
-              style={styles.storeImage}
-            />
-          ) : store.logo ? (
-            <Image
-              source={{ uri: getImageUrl(store.logo) }}
-              style={styles.storeImage}
-            />
-          ) : (
-            <View style={styles.placeholderImage}>
-              <MaterialIcons name="store" size={48} color="#999" />
-            </View>
-          )}
-        </View>
+        <StoreHero
+          id={store._id}
+          name={store.name}
+          imageUrl={store.mainImage || store.coverImage}
+          logoUrl={store.logo}
+          categories={
+            store.categories || [store.category?.name].filter(Boolean)
+          }
+          rating={store.averageRating}
+          location={
+            store.address?.city
+              ? `${store.address.city}, ${store.address.state || ""}`
+              : "JVPD Scheme, Juhu"
+          }
+          costForOne={store.costForOne || 250}
+          openingHours={
+            store.is_24_7
+              ? "24/7"
+              : store.opensAt && store.closesAt
+              ? `${store.opensAt} - ${store.closesAt}`
+              : "11:30am - 1:30pm, 2:30pm - 4:30pm"
+          }
+          isOpen={store.isOpen !== undefined ? store.isOpen : true}
+          recommendationCount={280}
+          recommendedBy="Bhagyalaxmi"
+          isFavorite={isFavorite}
+          onToggleFavorite={handleToggleFavorite}
+        />
 
         <View style={styles.storeInfo}>
-          <H1 style={styles.storeName}>{store.name}</H1>
-          {store.tagline && (
-            <Typography style={styles.storeTagline}>{store.tagline}</Typography>
-          )}
-          <Typography style={styles.storeCategory}>
-            {store.category?.name || ""}
-          </Typography>
-
-          {store.averageRating > 0 && (
-            <View style={styles.ratingContainer}>
-              <MaterialIcons name="star" size={16} color="#FFD700" />
-              <Typography style={styles.rating}>
-                {store.averageRating.toFixed(1)}
-              </Typography>
-              {store.reviewCount > 0 && (
-                <Typography style={styles.reviewCount}>
-                  ({store.reviewCount} reviews)
-                </Typography>
-              )}
-            </View>
-          )}
-
           <View style={styles.divider} />
 
           <View style={styles.section}>
@@ -264,60 +248,8 @@ const styles = StyleSheet.create({
   content: {
     flex: 1,
   },
-  storeImageContainer: {
-    width: "100%",
-    height: 200,
-    backgroundColor: "#F5F5F5",
-  },
-  storeImage: {
-    width: "100%",
-    height: "100%",
-    resizeMode: "cover",
-  },
-  placeholderImage: {
-    width: "100%",
-    height: "100%",
-    justifyContent: "center",
-    alignItems: "center",
-    backgroundColor: "#F0F0F0",
-  },
   storeInfo: {
     padding: 16,
-  },
-  storeName: {
-    fontSize: 24,
-    fontFamily: "Jost-Bold",
-    color: "#000",
-    marginBottom: 4,
-  },
-  storeTagline: {
-    fontSize: 16,
-    fontFamily: "Jost-Regular",
-    color: "#666",
-    marginBottom: 8,
-  },
-  storeCategory: {
-    fontSize: 16,
-    fontFamily: "Jost-Regular",
-    color: "#666",
-    marginBottom: 8,
-  },
-  ratingContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginBottom: 16,
-  },
-  rating: {
-    fontSize: 16,
-    fontFamily: "Jost-Medium",
-    color: "#000",
-    marginLeft: 4,
-  },
-  reviewCount: {
-    fontSize: 14,
-    fontFamily: "Jost-Regular",
-    color: "#666",
-    marginLeft: 4,
   },
   divider: {
     height: 1,

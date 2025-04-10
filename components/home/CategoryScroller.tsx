@@ -1,13 +1,6 @@
 import React, { useCallback } from "react";
-import {
-  View,
-  Text,
-  StyleSheet,
-  TouchableOpacity,
-  ActivityIndicator,
-  Image,
-  FlatList,
-} from "react-native";
+import { View, Text, StyleSheet, TouchableOpacity, Image } from "react-native";
+import InfiniteScroller from "../common/InfiniteScroller";
 import { MaterialIcons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import { Category } from "@/lib/api/services/categoryService";
@@ -143,67 +136,28 @@ export default function CategoryScroller({
   }, []);
 
   return (
-    <View style={styles.container}>
-      {/* Content */}
-      {isLoading && categories.length === 0 ? (
-        <View style={styles.loadingContainer}>
-          <ActivityIndicator size="small" color="#8A3FFC" />
-        </View>
-      ) : error ? (
-        <View style={styles.errorContainer}>
-          <Text style={styles.errorText}>Failed to load categories</Text>
-        </View>
-      ) : categories.length === 0 ? (
-        <View style={styles.errorContainer}>
-          <Text style={styles.errorText}>No categories found</Text>
-        </View>
-      ) : (
-        <FlatList
-          data={categories}
-          keyExtractor={(item) => item._id}
-          renderItem={renderCategory}
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          contentContainerStyle={styles.scrollContent}
-          onEndReached={handleLoadMore}
-          onEndReachedThreshold={0.5}
-          ListFooterComponent={
-            isFetchingNextPage ? (
-              <View style={styles.footerLoader}>
-                <ActivityIndicator size="small" color="#8A3FFC" />
-              </View>
-            ) : hasNextPage === false && categories.length > 0 ? (
-              <View style={styles.endOfListContainer}>
-                <Text style={styles.endOfListText}>No more categories</Text>
-              </View>
-            ) : null
-          }
-        />
-      )}
-    </View>
+    <InfiniteScroller
+      title="Categories"
+      data={categories}
+      renderItem={renderCategory}
+      keyExtractor={(item: Category) => item._id}
+      isLoading={isLoading}
+      error={error ? "Failed to load categories" : null}
+      onSeeAllPress={onSeeAllPress}
+      onEndReached={handleLoadMore}
+      hasNextPage={hasNextPage}
+      isFetchingNextPage={isFetchingNextPage}
+      horizontal={true}
+      contentContainerStyle={styles.scrollContent}
+      emptyText="No categories found"
+      containerStyle={styles.container}
+    />
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     marginVertical: 8,
-  },
-  header: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    paddingHorizontal: 16,
-    marginBottom: 12,
-  },
-  title: {
-    fontSize: 20,
-    fontFamily: "Jost-Bold",
-    color: "#000",
-  },
-  seeAllText: {
-    fontSize: 14,
-    fontFamily: "Jost-Medium",
-    color: "#8A3FFC",
   },
   scrollContent: {
     paddingHorizontal: 10,
@@ -229,40 +183,5 @@ const styles = StyleSheet.create({
     color: "#333",
     textAlign: "center",
     textTransform: "capitalize",
-  },
-  loadingContainer: {
-    height: 100,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  errorContainer: {
-    height: 100,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  errorText: {
-    color: "#FF3B30",
-    fontSize: 14,
-    fontFamily: "Jost-Regular",
-  },
-  footerLoader: {
-    paddingHorizontal: 16,
-    justifyContent: "center",
-    alignItems: "center",
-    height: 90,
-    width: 70,
-  },
-  endOfListContainer: {
-    paddingHorizontal: 16,
-    justifyContent: "center",
-    alignItems: "center",
-    height: 90,
-    width: 70,
-  },
-  endOfListText: {
-    fontSize: 12,
-    fontFamily: "Jost-Regular",
-    color: "#666",
-    textAlign: "center",
   },
 });

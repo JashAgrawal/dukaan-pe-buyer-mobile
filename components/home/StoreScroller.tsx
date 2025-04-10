@@ -1,19 +1,11 @@
 import React, { useCallback } from "react";
-import {
-  View,
-  Text,
-  StyleSheet,
-  TouchableOpacity,
-  ActivityIndicator,
-  FlatList,
-} from "react-native";
-import { MaterialIcons } from "@expo/vector-icons";
+import { View, StyleSheet } from "react-native";
 import { router } from "expo-router";
 import { Store } from "@/types/store";
 import StoreCard from "../store/StoreCard";
 import SmallStoreCard from "../store/SmallStoreCard";
 import { getImageUrl } from "@/lib/helpers";
-import { storeToCardData } from "@/utils/storeUtils";
+import InfiniteScroller from "../common/InfiniteScroller";
 
 interface StoreScrollerProps {
   title: string;
@@ -93,93 +85,29 @@ const StoreScroller: React.FC<StoreScrollerProps> = ({
   );
 
   return (
-    <View style={styles.container}>
-      {/* Header */}
-      <View style={styles.header}>
-        <View>
-          <Text style={styles.title}>{title}</Text>
-          {subtitle && <Text style={styles.subtitle}>{subtitle}</Text>}
-        </View>
-        {onSeeAllPress && (
-          <TouchableOpacity onPress={onSeeAllPress} style={styles.seeAllButton}>
-            <Text style={styles.seeAllText}>See all</Text>
-          </TouchableOpacity>
-        )}
-      </View>
-
-      {/* Content */}
-      {isLoading && stores.length === 0 ? (
-        <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color="#8A3FFC" />
-        </View>
-      ) : error ? (
-        <View style={styles.errorContainer}>
-          <Text style={styles.errorText}>{error}</Text>
-        </View>
-      ) : stores.length === 0 ? (
-        <View style={styles.emptyContainer}>
-          <Text style={styles.emptyText}>No stores available</Text>
-        </View>
-      ) : (
-        <FlatList
-          data={stores}
-          keyExtractor={(item) => item._id}
-          renderItem={renderStore}
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          contentContainerStyle={[
-            styles.scrollContent,
-            variant === "big" && styles.bigScrollContent,
-          ]}
-          onEndReached={onEndReached}
-          onEndReachedThreshold={0.5}
-          ListFooterComponent={
-            isFetchingNextPage ? (
-              <View style={styles.footerLoader}>
-                <ActivityIndicator size="small" color="#8A3FFC" />
-              </View>
-            ) : hasNextPage === false && stores.length > 0 ? (
-              <View style={styles.endOfListContainer}>
-                <Text style={styles.endOfListText}>No more stores</Text>
-              </View>
-            ) : null
-          }
-        />
-      )}
-    </View>
+    <InfiniteScroller
+      title={title}
+      subtitle={subtitle}
+      data={stores}
+      renderItem={renderStore}
+      keyExtractor={(item) => item._id}
+      isLoading={isLoading}
+      error={error}
+      onSeeAllPress={onSeeAllPress}
+      onEndReached={onEndReached}
+      hasNextPage={hasNextPage}
+      isFetchingNextPage={isFetchingNextPage}
+      horizontal={true}
+      contentContainerStyle={[
+        styles.scrollContent,
+        variant === "big" && styles.bigScrollContent,
+      ]}
+      emptyText="No stores available"
+    />
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
-    marginBottom: 24,
-  },
-  header: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "flex-start",
-    paddingHorizontal: 16,
-    marginBottom: 16,
-  },
-  title: {
-    fontSize: 20,
-    fontFamily: "Jost-Bold",
-    color: "#000",
-  },
-  subtitle: {
-    fontSize: 14,
-    fontFamily: "Jost-Regular",
-    color: "#666",
-    marginTop: 2,
-  },
-  seeAllButton: {
-    paddingVertical: 4,
-  },
-  seeAllText: {
-    fontSize: 14,
-    fontFamily: "Jost-Medium",
-    color: "#8A3FFC",
-  },
   scrollContent: {
     paddingLeft: 16,
     paddingRight: 16,
@@ -190,50 +118,6 @@ const styles = StyleSheet.create({
   bigCardContainer: {
     width: 300,
     marginRight: 16,
-  },
-  loadingContainer: {
-    height: 200,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  errorContainer: {
-    height: 200,
-    justifyContent: "center",
-    alignItems: "center",
-    paddingHorizontal: 16,
-  },
-  errorText: {
-    color: "#FF3B30",
-    fontSize: 14,
-    fontFamily: "Jost-Regular",
-    textAlign: "center",
-  },
-  emptyContainer: {
-    height: 200,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  emptyText: {
-    color: "#666",
-    fontSize: 14,
-    fontFamily: "Jost-Regular",
-  },
-  footerLoader: {
-    paddingHorizontal: 16,
-    justifyContent: "center",
-    alignItems: "center",
-    height: 50,
-  },
-  endOfListContainer: {
-    paddingHorizontal: 16,
-    justifyContent: "center",
-    alignItems: "center",
-    height: 50,
-  },
-  endOfListText: {
-    fontSize: 14,
-    fontFamily: "Jost-Regular",
-    color: "#666",
   },
 });
 

@@ -46,6 +46,9 @@ export const updateAddress = async ({
     `/addresses/${id}`,
     data
   );
+  if (!response.data.data?.address) {
+    throw new Error("Failed to update address");
+  }
   return response.data.data.address;
 };
 
@@ -59,6 +62,9 @@ export const setDefaultAddress = async (id: string): Promise<Address> => {
   const response = await apiClient.patch<AddressResponse>(
     `/addresses/${id}/set-default`
   );
+  if (!response.data.data?.address) {
+    throw new Error("Failed to set default address");
+  }
   return response.data.data.address;
 };
 

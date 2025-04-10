@@ -1,17 +1,9 @@
 import React, { useCallback } from "react";
-import {
-  View,
-  Text,
-  StyleSheet,
-  Image,
-  TouchableOpacity,
-  Dimensions,
-  ActivityIndicator,
-  FlatList,
-} from "react-native";
+import { StyleSheet, Image, TouchableOpacity, Dimensions } from "react-native";
 import { router } from "expo-router";
 import { Store } from "@/types/store";
 import { getImageUrl } from "@/lib/helpers";
+import InfiniteScroller from "../common/InfiniteScroller";
 
 interface BrandScrollerProps {
   title: string;
@@ -51,96 +43,48 @@ const BrandScroller: React.FC<BrandScrollerProps> = ({
     }
   }, [hasNextPage, isFetchingNextPage, onEndReached]);
 
-  return (
-    <View style={styles.container}>
-      <View style={styles.headerContainer}>
-        <View>
-          <Text style={styles.title}>{title}</Text>
-          <Text style={styles.subtitle}>{subtitle}</Text>
-        </View>
-        <TouchableOpacity onPress={onSeeAllPress}>
-          <Text style={styles.seeAllText}>See all</Text>
-        </TouchableOpacity>
-      </View>
-
-      {isLoading ? (
-        <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color="#8A3FFC" />
-        </View>
-      ) : error ? (
-        <View style={styles.errorContainer}>
-          <Text style={styles.errorText}>{error}</Text>
-        </View>
-      ) : brands.length === 0 ? (
-        <View style={styles.emptyContainer}>
-          <Text style={styles.emptyText}>No brands available</Text>
-        </View>
-      ) : (
-        <FlatList
-          data={brands}
-          keyExtractor={(item) => item._id}
-          renderItem={({ item }) => (
-            <TouchableOpacity
-              style={[
-                styles.brandItem,
-                { width: brandItemWidth, height: brandItemWidth },
-              ]}
-              onPress={() => handleBrandPress(item._id)}
-            >
-              <Image
-                source={{ uri: getImageUrl(item.logo || item.coverImage) }}
-                style={styles.brandLogo}
-              />
-            </TouchableOpacity>
-          )}
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          contentContainerStyle={styles.scrollContent}
-          onEndReached={handleLoadMore}
-          onEndReachedThreshold={0.5}
-          ListFooterComponent={
-            isFetchingNextPage ? (
-              <View style={styles.footerLoader}>
-                <ActivityIndicator size="small" color="#8A3FFC" />
-              </View>
-            ) : hasNextPage === false && brands.length > 0 ? (
-              <View style={styles.endOfListContainer}>
-                <Text style={styles.endOfListText}>No more brands</Text>
-              </View>
-            ) : null
-          }
+  const renderBrandItem = useCallback(
+    ({ item }: { item: Store }) => (
+      <TouchableOpacity
+        style={[
+          styles.brandItem,
+          { width: brandItemWidth, height: brandItemWidth },
+        ]}
+        onPress={() => handleBrandPress(item._id)}
+      >
+        <Image
+          source={{ uri: getImageUrl(item.logo || item.coverImage) }}
+          style={styles.brandLogo}
         />
-      )}
-    </View>
+      </TouchableOpacity>
+    ),
+    [brandItemWidth]
+  );
+
+  return (
+    <InfiniteScroller
+      title={title}
+      subtitle={subtitle}
+      data={brands || []}
+      renderItem={renderBrandItem}
+      keyExtractor={(item: Store) => item._id}
+      isLoading={isLoading}
+      error={error}
+      onSeeAllPress={onSeeAllPress}
+      onEndReached={handleLoadMore}
+      hasNextPage={hasNextPage}
+      isFetchingNextPage={isFetchingNextPage}
+      horizontal={true}
+      contentContainerStyle={styles.scrollContent}
+      emptyText="No brands available"
+      containerStyle={styles.container}
+    />
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     marginVertical: 2,
-  },
-  headerContainer: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    paddingHorizontal: 20,
-    marginBottom: 12,
-  },
-  title: {
-    fontSize: 20,
-    fontFamily: "Jost-Bold",
-    color: "#000",
-  },
-  subtitle: {
-    fontSize: 12,
-    fontFamily: "Jost-Regular",
-    color: "#666",
-    marginTop: 2,
-  },
-  seeAllText: {
-    fontSize: 16,
-    fontFamily: "Jost-Medium",
-    color: "#8A3FFC",
   },
   scrollContent: {
     paddingHorizontal: 14,
@@ -158,52 +102,6 @@ const styles = StyleSheet.create({
     height: "80%",
     objectFit: "cover",
     resizeMode: "cover",
-  },
-  loadingContainer: {
-    height: 140,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  errorContainer: {
-    height: 140,
-    justifyContent: "center",
-    alignItems: "center",
-    paddingHorizontal: 16,
-  },
-  errorText: {
-    fontSize: 14,
-    fontFamily: "Jost-Medium",
-    color: "#E53935",
-    textAlign: "center",
-  },
-  emptyContainer: {
-    height: 140,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  emptyText: {
-    fontSize: 14,
-    fontFamily: "Jost-Medium",
-    color: "#666",
-  },
-  footerLoader: {
-    paddingHorizontal: 16,
-    justifyContent: "center",
-    alignItems: "center",
-    height: 140,
-    width: 140,
-  },
-  endOfListContainer: {
-    paddingHorizontal: 16,
-    justifyContent: "center",
-    alignItems: "center",
-    height: 140,
-    width: 140,
-  },
-  endOfListText: {
-    fontSize: 14,
-    fontFamily: "Jost-Regular",
-    color: "#666",
   },
 });
 
