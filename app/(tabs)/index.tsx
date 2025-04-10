@@ -1,20 +1,63 @@
-import React from "react";
-import { StyleSheet, View, TouchableOpacity } from "react-native";
+import React, { useCallback } from "react";
+import { StyleSheet, View } from "react-native";
 import { StatusBar } from "expo-status-bar";
-import Animated, { FadeInDown, FadeInRight } from "react-native-reanimated";
-import { MaterialIcons } from "@expo/vector-icons";
-
-import { H2, Body1 } from "@/components/ui/Typography";
+import Animated, { FadeInRight } from "react-native-reanimated";
 import AppHeader from "@/components/ui/AppHeader";
 import ScrollAwareWrapper from "@/components/ui/ScrollAwareWrapper";
 import BannerCarousel from "@/components/home/BannerCarousel";
 import CategoryScroller from "@/components/home/CategoryScroller";
 import BrandScroller from "@/components/home/BrandScroller";
+import StoreScroller from "@/components/home/StoreScroller";
 import useTopBrands from "@/hooks/useTopBrands";
+import {
+  useTopSellingStores,
+  useBestRatedStores,
+  useNearbyStores,
+  useFavoriteStores,
+  flattenStores,
+} from "@/lib/api/hooks/useStores";
 
 export default function HomeScreen() {
   // Fetch top brands from API
   const { brands, isLoading, error } = useTopBrands(4);
+
+  // Fetch stores using React Query
+  const topSelling = useTopSellingStores(10);
+  const bestRated = useBestRatedStores(10);
+  const nearby = useNearbyStores(10);
+  const favorites = useFavoriteStores(10);
+
+  // Flatten paginated results
+  const topSellingStores = flattenStores(topSelling.data);
+  const bestRatedStores = flattenStores(bestRated.data);
+  const nearbyStores = flattenStores(nearby.data);
+  const favoriteStores = flattenStores(favorites.data);
+
+  // Load more handlers
+  const loadMoreTopSelling = useCallback(() => {
+    if (topSelling.hasNextPage && !topSelling.isFetchingNextPage) {
+      topSelling.fetchNextPage();
+    }
+  }, [topSelling]);
+
+  const loadMoreBestRated = useCallback(() => {
+    if (bestRated.hasNextPage && !bestRated.isFetchingNextPage) {
+      bestRated.fetchNextPage();
+    }
+  }, [bestRated]);
+
+  const loadMoreNearby = useCallback(() => {
+    if (nearby.hasNextPage && !nearby.isFetchingNextPage) {
+      nearby.fetchNextPage();
+    }
+  }, [nearby]);
+
+  const loadMoreFavorites = useCallback(() => {
+    if (favorites.hasNextPage && !favorites.isFetchingNextPage) {
+      favorites.fetchNextPage();
+    }
+  }, [favorites]);
+
   return (
     <View style={styles.container}>
       <StatusBar style="dark" />
@@ -48,35 +91,90 @@ export default function HomeScreen() {
           </Animated.View>
         </View>
 
-        {/* Featured Products Section */}
+        {/* Top Selling Stores Section */}
         <View style={styles.sectionContainer}>
-          <View style={styles.sectionHeader}>
-            <H2 style={styles.sectionTitle}>Featured Products</H2>
-            <TouchableOpacity>
-              <Body1 style={styles.seeAllText}>See All</Body1>
-            </TouchableOpacity>
-          </View>
+          <Animated.View
+            entering={FadeInRight.duration(600).springify().delay(300)}
+          >
+            <StoreScroller
+              title="Top Selling Stores"
+              subtitle="Most popular stores near you"
+              stores={topSellingStores}
+              isLoading={topSelling.isLoading}
+              error={topSelling.error?.message}
+              onSeeAllPress={() =>
+                console.log("See all top selling stores pressed")
+              }
+              onEndReached={loadMoreTopSelling}
+              hasNextPage={topSelling.hasNextPage}
+              isFetchingNextPage={topSelling.isFetchingNextPage}
+              variant="big"
+            />
+          </Animated.View>
+        </View>
 
-          <View style={styles.productsGrid}>
-            {[1, 2, 3, 4].map((item) => (
-              <Animated.View
-                key={item}
-                style={styles.productCard}
-                entering={FadeInDown.delay(item * 100).duration(400)}
-              >
-                <View style={styles.productImageContainer}>
-                  <View style={styles.productImage} />
-                  <TouchableOpacity style={styles.wishlistButton}>
-                    <MaterialIcons name="favorite" size={16} color="#FF5757" />
-                  </TouchableOpacity>
-                </View>
-                <View style={styles.productInfo}>
-                  <Body1 style={styles.productName}>Product {item}</Body1>
-                  <Body1 style={styles.productPrice}>₹999</Body1>
-                </View>
-              </Animated.View>
-            ))}
-          </View>
+        {/* Nearby Stores Section */}
+        <View style={styles.sectionContainer}>
+          <Animated.View
+            entering={FadeInRight.duration(600).springify().delay(400)}
+          >
+            <StoreScroller
+              title="Nearby Stores"
+              subtitle="Discover stores around you"
+              stores={nearbyStores}
+              isLoading={nearby.isLoading}
+              error={nearby.error?.message}
+              onSeeAllPress={() => console.log("See all nearby stores pressed")}
+              onEndReached={loadMoreNearby}
+              hasNextPage={nearby.hasNextPage}
+              isFetchingNextPage={nearby.isFetchingNextPage}
+              variant="small"
+            />
+          </Animated.View>
+        </View>
+
+        {/* Best Rated Stores Section */}
+        <View style={styles.sectionContainer}>
+          <Animated.View
+            entering={FadeInRight.duration(600).springify().delay(500)}
+          >
+            <StoreScroller
+              title="Best Rated Stores"
+              subtitle="Highest rated stores"
+              stores={bestRatedStores}
+              isLoading={bestRated.isLoading}
+              error={bestRated.error?.message}
+              onSeeAllPress={() =>
+                console.log("See all best rated stores pressed")
+              }
+              onEndReached={loadMoreBestRated}
+              hasNextPage={bestRated.hasNextPage}
+              isFetchingNextPage={bestRated.isFetchingNextPage}
+              variant="small"
+            />
+          </Animated.View>
+        </View>
+
+        {/* Favorite Stores Section */}
+        <View style={styles.sectionContainer}>
+          <Animated.View
+            entering={FadeInRight.duration(600).springify().delay(600)}
+          >
+            <StoreScroller
+              title="Your Favorites"
+              subtitle="Stores you love"
+              stores={favoriteStores}
+              isLoading={favorites.isLoading}
+              error={favorites.error?.message}
+              onSeeAllPress={() =>
+                console.log("See all favorite stores pressed")
+              }
+              onEndReached={loadMoreFavorites}
+              hasNextPage={favorites.hasNextPage}
+              isFetchingNextPage={favorites.isFetchingNextPage}
+              variant="big"
+            />
+          </Animated.View>
         </View>
 
         {/* Spacing at the bottom for tab bar */}
@@ -103,7 +201,7 @@ const styles = StyleSheet.create({
     paddingBottom: 0,
   },
   sectionContainer: {
-    marginTop: 20,
+    marginTop: 12,
   },
   sectionHeader: {
     flexDirection: "row",

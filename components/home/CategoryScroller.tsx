@@ -168,7 +168,7 @@ export default function CategoryScroller({
               />
             )}
           </View>
-          <Text style={styles.categoryName}>
+          <Text style={{ ...styles.categoryName }}>
             {category.name.slice(0, 10) +
               (category.name.length > 10 ? "..." : "")}
           </Text>
@@ -181,7 +181,8 @@ export default function CategoryScroller({
 const styles = StyleSheet.create({
   scrollContent: {
     paddingHorizontal: 10,
-    paddingVertical: 10,
+    paddingVertical: 4,
+    height: 90,
   },
   categoryItem: {
     alignItems: "center",

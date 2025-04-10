@@ -100,7 +100,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    paddingHorizontal: 16,
+    paddingHorizontal: 20,
     marginBottom: 12,
   },
   title: {
@@ -120,7 +120,7 @@ const styles = StyleSheet.create({
     color: "#8A3FFC",
   },
   scrollContent: {
-    paddingHorizontal: 12,
+    paddingHorizontal: 14,
   },
   brandItem: {
     backgroundColor: "#EEEEEE",

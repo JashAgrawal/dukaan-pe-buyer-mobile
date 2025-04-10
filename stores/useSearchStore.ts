@@ -6,6 +6,7 @@ import {
   getPopularStores,
 } from "@/lib/api/services/searchService";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useLocationStore } from "./locationStore";
 export interface SearchItem {
   id: string;
   name: string;
@@ -91,7 +92,12 @@ export const useSearchStore = create<SearchState>()(
           // Call search service for stores and products in parallel
           const [stores, products] = await Promise.all([
             searchStores(query),
-            searchProductsOverall(query),
+            searchProductsOverall(
+              query,
+              1,
+              5,
+              useLocationStore.getState().pincode
+            ),
           ]);
 
           // Combine results for the 'all' tab

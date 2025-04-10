@@ -1,5 +1,5 @@
-import { ApiResponse, PaginatedResponse } from './api';
-import { User } from './auth';
+import { ApiResponse, PaginatedResponse } from "./api";
+import { User } from "./auth";
 
 /**
  * Store related types
@@ -12,6 +12,7 @@ export interface Store {
   description: string;
   logo: string;
   coverImage: string;
+  mainImage?: string;
   owner: string | User;
   contactEmail: string;
   contactPhone: string;
@@ -22,7 +23,7 @@ export interface Store {
     country: string;
     pincode: string;
     location: {
-      type: 'Point';
+      type: "Point";
       coordinates: [number, number]; // [longitude, latitude]
     };
   };
@@ -30,8 +31,16 @@ export interface Store {
   isActive: boolean;
   isVerified: boolean;
   rating: number;
+  averageRating?: number;
   reviewCount: number;
   followerCount: number;
+  distance?: number; // Distance in km from user's location
+  isOpen?: boolean;
+  opensAt?: string;
+  closesAt?: string;
+  is_24_7?: boolean;
+  orderCount?: number;
+  wishlistCount?: number;
   createdAt: string;
   updatedAt: string;
 }

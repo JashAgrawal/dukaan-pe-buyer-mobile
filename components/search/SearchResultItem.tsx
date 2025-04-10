@@ -66,11 +66,11 @@ export default function SearchResultItem({
         ) : null}
 
         {/* Show price if it's a product */}
-        {item.price ? (
+        {/* {item.price ? (
           <Typography style={styles.price}>
             ₹{item.price.toLocaleString()}
           </Typography>
-        ) : null}
+        ) : null} */}
 
         {/* Show store name if it's a product from a store */}
         {item.storeName ? (
@@ -115,7 +115,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    marginBottom: 4,
+    marginBottom: 0,
   },
   name: {
     fontSize: 16,
@@ -146,13 +146,13 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontFamily: "Jost-Regular",
     color: "#666",
-    marginBottom: 4,
+    marginBottom: 0,
   },
   tagline: {
     fontSize: 14,
     fontFamily: "Jost-Regular",
     color: "#666",
-    marginBottom: 4,
+    marginBottom: 0,
   },
   ratingContainer: {
     flexDirection: "row",
@@ -171,16 +171,10 @@ const styles = StyleSheet.create({
     color: "#666",
     marginLeft: 4,
   },
-  price: {
-    fontSize: 14,
-    fontFamily: "Jost-Medium",
-    color: "#8A3FFC",
-    marginTop: 2,
-  },
   storeName: {
     fontSize: 12,
     fontFamily: "Jost-Regular",
     color: "#666",
-    marginTop: 2,
+    marginTop: 0,
   },
 });

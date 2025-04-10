@@ -1,5 +1,5 @@
-import apiClient from '../apiClient';
-import { Store, StoresListResponse } from '@/types/store';
+import apiClient from "../apiClient";
+import { Store, StoresListResponse } from "@/types/store";
 
 /**
  * Service for interacting with store-related API endpoints
@@ -8,8 +8,8 @@ export const storeService = {
   /**
    * Get all stores with pagination
    */
-  getAllStores: async (page = 1, limit = 10, sort = '-createdAt') => {
-    const response = await apiClient.get<StoresListResponse>('/stores', {
+  getAllStores: async (page = 1, limit = 10, sort = "-createdAt") => {
+    const response = await apiClient.get<StoresListResponse>("/stores", {
       params: { page, limit, sort },
     });
     return response.data;
@@ -27,7 +27,7 @@ export const storeService = {
    * Get top selling stores
    */
   getTopSellingStores: async (page = 1, limit = 10) => {
-    const response = await apiClient.get('/stores/top-selling', {
+    const response = await apiClient.get("/stores/top-selling", {
       params: { page, limit },
     });
     return response.data;
@@ -37,7 +37,7 @@ export const storeService = {
    * Get best rated stores
    */
   getBestRatedStores: async (page = 1, limit = 10) => {
-    const response = await apiClient.get('/stores/best-rated', {
+    const response = await apiClient.get("/stores/best-rated", {
       params: { page, limit },
     });
     return response.data;
@@ -46,8 +46,13 @@ export const storeService = {
   /**
    * Get nearby stores based on location
    */
-  getNearbyStores: async (lat: number, lng: number, distance = 10, limit = 10) => {
-    const response = await apiClient.get('/stores/nearby', {
+  getNearbyStores: async (
+    lat: number,
+    lng: number,
+    distance = 10,
+    limit = 10
+  ) => {
+    const response = await apiClient.get("/stores/nearby", {
       params: { lat, lng, distance, limit },
     });
     return response.data;
@@ -57,7 +62,7 @@ export const storeService = {
    * Search stores by query
    */
   searchStores: async (q: string, page = 1, limit = 10) => {
-    const response = await apiClient.get('/stores/search', {
+    const response = await apiClient.get("/stores/search", {
       params: { q, page, limit },
     });
     return response.data;
@@ -67,12 +72,22 @@ export const storeService = {
    * Get top brands (stores with isBrand=true)
    */
   getTopBrands: async (limit = 10) => {
-    const response = await apiClient.get<StoresListResponse>('/stores', {
-      params: { 
-        limit, 
+    const response = await apiClient.get<StoresListResponse>("/stores", {
+      params: {
+        limit,
         isBrand: true,
-        sort: '-popularity_index'
+        sort: "-popularity_index",
       },
+    });
+    return response.data;
+  },
+
+  /**
+   * Get favorite stores from user's wishlist
+   */
+  getFavoriteStores: async (page = 1, limit = 10) => {
+    const response = await apiClient.get("/store-wishlist", {
+      params: { page, limit },
     });
     return response.data;
   },
