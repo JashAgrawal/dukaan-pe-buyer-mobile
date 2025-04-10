@@ -39,18 +39,25 @@ export const useBestRatedStores = (limit = 10) => {
 
 // Hook for fetching nearby stores with pagination
 export const useNearbyStores = (limit = 10, distance = 10) => {
-  const { location } = useLocation();
+  const { coordinates } = useLocation();
 
   return useInfiniteQuery({
-    queryKey: ["stores", "nearby", location?.latitude, location?.longitude],
+    queryKey: [
+      "stores",
+      "nearby",
+      coordinates ? coordinates[1] : null,
+      coordinates ? coordinates[0] : null,
+    ],
     queryFn: ({ pageParam = 1 }) => {
-      if (!location?.latitude || !location?.longitude) {
+      if (!coordinates || coordinates.length !== 2) {
         return { status: "success", results: 0, data: { stores: [] } };
       }
+      const [longitude, latitude] = coordinates;
       return storeService.getNearbyStores(
-        location.latitude,
-        location.longitude,
+        latitude,
+        longitude,
         distance,
+        pageParam,
         limit
       );
     },
@@ -62,7 +69,7 @@ export const useNearbyStores = (limit = 10, distance = 10) => {
       return undefined;
     },
     initialPageParam: 1,
-    enabled: !!location?.latitude && !!location?.longitude,
+    enabled: !!coordinates && coordinates.length === 2,
   });
 };
 
@@ -90,10 +97,10 @@ export const flattenStores = (data: any): Store[] => {
   // Flatten the pages
   const allStores = data.pages.flatMap((page: any) => page.data?.stores || []);
 
-  // Remove duplicates by _id
+  // Remove duplicates by _id and ensure correct typing
   const uniqueStores = Array.from(
     new Map(allStores.map((store: Store) => [store._id, store])).values()
-  );
+  ) as Store[];
 
   return uniqueStores;
 };

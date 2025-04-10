@@ -1,28 +1,36 @@
-import { useMutation, useQuery } from '@tanstack/react-query';
-import apiClient from '../apiClient';
+import { useMutation, useQuery } from "@tanstack/react-query";
+import apiClient from "../apiClient";
 import {
   Address,
   AddressCreateRequest,
   AddressResponse,
   AddressUpdateRequest,
   AddressesListResponse,
-} from '@/types/address';
+} from "@/types/address";
 
 // Get all user addresses
 export const getUserAddresses = async (): Promise<Address[]> => {
-  const response = await apiClient.get<AddressesListResponse>('/addresses');
-  return response.data.data.addresses;
+  const response = await apiClient.get<AddressesListResponse>("/addresses");
+  return response.data.data?.addresses || [];
 };
 
 // Get single address
 export const getAddress = async (id: string): Promise<Address> => {
   const response = await apiClient.get<AddressResponse>(`/addresses/${id}`);
+  if (!response.data.data?.address) {
+    throw new Error("Address not found");
+  }
   return response.data.data.address;
 };
 
 // Create new address
-export const createAddress = async (data: AddressCreateRequest): Promise<Address> => {
-  const response = await apiClient.post<AddressResponse>('/addresses', data);
+export const createAddress = async (
+  data: AddressCreateRequest
+): Promise<Address> => {
+  const response = await apiClient.post<AddressResponse>("/addresses", data);
+  if (!response.data.data?.address) {
+    throw new Error("Failed to create address");
+  }
   return response.data.data.address;
 };
 
@@ -34,7 +42,10 @@ export const updateAddress = async ({
   id: string;
   data: AddressUpdateRequest;
 }): Promise<Address> => {
-  const response = await apiClient.patch<AddressResponse>(`/addresses/${id}`, data);
+  const response = await apiClient.patch<AddressResponse>(
+    `/addresses/${id}`,
+    data
+  );
   return response.data.data.address;
 };
 
@@ -45,32 +56,38 @@ export const deleteAddress = async (id: string): Promise<void> => {
 
 // Set address as default
 export const setDefaultAddress = async (id: string): Promise<Address> => {
-  const response = await apiClient.patch<AddressResponse>(`/addresses/${id}/set-default`);
+  const response = await apiClient.patch<AddressResponse>(
+    `/addresses/${id}/set-default`
+  );
   return response.data.data.address;
 };
 
 // Check if pincode is serviceable
-export const checkPincodeServiceability = async (pincode: string): Promise<{
+export const checkPincodeServiceability = async (
+  pincode: string
+): Promise<{
   pincode: string;
   isServiceable: boolean;
   storeCount: number;
   message: string;
 }> => {
-  const response = await apiClient.get(`/pincode/is-serviceable?pincode=${pincode}`);
+  const response = await apiClient.get(
+    `/pincode/is-serviceable?pincode=${pincode}`
+  );
   return response.data.data;
 };
 
 // React Query hooks
 export const useGetUserAddresses = () => {
   return useQuery({
-    queryKey: ['addresses'],
+    queryKey: ["addresses"],
     queryFn: getUserAddresses,
   });
 };
 
 export const useGetAddress = (id: string) => {
   return useQuery({
-    queryKey: ['address', id],
+    queryKey: ["address", id],
     queryFn: () => getAddress(id),
     enabled: !!id,
   });

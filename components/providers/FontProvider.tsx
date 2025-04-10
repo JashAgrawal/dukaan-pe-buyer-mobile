@@ -1,48 +1,20 @@
-import React, { useEffect } from "react";
-import { Text, TextInput } from "react-native";
+import React from "react";
+import { StyleSheet } from "react-native";
 
 /**
- * FontProvider component that overrides the default Text component
- * to use Jost font family by default
+ * FontProvider component that provides Jost font family to the app
+ *
+ * Note: We no longer override Text.render and TextInput.render directly
+ * as it causes TypeScript errors. Instead, we use the Typography component
+ * and global styles to apply fonts consistently.
  */
 export function FontProvider({ children }: { children: React.ReactNode }) {
-  useEffect(() => {
-    // Store the original render function
-    const originalTextRender = Text.render;
-    const originalTextInputRender = TextInput.render;
-
-    // Override the render function to include the Jost font family
-    Text.render = function (props, ref) {
-      const { style, ...rest } = props;
-      const newProps = {
-        ...rest,
-        style: [{ fontFamily: "Jost" }, style],
-        ref,
-      };
-
-      return originalTextRender.call(this, newProps);
-    };
-
-    // Override TextInput render to use Jost font
-    TextInput.render = function (props, ref) {
-      const { style, ...rest } = props;
-      const newProps = {
-        ...rest,
-        style: [{ fontFamily: "Jost" }, style],
-        ref,
-      };
-
-      return originalTextInputRender.call(this, newProps);
-    };
-
-    // Cleanup function to restore original render methods
-    return () => {
-      Text.render = originalTextRender;
-      TextInput.render = originalTextInputRender;
-    };
-  }, []); // Empty dependency array ensures this runs only once
-
+  // Simply pass through children - font styling is handled by Typography component
+  // and global styles in global.css
   return <>{children}</>;
 }
 
 export default FontProvider;
+
+// Note: If you need to apply Jost font to a specific component,
+// use the Typography component or JostText component instead.

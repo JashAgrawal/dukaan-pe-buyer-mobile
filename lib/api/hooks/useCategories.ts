@@ -26,12 +26,12 @@ export const flattenCategories = (data: any): Category[] => {
     (page: any) => page.data?.categories || []
   );
 
-  // Remove duplicates by _id
+  // Remove duplicates by _id and ensure correct typing
   const uniqueCategories = Array.from(
     new Map(
       allCategories.map((category: Category) => [category._id, category])
     ).values()
-  );
+  ) as Category[];
 
   return uniqueCategories;
 };

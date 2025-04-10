@@ -25,10 +25,10 @@ export const flattenBrands = (data: any): Store[] => {
   // Flatten the pages
   const allBrands = data.pages.flatMap((page: any) => page.data?.stores || []);
 
-  // Remove duplicates by _id
+  // Remove duplicates by _id and ensure correct typing
   const uniqueBrands = Array.from(
     new Map(allBrands.map((store: Store) => [store._id, store])).values()
-  );
+  ) as Store[];
 
   return uniqueBrands;
 };

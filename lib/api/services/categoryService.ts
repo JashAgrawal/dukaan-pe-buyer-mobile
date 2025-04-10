@@ -97,12 +97,14 @@ export const categoryService = {
     limit = 20
   ): Promise<SubcategoriesResponse> => {
     try {
+      console.log("Fetching subcategories for parent:", parentCategoryId);
       const response = await apiClient.get<SubcategoriesResponse>(
         "/store-categories/sub",
         {
           params: { parentCategoryId, page, limit },
         }
       );
+      console.log("Subcategories response:", response.data);
       return response.data;
     } catch (error) {
       console.error(
@@ -118,12 +120,9 @@ export const categoryService = {
    */
   getStoresByCategory: async (categoryId: string, page = 1, limit = 10) => {
     try {
-      const response = await apiClient.get(
-        `/store-categories/${categoryId}/stores`,
-        {
-          params: { page, limit },
-        }
-      );
+      const response = await apiClient.get(`/stores/category/${categoryId}`, {
+        params: { page, limit },
+      });
       return response.data;
     } catch (error) {
       console.error(`Error fetching stores for category ${categoryId}:`, error);

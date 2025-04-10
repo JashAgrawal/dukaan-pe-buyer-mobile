@@ -73,8 +73,8 @@ export default function CategoryScroller({
     } else {
       // Navigate to category page
       router.push({
-        pathname: "/search/results",
-        params: { category: category._id, categoryName: category.name },
+        pathname: "/category/[id]",
+        params: { id: category._id },
       });
     }
   };
@@ -144,16 +144,6 @@ export default function CategoryScroller({
 
   return (
     <View style={styles.container}>
-      {/* Header with See All button */}
-      {onSeeAllPress && (
-        <View style={styles.header}>
-          <Text style={styles.title}>Categories</Text>
-          <TouchableOpacity onPress={onSeeAllPress}>
-            <Text style={styles.seeAllText}>See all</Text>
-          </TouchableOpacity>
-        </View>
-      )}
-
       {/* Content */}
       {isLoading && categories.length === 0 ? (
         <View style={styles.loadingContainer}>
