@@ -25,6 +25,7 @@ import FontProvider from "@/components/providers/FontProvider";
 
 // Import hooks
 import { useSearchInit } from "@/hooks/useSearchInit";
+import { useCategoriesInit } from "@/hooks/useCategoriesInit";
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
@@ -32,8 +33,9 @@ SplashScreen.preventAutoHideAsync();
 export default function RootLayout() {
   const colorScheme = useColorScheme();
 
-  // Initialize search store
+  // Initialize search store and categories
   useSearchInit();
+  useCategoriesInit();
   const [loaded] = useFonts({
     // Load Jost font family
     "Jost-Regular": require("../assets/fonts/Jost-Regular.ttf"),

@@ -1,7 +1,7 @@
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
 import { searchItems, getPopularStores } from "@/services/searchService";
-
+import AsyncStorage from "@react-native-async-storage/async-storage";
 export interface SearchItem {
   id: string;
   name: string;
@@ -103,7 +103,7 @@ export const useSearchStore = create<SearchState>()(
     }),
     {
       name: "search-storage",
-      storage: createJSONStorage(() => localStorage),
+      storage: createJSONStorage(() => AsyncStorage),
       partialize: (state) => ({
         recentSearches: state.recentSearches,
         popularStores: state.popularStores,

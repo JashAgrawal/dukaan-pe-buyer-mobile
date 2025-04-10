@@ -22,6 +22,7 @@ const MAPPING = {
   search: "search",
   "keyboard-arrow-down": "keyboard-arrow-down",
   "arrow-back": "arrow-back",
+  "00.circle.hi": "circle",
 } as Partial<
   Record<
     import("expo-symbols").SymbolViewProps["name"],

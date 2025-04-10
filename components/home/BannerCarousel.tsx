@@ -4,7 +4,7 @@ import Animated, { FadeInDown } from "react-native-reanimated";
 import PromoBanner from "./PromoBanner";
 
 const { width } = Dimensions.get("window");
-const BANNER_WIDTH = width - 40; // 20px padding on each side
+const BANNER_WIDTH = width - 50; // 20px padding on each side
 
 interface BannerCarouselProps {
   autoPlay?: boolean;
@@ -132,7 +132,7 @@ const styles = StyleSheet.create({
   },
   bannerContainer: {
     width: BANNER_WIDTH,
-    paddingHorizontal: 0,
+    paddingRight: 10,
   },
   pagination: {
     flexDirection: "row",

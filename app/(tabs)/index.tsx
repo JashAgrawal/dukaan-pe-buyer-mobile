@@ -4,10 +4,11 @@ import { StatusBar } from "expo-status-bar";
 import Animated, { FadeInDown, FadeInRight } from "react-native-reanimated";
 import { MaterialIcons } from "@expo/vector-icons";
 
-import { Typography, H1, H2, Body1 } from "@/components/ui/Typography";
+import { H2, Body1 } from "@/components/ui/Typography";
 import AppHeader from "@/components/ui/AppHeader";
 import ScrollAwareWrapper from "@/components/ui/ScrollAwareWrapper";
 import BannerCarousel from "@/components/home/BannerCarousel";
+import CategoryScroller from "@/components/home/CategoryScroller";
 
 export default function HomeScreen() {
   return (
@@ -29,22 +30,9 @@ export default function HomeScreen() {
             </TouchableOpacity>
           </View>
 
-          <View style={styles.categoriesContainer}>
-            {["Fashion", "Electronics", "Home", "Beauty", "Sports"].map(
-              (category, index) => (
-                <Animated.View
-                  key={category}
-                  style={styles.categoryItem}
-                  entering={FadeInRight.delay(index * 100).duration(400)}
-                >
-                  <View style={styles.categoryIcon}>
-                    <MaterialIcons name="category" size={24} color="#8A3FFC" />
-                  </View>
-                  <Body1 style={styles.categoryText}>{category}</Body1>
-                </Animated.View>
-              )
-            )}
-          </View>
+          <Animated.View entering={FadeInRight.duration(600).springify()}>
+            <CategoryScroller />
+          </Animated.View>
         </View>
 
         {/* Featured Products Section */}
@@ -97,8 +85,8 @@ const styles = StyleSheet.create({
     paddingTop: 16,
   },
   heroSection: {
-    paddingHorizontal: 20,
-    paddingTop: 20,
+    paddingHorizontal: 12,
+    paddingTop: 12,
     paddingBottom: 0,
   },
   sectionContainer: {
@@ -117,29 +105,7 @@ const styles = StyleSheet.create({
   seeAllText: {
     color: "#8A3FFC",
   },
-  categoriesContainer: {
-    flexDirection: "row",
-    paddingHorizontal: 10,
-    flexWrap: "wrap",
-  },
-  categoryItem: {
-    alignItems: "center",
-    width: "20%",
-    marginBottom: 20,
-  },
-  categoryIcon: {
-    width: 60,
-    height: 60,
-    borderRadius: 30,
-    backgroundColor: "#F0E6FF",
-    justifyContent: "center",
-    alignItems: "center",
-    marginBottom: 8,
-  },
-  categoryText: {
-    textAlign: "center",
-    fontSize: 12,
-  },
+
   productsGrid: {
     flexDirection: "row",
     flexWrap: "wrap",
