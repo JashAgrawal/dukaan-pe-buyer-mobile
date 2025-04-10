@@ -15,6 +15,7 @@ interface SearchInputProps {
   onFocus?: () => void;
   onBlur?: () => void;
   onClear?: () => void;
+  onSubmitEditing?: () => void;
   autoFocus?: boolean;
 }
 
@@ -33,6 +34,7 @@ const SearchInput = forwardRef<SearchInputRef, SearchInputProps>(
       onFocus,
       onBlur,
       onClear,
+      onSubmitEditing,
       autoFocus = false,
     },
     ref
@@ -68,6 +70,7 @@ const SearchInput = forwardRef<SearchInputRef, SearchInputProps>(
           onChangeText={onChangeText}
           onFocus={onFocus}
           onBlur={onBlur}
+          onSubmitEditing={onSubmitEditing}
           returnKeyType="search"
           autoFocus={autoFocus}
           clearButtonMode="while-editing"

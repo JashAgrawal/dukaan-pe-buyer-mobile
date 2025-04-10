@@ -1,12 +1,7 @@
-import React, { useEffect, useRef } from "react";
-import {
-  View,
-  StyleSheet,
-  TouchableOpacity,
-  FlatList,
-} from "react-native";
+import React, { useEffect, useRef, useState } from "react";
+import { View, StyleSheet, TouchableOpacity, FlatList } from "react-native";
 import { StatusBar } from "expo-status-bar";
-import { router } from "expo-router";
+import { router, useLocalSearchParams } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { IconSymbol } from "@/components/ui/IconSymbol";
 import { useSearchStore, SearchItem } from "@/stores/useSearchStore";
@@ -16,63 +11,79 @@ import SearchInput, { SearchInputRef } from "@/components/search/SearchInput";
 export default function SearchScreen() {
   const insets = useSafeAreaInsets();
   const inputRef = useRef<SearchInputRef>(null);
-  
-  const { 
-    searchQuery, 
-    setSearchQuery, 
-    recentSearches, 
-    popularStores, 
-    clearRecentSearches
+
+  // Get initial query from params if available
+  const { initialQuery } = useLocalSearchParams<{ initialQuery?: string }>();
+
+  // Use local state for input value to prevent navigation on every keystroke
+  const [inputValue, setInputValue] = useState(initialQuery || "");
+
+  const {
+    setSearchQuery,
+    recentSearches,
+    popularStores,
+    clearRecentSearches,
+    loadPopularStores,
   } = useSearchStore();
-  
-  // Focus the input when the screen mounts
+
+  // Focus the input and load popular stores when the screen mounts
   useEffect(() => {
     setTimeout(() => {
       inputRef.current?.focus();
     }, 100);
+
+    // Load popular stores if not already loaded
+    if (popularStores.length === 0) {
+      loadPopularStores();
+    }
   }, []);
-  
-  // Navigate to results screen when search is performed
-  useEffect(() => {
-    if (searchQuery.trim().length > 0) {
+
+  // Handle search submission
+  const handleSearchSubmit = () => {
+    if (inputValue.trim().length > 0) {
+      // Update the store's search query
+      setSearchQuery(inputValue);
+
+      // Navigate to results screen
       router.push({
         pathname: "/search/results",
-        params: { query: searchQuery },
+        params: { query: inputValue },
       });
     }
-  }, [searchQuery]);
-  
+  };
+
   const handleItemPress = (item: SearchItem) => {
     // Add to recent searches
     useSearchStore.getState().addToRecentSearches(item);
-    
+
     // Navigate to store/product detail
     router.push(`/store/${item.id}`);
   };
-  
+
   return (
     <View style={[styles.container, { paddingTop: insets.top }]}>
       <StatusBar style="dark" />
-      
+
       {/* Search Header */}
       <View style={styles.searchHeader}>
-        <TouchableOpacity 
+        <TouchableOpacity
           style={styles.backButton}
           onPress={() => router.back()}
         >
           <IconSymbol name="arrow.left" size={24} color="#000" />
         </TouchableOpacity>
-        
+
         <View style={styles.searchInputContainer}>
           <SearchInput
             ref={inputRef}
-            value={searchQuery}
-            onChangeText={setSearchQuery}
+            value={inputValue}
+            onChangeText={setInputValue}
+            onSubmitEditing={handleSearchSubmit}
             autoFocus={true}
           />
         </View>
       </View>
-      
+
       {/* Search Content */}
       <View style={styles.searchContent}>
         {/* Recent Searches and Popular Stores */}
@@ -89,7 +100,7 @@ export default function SearchScreen() {
                   onClearPress={clearRecentSearches}
                 />
               )}
-              
+
               <SearchSection
                 title="POPULAR STORES"
                 items={popularStores}

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import {
   View,
   StyleSheet,
@@ -20,7 +20,8 @@ export default function SearchResultsScreen() {
   const insets = useSafeAreaInsets();
   const { query } = useLocalSearchParams<{ query: string }>();
 
-  const [searchQuery, setSearchQuery] = useState(query || "");
+  const [inputValue, setInputValue] = useState(query || "");
+  const [debouncedQuery, setDebouncedQuery] = useState(query || "");
 
   const {
     performSearch,
@@ -36,19 +37,31 @@ export default function SearchResultsScreen() {
   // Set initial search query and perform search when component mounts
   useEffect(() => {
     if (query) {
-      setSearchQuery(query);
+      setInputValue(query);
+      setDebouncedQuery(query);
       storeSetSearchQuery(query);
       performSearch(query);
     }
   }, [query]);
 
-  // Perform search when search query changes
+  // Debounce search input to prevent excessive API calls
   useEffect(() => {
-    if (searchQuery && searchQuery !== query) {
-      storeSetSearchQuery(searchQuery);
-      performSearch(searchQuery);
+    const timer = setTimeout(() => {
+      if (inputValue.trim() !== debouncedQuery.trim()) {
+        setDebouncedQuery(inputValue);
+      }
+    }, 500); // 500ms debounce delay
+
+    return () => clearTimeout(timer);
+  }, [inputValue]);
+
+  // Perform search when debounced query changes
+  useEffect(() => {
+    if (debouncedQuery && debouncedQuery.trim() !== "") {
+      storeSetSearchQuery(debouncedQuery);
+      performSearch(debouncedQuery);
     }
-  }, [searchQuery]);
+  }, [debouncedQuery]);
 
   const handleItemPress = (item: SearchItem) => {
     // Add to recent searches
@@ -58,8 +71,17 @@ export default function SearchResultsScreen() {
     router.push(`/store/${item.id}`);
   };
 
+  const handleSearchSubmit = useCallback(() => {
+    if (inputValue.trim() !== "") {
+      setDebouncedQuery(inputValue);
+    }
+  }, [inputValue]);
+
   const handleSearchPress = () => {
-    router.push("/search");
+    router.push({
+      pathname: "/search",
+      params: { initialQuery: inputValue },
+    });
   };
 
   return (
@@ -80,8 +102,9 @@ export default function SearchResultsScreen() {
           onPress={handleSearchPress}
         >
           <SearchInput
-            value={searchQuery}
-            onChangeText={setSearchQuery}
+            value={inputValue}
+            onChangeText={setInputValue}
+            onSubmitEditing={handleSearchSubmit}
             autoFocus={false}
           />
         </TouchableOpacity>
