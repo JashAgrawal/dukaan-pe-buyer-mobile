@@ -1,7 +1,11 @@
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
-import { searchItems, getPopularStores } from "@/services/searchService";
+import {
+  searchItems,
+  getPopularStores,
+} from "@/lib/api/services/searchService";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useLocationStore } from "./locationStore";
 export interface SearchItem {
   id: string;
   name: string;
@@ -76,7 +80,10 @@ export const useSearchStore = create<SearchState>()(
 
         try {
           // Call search service
-          const results = await searchItems(query);
+          const results = await searchItems(
+            query,
+            useLocationStore.getState().pincode
+          );
 
           set({
             searchResults: results,

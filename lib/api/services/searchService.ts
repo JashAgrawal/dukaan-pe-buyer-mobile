@@ -1,5 +1,5 @@
 import { SearchItem } from "@/stores/useSearchStore";
-import api from './api';
+import apiClient from "../apiClient";
 
 /**
  * Search for stores based on query
@@ -8,32 +8,36 @@ import api from './api';
  * @param limit Number of results per page (default: 10)
  * @returns Promise with search results
  */
-export const searchStores = async (query: string, page: number = 1, limit: number = 10): Promise<SearchItem[]> => {
+export const searchStores = async (
+  query: string,
+  page: number = 1,
+  limit: number = 10
+): Promise<SearchItem[]> => {
   try {
     if (!query.trim()) {
       return [];
     }
-    
-    const response = await api.get('/stores/search', {
+
+    const response = await apiClient.get("/stores/search", {
       params: {
         q: query,
         page,
-        limit
-      }
+        limit,
+      },
     });
-    
+
     // Map API response to SearchItem format
     return response.data.data.stores.map((store: any) => ({
       id: store._id,
       name: store.name,
-      category: store.category?.name || '',
-      imageUrl: store.logo || store.mainImage || '',
+      category: store.category?.name || "",
+      imageUrl: store.logo || store.mainImage || "",
       tagline: store.tagline,
       rating: store.averageRating,
-      reviewCount: store.reviewCount
+      reviewCount: store.reviewCount,
     }));
   } catch (error) {
-    console.error('Error searching stores:', error);
+    console.error("Error searching stores:", error);
     return [];
   }
 };
@@ -45,34 +49,40 @@ export const searchStores = async (query: string, page: number = 1, limit: numbe
  * @param limit Number of results per page (default: 10)
  * @returns Promise with search results
  */
-export const searchProducts = async (query: string, page: number = 1, limit: number = 10): Promise<SearchItem[]> => {
+export const searchProductsOverall = async (
+  query: string,
+  page: number = 1,
+  limit: number = 10,
+  pincode?: string
+): Promise<SearchItem[]> => {
   try {
     if (!query.trim()) {
       return [];
     }
-    
-    const response = await api.get('/products/search', {
+
+    const response = await apiClient.get("/products/search-overall", {
       params: {
         q: query,
         page,
-        limit
-      }
+        limit,
+        pincode,
+      },
     });
-    
+
     // Map API response to SearchItem format
     return response.data.data.products.map((product: any) => ({
       id: product._id,
       name: product.name,
-      category: product.category?.name || '',
-      imageUrl: product.mainImage || '',
+      category: product.category?.name || "",
+      imageUrl: product.mainImage || "",
       price: product.sellingPrice,
       rating: product.averageRating,
       reviewCount: product.reviewCount,
       storeId: product.store?._id,
-      storeName: product.store?.name
+      storeName: product.store?.name,
     }));
   } catch (error) {
-    console.error('Error searching products:', error);
+    console.error("Error searching products:", error);
     return [];
   }
 };
@@ -82,22 +92,25 @@ export const searchProducts = async (query: string, page: number = 1, limit: num
  * @param query Search query
  * @returns Promise with combined search results
  */
-export const searchItems = async (query: string): Promise<SearchItem[]> => {
+export const searchItems = async (
+  query: string,
+  pincode?: string
+): Promise<SearchItem[]> => {
   try {
     if (!query.trim()) {
       return [];
     }
-    
+
     // Search for both stores and products in parallel
     const [stores, products] = await Promise.all([
       searchStores(query),
-      searchProducts(query)
+      searchProductsOverall(query, 1, 5, pincode),
     ]);
-    
+
     // Combine and return results
     return [...stores, ...products];
   } catch (error) {
-    console.error('Error searching items:', error);
+    console.error("Error searching items:", error);
     return [];
   }
 };
@@ -107,24 +120,26 @@ export const searchItems = async (query: string): Promise<SearchItem[]> => {
  * @param limit Number of stores to return (default: 4)
  * @returns Promise with popular stores
  */
-export const getPopularStores = async (limit: number = 4): Promise<SearchItem[]> => {
+export const getPopularStores = async (
+  limit: number = 4
+): Promise<SearchItem[]> => {
   try {
     // Using top-selling stores as popular stores
-    const response = await api.get('/stores/top-selling', { 
-      params: { limit } 
+    const response = await apiClient.get("/stores/top-selling", {
+      params: { limit },
     });
-    
+
     // Map API response to SearchItem format
     return response.data.data.stores.map((store: any) => ({
       id: store._id,
       name: store.name,
-      category: store.category?.name || '',
-      imageUrl: store.logo || store.mainImage || '',
+      category: store.category?.name || "",
+      imageUrl: store.logo || store.mainImage || "",
       rating: store.averageRating,
-      reviewCount: store.reviewCount
+      reviewCount: store.reviewCount,
     }));
   } catch (error) {
-    console.error('Error fetching popular stores:', error);
+    console.error("Error fetching popular stores:", error);
     return [];
   }
 };
@@ -136,7 +151,7 @@ export const getPopularStores = async (limit: number = 4): Promise<SearchItem[]>
  */
 export const getStoreById = async (id: string): Promise<any> => {
   try {
-    const response = await api.get(`/stores/${id}`);
+    const response = await apiClient.get(`/stores/${id}`);
     return response.data.data.store;
   } catch (error) {
     console.error(`Error fetching store with ID ${id}:`, error);

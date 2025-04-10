@@ -142,12 +142,16 @@ export default function CategoryScroller({
             ]}
           >
             <MaterialIcons
+              // @ts-ignore
               name={getIconName(category.name)}
               size={24}
               color={getIconColor(category.name)}
             />
           </View>
-          <Text style={styles.categoryName}>{category.name}</Text>
+          <Text style={styles.categoryName}>
+            {category.name.slice(0, 10) +
+              (category.name.length > 10 ? "..." : "")}
+          </Text>
         </TouchableOpacity>
       ))}
     </ScrollView>
@@ -177,6 +181,7 @@ const styles = StyleSheet.create({
     fontFamily: "Jost-Medium",
     color: "#333",
     textAlign: "center",
+    textTransform: "capitalize",
   },
   loadingContainer: {
     height: 100,

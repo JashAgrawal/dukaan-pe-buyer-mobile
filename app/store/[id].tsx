@@ -13,7 +13,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { MaterialIcons } from "@expo/vector-icons";
 import { Typography, H1, Body1 } from "@/components/ui/Typography";
 import { useSearchStore, SearchItem } from "@/stores/useSearchStore";
-import { getStoreById } from "@/services/searchService";
+import { getStoreById } from "@/lib/api/services/searchService";
 
 export default function StoreDetailScreen() {
   const insets = useSafeAreaInsets();

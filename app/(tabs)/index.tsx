@@ -23,13 +23,6 @@ export default function HomeScreen() {
 
         {/* Categories Section */}
         <View style={styles.sectionContainer}>
-          <View style={styles.sectionHeader}>
-            <H2 style={styles.sectionTitle}>Categories</H2>
-            <TouchableOpacity>
-              <Body1 style={styles.seeAllText}>See All</Body1>
-            </TouchableOpacity>
-          </View>
-
           <Animated.View entering={FadeInRight.duration(600).springify()}>
             <CategoryScroller />
           </Animated.View>

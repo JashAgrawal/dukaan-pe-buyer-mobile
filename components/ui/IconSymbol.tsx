@@ -23,6 +23,7 @@ const MAPPING = {
   "keyboard-arrow-down": "keyboard-arrow-down",
   "arrow-back": "arrow-back",
   "00.circle.hi": "circle",
+  "arrow.left": "chevron-left",
 } as Partial<
   Record<
     import("expo-symbols").SymbolViewProps["name"],
