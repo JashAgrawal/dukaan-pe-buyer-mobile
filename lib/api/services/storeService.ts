@@ -2,6 +2,23 @@ import apiClient from "../apiClient";
 import { Store, StoresListResponse } from "@/types/store";
 
 /**
+ * Interface for store filter options
+ */
+export interface StoreFilterOptions {
+  query?: string;
+  categoryIds?: string[];
+  tags?: string[];
+  type?: string;
+  isOpen?: boolean;
+  isBrand?: boolean;
+  isPanIndia?: boolean;
+  pincode?: string;
+  sortBy?: "popularity" | "nearest" | "avgRating";
+  page?: number;
+  limit?: number;
+}
+
+/**
  * Service for interacting with store-related API endpoints
  */
 export const storeService = {
@@ -64,6 +81,16 @@ export const storeService = {
   searchStores: async (q: string, page = 1, limit = 10) => {
     const response = await apiClient.get("/stores/search", {
       params: { q, page, limit },
+    });
+    return response.data;
+  },
+
+  /**
+   * Search stores with advanced filters
+   */
+  searchStoresWithFilters: async (filters: StoreFilterOptions) => {
+    const response = await apiClient.get("/stores/search-with-filters", {
+      params: filters,
     });
     return response.data;
   },

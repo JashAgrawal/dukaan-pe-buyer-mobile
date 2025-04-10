@@ -10,6 +10,7 @@ export default function SearchLayout() {
     >
       <Stack.Screen name="index" />
       <Stack.Screen name="results" />
+      <Stack.Screen name="store-results" />
     </Stack>
   );
 }

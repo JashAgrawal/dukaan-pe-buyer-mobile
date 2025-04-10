@@ -5,7 +5,9 @@ import { router, useLocalSearchParams } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { IconSymbol } from "@/components/ui/IconSymbol";
 import { useSearchStore, SearchItem } from "@/stores/useSearchStore";
-import SearchSuggestions from "@/components/search/SearchSuggestions";
+import SearchSuggestions, {
+  SearchTab,
+} from "@/components/search/SearchSuggestions";
 import SearchInput, { SearchInputRef } from "@/components/search/SearchInput";
 
 export default function SearchScreen() {
@@ -17,6 +19,7 @@ export default function SearchScreen() {
 
   // Use local state for input value to prevent navigation on every keystroke
   const [inputValue, setInputValue] = useState(initialQuery || "");
+  const [activeTab, setActiveTab] = useState<SearchTab>("all");
 
   const {
     setSearchQuery,
@@ -44,11 +47,24 @@ export default function SearchScreen() {
       // Update the store's search query
       setSearchQuery(inputValue);
 
-      // Navigate to results screen
-      router.push({
-        pathname: "/search/results",
-        params: { query: inputValue },
-      });
+      // Navigate to the appropriate results screen based on the active tab
+      if (activeTab === "stores") {
+        router.push({
+          pathname: "/search/store-results",
+          params: { query: inputValue },
+        });
+      } else if (activeTab === "products") {
+        router.push({
+          pathname: "/search/results",
+          params: { query: inputValue },
+        });
+      } else {
+        // For "all" tab, default to store-results for now
+        router.push({
+          pathname: "/search/store-results",
+          params: { query: inputValue },
+        });
+      }
     }
   };
 
@@ -58,6 +74,11 @@ export default function SearchScreen() {
 
     // Navigate to store/product detail
     router.push(`/store/${item.id}`);
+  };
+
+  // Handle tab change
+  const handleTabChange = (tab: SearchTab) => {
+    setActiveTab(tab);
   };
 
   return (
@@ -93,6 +114,8 @@ export default function SearchScreen() {
           onItemPress={handleItemPress}
           onClearRecentSearches={clearRecentSearches}
           searchQuery={inputValue}
+          activeTab={activeTab}
+          onTabChange={handleTabChange}
         />
       </View>
     </View>

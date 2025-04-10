@@ -15,6 +15,7 @@ import { Typography } from "@/components/ui/Typography";
 import { useSearchStore, SearchItem } from "@/stores/useSearchStore";
 import SearchResultItem from "@/components/search/SearchResultItem";
 import SearchInput from "@/components/search/SearchInput";
+import { SearchTab } from "@/components/search/SearchSuggestions";
 
 export default function SearchResultsScreen() {
   const insets = useSafeAreaInsets();
@@ -84,6 +85,20 @@ export default function SearchResultsScreen() {
     });
   };
 
+  // Handle tab change
+  const handleTabChange = (tab: SearchTab) => {
+    setActiveTab(tab);
+
+    // Navigate to the appropriate screen based on the selected tab
+    if (tab === "stores") {
+      router.push({
+        pathname: "/search/store-results",
+        params: { query: inputValue },
+      });
+    }
+    // Stay on the current screen for "all" and "products" tabs
+  };
+
   return (
     <View style={[styles.container, { paddingTop: insets.top }]}>
       <StatusBar style="dark" />
@@ -114,7 +129,7 @@ export default function SearchResultsScreen() {
       <View style={styles.tabsContainer}>
         <TouchableOpacity
           style={[styles.tab, activeTab === "all" && styles.activeTab]}
-          onPress={() => setActiveTab("all")}
+          onPress={() => handleTabChange("all")}
         >
           <Text
             style={[
@@ -127,7 +142,7 @@ export default function SearchResultsScreen() {
         </TouchableOpacity>
         <TouchableOpacity
           style={[styles.tab, activeTab === "products" && styles.activeTab]}
-          onPress={() => setActiveTab("products")}
+          onPress={() => handleTabChange("products")}
         >
           <Text
             style={[
@@ -140,7 +155,7 @@ export default function SearchResultsScreen() {
         </TouchableOpacity>
         <TouchableOpacity
           style={[styles.tab, activeTab === "stores" && styles.activeTab]}
-          onPress={() => setActiveTab("stores")}
+          onPress={() => handleTabChange("stores")}
         >
           <Text
             style={[
