@@ -2,7 +2,7 @@ import React from "react";
 import { View, StyleSheet, TouchableOpacity, Image } from "react-native";
 import { Typography } from "@/components/ui/Typography";
 import { SearchItem } from "@/stores/useSearchStore";
-import { IconSymbol } from "@/components/ui/IconSymbol";
+import { MaterialIcons } from "@expo/vector-icons";
 
 interface SearchResultItemProps {
   item: SearchItem;
@@ -27,7 +27,19 @@ export default function SearchResultItem({
         )}
       </View>
       <View style={styles.content}>
-        <Typography style={styles.name}>{item.name}</Typography>
+        <View style={styles.nameRow}>
+          <Typography style={styles.name}>{item.name}</Typography>
+          {/* Badge to indicate if it's a product or store */}
+          {item.price ? (
+            <View style={[styles.badge, styles.productBadge]}>
+              <Typography style={styles.badgeText}>Product</Typography>
+            </View>
+          ) : (
+            <View style={[styles.badge, styles.storeBadge]}>
+              <Typography style={styles.badgeText}>Store</Typography>
+            </View>
+          )}
+        </View>
         {item.tagline ? (
           <Typography style={styles.tagline}>{item.tagline}</Typography>
         ) : (
@@ -37,7 +49,7 @@ export default function SearchResultItem({
         {/* Show rating if available */}
         {item.rating ? (
           <View style={styles.ratingContainer}>
-            <IconSymbol name="star.fill" size={14} color="#FFD700" />
+            <MaterialIcons name="star" size={14} color="#FFD700" />
             <Typography style={styles.rating}>
               {item.rating.toFixed(1)}
             </Typography>
@@ -95,11 +107,36 @@ const styles = StyleSheet.create({
   content: {
     flex: 1,
   },
+  nameRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 4,
+  },
   name: {
     fontSize: 16,
     fontFamily: "Jost-Medium",
     color: "#000",
-    marginBottom: 4,
+    flex: 1,
+    marginRight: 8,
+  },
+  badge: {
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    borderRadius: 12,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  productBadge: {
+    backgroundColor: "#E6D8FF",
+  },
+  storeBadge: {
+    backgroundColor: "#D8F2FF",
+  },
+  badgeText: {
+    fontSize: 10,
+    fontFamily: "Jost-Medium",
+    color: "#333",
   },
   category: {
     fontSize: 14,

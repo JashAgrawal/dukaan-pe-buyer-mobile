@@ -5,11 +5,12 @@ import {
   TouchableOpacity,
   FlatList,
   ActivityIndicator,
+  Text,
 } from "react-native";
 import { StatusBar } from "expo-status-bar";
 import { router, useLocalSearchParams } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { IconSymbol } from "@/components/ui/IconSymbol";
+import { MaterialIcons } from "@expo/vector-icons";
 import { Typography } from "@/components/ui/Typography";
 import { useSearchStore, SearchItem } from "@/stores/useSearchStore";
 import SearchResultItem from "@/components/search/SearchResultItem";
@@ -25,6 +26,10 @@ export default function SearchResultsScreen() {
     performSearch,
     isSearching,
     searchResults,
+    productResults,
+    storeResults,
+    activeTab,
+    setActiveTab,
     setSearchQuery: storeSetSearchQuery,
   } = useSearchStore();
 
@@ -67,7 +72,7 @@ export default function SearchResultsScreen() {
           style={styles.backButton}
           onPress={() => router.back()}
         >
-          <IconSymbol name="arrow.left" size={24} color="#000" />
+          <MaterialIcons name="arrow-back" size={24} color="#000" />
         </TouchableOpacity>
 
         <TouchableOpacity
@@ -82,6 +87,49 @@ export default function SearchResultsScreen() {
         </TouchableOpacity>
       </View>
 
+      {/* Search Tabs */}
+      <View style={styles.tabsContainer}>
+        <TouchableOpacity
+          style={[styles.tab, activeTab === "all" && styles.activeTab]}
+          onPress={() => setActiveTab("all")}
+        >
+          <Text
+            style={[
+              styles.tabText,
+              activeTab === "all" && styles.activeTabText,
+            ]}
+          >
+            All
+          </Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={[styles.tab, activeTab === "products" && styles.activeTab]}
+          onPress={() => setActiveTab("products")}
+        >
+          <Text
+            style={[
+              styles.tabText,
+              activeTab === "products" && styles.activeTabText,
+            ]}
+          >
+            Products
+          </Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={[styles.tab, activeTab === "stores" && styles.activeTab]}
+          onPress={() => setActiveTab("stores")}
+        >
+          <Text
+            style={[
+              styles.tabText,
+              activeTab === "stores" && styles.activeTabText,
+            ]}
+          >
+            Stores
+          </Text>
+        </TouchableOpacity>
+      </View>
+
       {/* Search Results */}
       <View style={styles.searchContent}>
         {isSearching ? (
@@ -90,7 +138,13 @@ export default function SearchResultsScreen() {
           </View>
         ) : (
           <FlatList
-            data={searchResults}
+            data={
+              activeTab === "all"
+                ? searchResults
+                : activeTab === "products"
+                ? productResults
+                : storeResults
+            }
             renderItem={({ item }) => (
               <SearchResultItem item={item} onPress={handleItemPress} />
             )}
@@ -98,7 +152,13 @@ export default function SearchResultsScreen() {
             ListEmptyComponent={
               <View style={styles.emptyContainer}>
                 <Typography style={styles.emptyText}>
-                  No results found for "{searchQuery}"
+                  No{" "}
+                  {activeTab === "all"
+                    ? ""
+                    : activeTab === "products"
+                    ? "product "
+                    : "store "}
+                  results found for "{searchQuery}"
                 </Typography>
               </View>
             }
@@ -125,6 +185,30 @@ const styles = StyleSheet.create({
   },
   searchInputContainer: {
     flex: 1,
+  },
+  tabsContainer: {
+    flexDirection: "row",
+    borderBottomWidth: 1,
+    borderBottomColor: "#EEEEEE",
+    marginBottom: 8,
+  },
+  tab: {
+    flex: 1,
+    paddingVertical: 12,
+    alignItems: "center",
+  },
+  activeTab: {
+    borderBottomWidth: 2,
+    borderBottomColor: "#8A3FFC",
+  },
+  tabText: {
+    fontSize: 14,
+    fontFamily: "Jost-Medium",
+    color: "#666666",
+  },
+  activeTabText: {
+    color: "#8A3FFC",
+    fontWeight: "600",
   },
   searchContent: {
     flex: 1,

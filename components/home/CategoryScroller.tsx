@@ -6,6 +6,7 @@ import {
   ScrollView,
   TouchableOpacity,
   ActivityIndicator,
+  Image,
 } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
 import { router } from "expo-router";
@@ -141,12 +142,25 @@ export default function CategoryScroller({
               { backgroundColor: getIconBgColor(category.name) },
             ]}
           >
-            <MaterialIcons
+            {/* <MaterialIcons
               // @ts-ignore
               name={getIconName(category.name)}
               size={24}
               color={getIconColor(category.name)}
-            />
+            /> */}
+            {category.image ? (
+              <Image
+                source={{ uri: category.image }}
+                style={{ width: 24, height: 24 }}
+              />
+            ) : (
+              <MaterialIcons
+                // @ts-ignore
+                name={getIconName(category.name)}
+                size={24}
+                color={getIconColor(category.name)}
+              />
+            )}
           </View>
           <Text style={styles.categoryName}>
             {category.name.slice(0, 10) +
