@@ -71,9 +71,10 @@ export const storeService = {
   /**
    * Get top brands (stores with isBrand=true)
    */
-  getTopBrands: async (limit = 10) => {
+  getTopBrands: async (page = 1, limit = 10) => {
     const response = await apiClient.get<StoresListResponse>("/stores", {
       params: {
+        page,
         limit,
         isBrand: true,
         sort: "-popularity_index",

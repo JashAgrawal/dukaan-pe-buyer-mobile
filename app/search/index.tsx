@@ -1,11 +1,11 @@
 import React, { useEffect, useRef, useState } from "react";
-import { View, StyleSheet, TouchableOpacity, FlatList } from "react-native";
+import { View, StyleSheet, TouchableOpacity } from "react-native";
 import { StatusBar } from "expo-status-bar";
 import { router, useLocalSearchParams } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { IconSymbol } from "@/components/ui/IconSymbol";
 import { useSearchStore, SearchItem } from "@/stores/useSearchStore";
-import SearchSection from "@/components/search/SearchSection";
+import SearchSuggestions from "@/components/search/SearchSuggestions";
 import SearchInput, { SearchInputRef } from "@/components/search/SearchInput";
 
 export default function SearchScreen() {
@@ -86,28 +86,13 @@ export default function SearchScreen() {
 
       {/* Search Content */}
       <View style={styles.searchContent}>
-        {/* Recent Searches and Popular Stores */}
-        <FlatList
-          data={[]}
-          renderItem={() => null}
-          ListHeaderComponent={() => (
-            <>
-              {recentSearches.length > 0 && (
-                <SearchSection
-                  title="PAST SEARCHES"
-                  items={recentSearches}
-                  onItemPress={handleItemPress}
-                  onClearPress={clearRecentSearches}
-                />
-              )}
-
-              <SearchSection
-                title="POPULAR STORES"
-                items={popularStores}
-                onItemPress={handleItemPress}
-              />
-            </>
-          )}
+        {/* Show suggestions when typing more than 2 characters or default content */}
+        <SearchSuggestions
+          recentSearches={recentSearches}
+          popularStores={popularStores}
+          onItemPress={handleItemPress}
+          onClearRecentSearches={clearRecentSearches}
+          searchQuery={inputValue}
         />
       </View>
     </View>

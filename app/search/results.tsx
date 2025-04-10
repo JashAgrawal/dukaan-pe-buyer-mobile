@@ -181,7 +181,7 @@ export default function SearchResultsScreen() {
                     : activeTab === "products"
                     ? "product "
                     : "store "}
-                  results found for "{searchQuery}"
+                  results found for "{debouncedQuery}"
                 </Typography>
               </View>
             }

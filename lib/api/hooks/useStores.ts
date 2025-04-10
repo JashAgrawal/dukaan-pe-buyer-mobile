@@ -7,7 +7,8 @@ import { Store } from "@/types/store";
 export const useTopSellingStores = (limit = 10) => {
   return useInfiniteQuery({
     queryKey: ["stores", "top-selling"],
-    queryFn: ({ pageParam = 1 }) => storeService.getTopSellingStores(pageParam, limit),
+    queryFn: ({ pageParam = 1 }) =>
+      storeService.getTopSellingStores(pageParam, limit),
     getNextPageParam: (lastPage) => {
       if (lastPage.pagination) {
         const { page, pages } = lastPage.pagination;
@@ -23,7 +24,8 @@ export const useTopSellingStores = (limit = 10) => {
 export const useBestRatedStores = (limit = 10) => {
   return useInfiniteQuery({
     queryKey: ["stores", "best-rated"],
-    queryFn: ({ pageParam = 1 }) => storeService.getBestRatedStores(pageParam, limit),
+    queryFn: ({ pageParam = 1 }) =>
+      storeService.getBestRatedStores(pageParam, limit),
     getNextPageParam: (lastPage) => {
       if (lastPage.pagination) {
         const { page, pages } = lastPage.pagination;
@@ -38,7 +40,7 @@ export const useBestRatedStores = (limit = 10) => {
 // Hook for fetching nearby stores with pagination
 export const useNearbyStores = (limit = 10, distance = 10) => {
   const { location } = useLocation();
-  
+
   return useInfiniteQuery({
     queryKey: ["stores", "nearby", location?.latitude, location?.longitude],
     queryFn: ({ pageParam = 1 }) => {
@@ -46,9 +48,9 @@ export const useNearbyStores = (limit = 10, distance = 10) => {
         return { status: "success", results: 0, data: { stores: [] } };
       }
       return storeService.getNearbyStores(
-        location.latitude, 
-        location.longitude, 
-        distance, 
+        location.latitude,
+        location.longitude,
+        distance,
         limit
       );
     },
@@ -68,7 +70,8 @@ export const useNearbyStores = (limit = 10, distance = 10) => {
 export const useFavoriteStores = (limit = 10) => {
   return useInfiniteQuery({
     queryKey: ["stores", "favorites"],
-    queryFn: ({ pageParam = 1 }) => storeService.getFavoriteStores(pageParam, limit),
+    queryFn: ({ pageParam = 1 }) =>
+      storeService.getFavoriteStores(pageParam, limit),
     getNextPageParam: (lastPage) => {
       if (lastPage.pagination) {
         const { page, pages } = lastPage.pagination;
@@ -80,8 +83,17 @@ export const useFavoriteStores = (limit = 10) => {
   });
 };
 
-// Helper function to flatten paginated results
+// Helper function to flatten paginated results and remove duplicates
 export const flattenStores = (data: any): Store[] => {
   if (!data || !data.pages) return [];
-  return data.pages.flatMap((page: any) => page.data?.stores || []);
+
+  // Flatten the pages
+  const allStores = data.pages.flatMap((page: any) => page.data?.stores || []);
+
+  // Remove duplicates by _id
+  const uniqueStores = Array.from(
+    new Map(allStores.map((store: Store) => [store._id, store])).values()
+  );
+
+  return uniqueStores;
 };

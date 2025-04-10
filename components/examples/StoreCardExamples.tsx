@@ -1,10 +1,13 @@
-import React from 'react';
-import { View, StyleSheet, ScrollView } from 'react-native';
-import StoreCard from '../store/StoreCard';
+import React from "react";
+import { View, StyleSheet, ScrollView } from "react-native";
+import StoreCard from "../store/StoreCard";
 
 const StoreCardExamples = () => {
   return (
-    <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>
+    <ScrollView
+      style={styles.container}
+      contentContainerStyle={styles.contentContainer}
+    >
       {/* Restaurant Card Example - Akkad Bakkad */}
       <StoreCard
         imageUrl="https://images.unsplash.com/photo-1585937421612-70a008356c36?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=736&q=80"
@@ -14,7 +17,7 @@ const StoreCardExamples = () => {
         distance="3 km"
         rating={7.5}
         loyaltyBenefit="Loyalty Benefit 10% Off"
-        onPress={() => console.log('Restaurant card pressed')}
+        onPress={() => console.log("Restaurant card pressed")}
       />
 
       {/* Salon Card Example - Bhavya S Wadhwa Salon */}
@@ -25,8 +28,8 @@ const StoreCardExamples = () => {
         location="Andheri West"
         distance="1.5km"
         loyaltyBenefit="Loyalty Benefits"
-        rewardText="Get 💰 20 for every recommendation"
-        onPress={() => console.log('Salon card pressed')}
+        rewardText="Get 20 for every recommendation"
+        onPress={() => console.log("Salon card pressed")}
       />
     </ScrollView>
   );
@@ -35,7 +38,7 @@ const StoreCardExamples = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F5F5F5',
+    backgroundColor: "#F5F5F5",
   },
   contentContainer: {
     padding: 16,

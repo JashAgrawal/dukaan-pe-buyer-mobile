@@ -8,7 +8,7 @@ import BannerCarousel from "@/components/home/BannerCarousel";
 import CategoryScroller from "@/components/home/CategoryScroller";
 import BrandScroller from "@/components/home/BrandScroller";
 import StoreScroller from "@/components/home/StoreScroller";
-import useTopBrands from "@/hooks/useTopBrands";
+import { useTopBrands, flattenBrands } from "@/lib/api/hooks/useBrands";
 import {
   useTopSellingStores,
   useBestRatedStores,
@@ -18,8 +18,8 @@ import {
 } from "@/lib/api/hooks/useStores";
 
 export default function HomeScreen() {
-  // Fetch top brands from API
-  const { brands, isLoading, error } = useTopBrands(4);
+  // Fetch top brands using React Query
+  const topBrands = useTopBrands(10);
 
   // Fetch stores using React Query
   const topSelling = useTopSellingStores(10);
@@ -32,6 +32,7 @@ export default function HomeScreen() {
   const bestRatedStores = flattenStores(bestRated.data);
   const nearbyStores = flattenStores(nearby.data);
   const favoriteStores = flattenStores(favorites.data);
+  const brands = flattenBrands(topBrands.data);
 
   // Load more handlers
   const loadMoreTopSelling = useCallback(() => {
@@ -39,6 +40,13 @@ export default function HomeScreen() {
       topSelling.fetchNextPage();
     }
   }, [topSelling]);
+
+  // Load more brands
+  const loadMoreBrands = useCallback(() => {
+    if (topBrands.hasNextPage && !topBrands.isFetchingNextPage) {
+      topBrands.fetchNextPage();
+    }
+  }, [topBrands]);
 
   const loadMoreBestRated = useCallback(() => {
     if (bestRated.hasNextPage && !bestRated.isFetchingNextPage) {
@@ -71,7 +79,9 @@ export default function HomeScreen() {
         {/* Categories Section */}
         <View style={styles.sectionContainer}>
           <Animated.View entering={FadeInRight.duration(600).springify()}>
-            <CategoryScroller />
+            <CategoryScroller
+              onSeeAllPress={() => console.log("See all categories pressed")}
+            />
           </Animated.View>
         </View>
 
@@ -84,9 +94,12 @@ export default function HomeScreen() {
               title="Top Brands"
               subtitle="Visit & Recommend"
               brands={brands}
-              isLoading={isLoading}
-              error={error}
+              isLoading={topBrands.isLoading}
+              error={topBrands.error?.message}
               onSeeAllPress={() => console.log("See all brands pressed")}
+              onEndReached={loadMoreBrands}
+              hasNextPage={topBrands.hasNextPage}
+              isFetchingNextPage={topBrands.isFetchingNextPage}
             />
           </Animated.View>
         </View>

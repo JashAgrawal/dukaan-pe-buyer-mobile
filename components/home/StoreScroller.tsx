@@ -3,7 +3,6 @@ import {
   View,
   Text,
   StyleSheet,
-  ScrollView,
   TouchableOpacity,
   ActivityIndicator,
   FlatList,
@@ -68,14 +67,22 @@ const StoreScroller: React.FC<StoreScrollerProps> = ({
             imageUrl={getImageUrl(imageUrl)}
             name={item.name}
             type={item.categories?.[0] || "Store"}
-            location={`${item.address?.city || ""}, ${
-              item.address?.state || ""
-            }`}
-            distance={item.distance ? `${item.distance.toFixed(1)} km` : ""}
+            location={
+              item.address?.city && item.address?.state
+                ? `${item.address.city}, ${item.address.state}`
+                : item.address?.city ||
+                  item.address?.state ||
+                  "Location not available"
+            }
+            distance={
+              item.distance
+                ? `${item.distance.toFixed(1)} km`
+                : "Distance not available"
+            }
             rating={item.averageRating}
             loyaltyBenefit={item.isVerified ? "Loyalty Benefits" : undefined}
             rewardText={
-              item.isVerified ? "Get 💰 20 for every recommendation" : undefined
+              item.isVerified ? "Get 20 for every recommendation" : undefined
             }
             onPress={() => handleStorePress(item._id)}
           />
@@ -130,6 +137,10 @@ const StoreScroller: React.FC<StoreScrollerProps> = ({
             isFetchingNextPage ? (
               <View style={styles.footerLoader}>
                 <ActivityIndicator size="small" color="#8A3FFC" />
+              </View>
+            ) : hasNextPage === false && stores.length > 0 ? (
+              <View style={styles.endOfListContainer}>
+                <Text style={styles.endOfListText}>No more stores</Text>
               </View>
             ) : null
           }
@@ -212,6 +223,17 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     height: 50,
+  },
+  endOfListContainer: {
+    paddingHorizontal: 16,
+    justifyContent: "center",
+    alignItems: "center",
+    height: 50,
+  },
+  endOfListText: {
+    fontSize: 14,
+    fontFamily: "Jost-Regular",
+    color: "#666",
   },
 });
 

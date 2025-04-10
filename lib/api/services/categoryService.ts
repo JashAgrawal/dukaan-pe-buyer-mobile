@@ -16,33 +16,52 @@ export interface CategoriesResponse {
   data: {
     categories: Category[];
   };
+  pagination?: {
+    page: number;
+    pages: number;
+    limit: number;
+    total: number;
+  };
 }
 
 // Get all categories
 export const getCategories = async (
+  page: number = 1,
   limit: number = 10
-): Promise<Category[]> => {
+): Promise<CategoriesResponse> => {
   try {
     const response = await apiClient.get<CategoriesResponse>(
       "/store-categories",
       {
-        params: { limit },
+        params: { page, limit },
       }
     );
-    return response.data.data.categories;
+    return response.data;
   } catch (error) {
     console.error("Error fetching categories:", error);
-    // Return default categories in case of error
-    return [
-      { _id: "1", name: "Food" },
-      { _id: "2", name: "Salon & Spa" },
-      { _id: "3", name: "Healthcare" },
-      { _id: "4", name: "Online brands" },
-      { _id: "5", name: "Office" },
-      { _id: "6", name: "Electronics" },
-      { _id: "7", name: "Fashion" },
-      { _id: "8", name: "Home" },
-    ];
+    // Return default response in case of error
+    return {
+      status: "error",
+      results: 8,
+      data: {
+        categories: [
+          { _id: "1", name: "Food" },
+          { _id: "2", name: "Salon & Spa" },
+          { _id: "3", name: "Healthcare" },
+          { _id: "4", name: "Online brands" },
+          { _id: "5", name: "Office" },
+          { _id: "6", name: "Electronics" },
+          { _id: "7", name: "Fashion" },
+          { _id: "8", name: "Home" },
+        ],
+      },
+      pagination: {
+        page: 1,
+        pages: 1,
+        limit,
+        total: 8,
+      },
+    };
   }
 };
 

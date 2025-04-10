@@ -1,15 +1,15 @@
-import React from "react";
+import React, { useCallback } from "react";
 import {
   View,
   Text,
   StyleSheet,
-  ScrollView,
   Image,
   TouchableOpacity,
   Dimensions,
   ActivityIndicator,
+  FlatList,
 } from "react-native";
-import { useNavigation } from "@react-navigation/native";
+import { router } from "expo-router";
 import { Store } from "@/types/store";
 import { getImageUrl } from "@/lib/helpers";
 
@@ -20,6 +20,9 @@ interface BrandScrollerProps {
   isLoading?: boolean;
   error?: string | null;
   onSeeAllPress?: () => void;
+  onEndReached?: () => void;
+  hasNextPage?: boolean;
+  isFetchingNextPage?: boolean;
 }
 
 const BrandScroller: React.FC<BrandScrollerProps> = ({
@@ -29,16 +32,24 @@ const BrandScroller: React.FC<BrandScrollerProps> = ({
   isLoading = false,
   error = null,
   onSeeAllPress,
+  onEndReached,
+  hasNextPage,
+  isFetchingNextPage,
 }) => {
-  const navigation = useNavigation();
   const screenWidth = Dimensions.get("window").width;
   const brandItemWidth = Math.min(140, screenWidth * 0.3);
 
   const handleBrandPress = (brandId: string) => {
     // Navigate to brand detail screen
-    console.log(`Brand pressed: ${brandId}`);
-    // navigation.navigate('BrandDetail', { brandId });
+    router.push(`/store/${brandId}`);
   };
+
+  // Handle loading more brands when reaching the end
+  const handleLoadMore = useCallback(() => {
+    if (hasNextPage && !isFetchingNextPage && onEndReached) {
+      onEndReached();
+    }
+  }, [hasNextPage, isFetchingNextPage, onEndReached]);
 
   return (
     <View style={styles.container}>
@@ -65,28 +76,40 @@ const BrandScroller: React.FC<BrandScrollerProps> = ({
           <Text style={styles.emptyText}>No brands available</Text>
         </View>
       ) : (
-        <ScrollView
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          contentContainerStyle={styles.scrollContent}
-        >
-          {brands.map((brand) => (
+        <FlatList
+          data={brands}
+          keyExtractor={(item) => item._id}
+          renderItem={({ item }) => (
             <TouchableOpacity
-              key={brand._id}
               style={[
                 styles.brandItem,
                 { width: brandItemWidth, height: brandItemWidth },
               ]}
-              onPress={() => handleBrandPress(brand._id)}
+              onPress={() => handleBrandPress(item._id)}
             >
               <Image
-                source={{ uri: getImageUrl(brand.logo || brand.coverImage) }}
+                source={{ uri: getImageUrl(item.logo || item.coverImage) }}
                 style={styles.brandLogo}
-                // resizeMode="cover"
               />
             </TouchableOpacity>
-          ))}
-        </ScrollView>
+          )}
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={styles.scrollContent}
+          onEndReached={handleLoadMore}
+          onEndReachedThreshold={0.5}
+          ListFooterComponent={
+            isFetchingNextPage ? (
+              <View style={styles.footerLoader}>
+                <ActivityIndicator size="small" color="#8A3FFC" />
+              </View>
+            ) : hasNextPage === false && brands.length > 0 ? (
+              <View style={styles.endOfListContainer}>
+                <Text style={styles.endOfListText}>No more brands</Text>
+              </View>
+            ) : null
+          }
+        />
       )}
     </View>
   );
@@ -161,6 +184,25 @@ const styles = StyleSheet.create({
   emptyText: {
     fontSize: 14,
     fontFamily: "Jost-Medium",
+    color: "#666",
+  },
+  footerLoader: {
+    paddingHorizontal: 16,
+    justifyContent: "center",
+    alignItems: "center",
+    height: 140,
+    width: 140,
+  },
+  endOfListContainer: {
+    paddingHorizontal: 16,
+    justifyContent: "center",
+    alignItems: "center",
+    height: 140,
+    width: 140,
+  },
+  endOfListText: {
+    fontSize: 14,
+    fontFamily: "Jost-Regular",
     color: "#666",
   },
 });

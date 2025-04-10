@@ -1,16 +1,20 @@
-import React from "react";
+import React, { useCallback } from "react";
 import {
   View,
   Text,
   StyleSheet,
-  ScrollView,
   TouchableOpacity,
   ActivityIndicator,
   Image,
+  FlatList,
 } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
 import { router } from "expo-router";
-import { Category, getCategories } from "@/lib/api/services/categoryService";
+import { Category } from "@/lib/api/services/categoryService";
+import {
+  useCategories,
+  flattenCategories,
+} from "@/lib/api/hooks/useCategories";
 import { getImageUrl } from "@/lib/helpers";
 
 // Map of category names to icon names
@@ -43,34 +47,25 @@ const CATEGORY_COLORS: Record<string, string> = {
 
 interface CategoryScrollerProps {
   onCategoryPress?: (category: Category) => void;
+  onSeeAllPress?: () => void;
 }
 
 export default function CategoryScroller({
   onCategoryPress,
+  onSeeAllPress,
 }: CategoryScrollerProps) {
-  const [categories, setCategories] = React.useState<Category[]>([]);
-  const [isLoading, setIsLoading] = React.useState(true);
-  const [error, setError] = React.useState<Error | null>(null);
+  // Use React Query hook for categories
+  const {
+    data,
+    isLoading,
+    error,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+  } = useCategories(10);
 
-  React.useEffect(() => {
-    const fetchCategories = async () => {
-      try {
-        setIsLoading(true);
-        const data = await getCategories(8);
-        setCategories(data);
-        setError(null);
-      } catch (err) {
-        console.error("Error fetching categories:", err);
-        setError(
-          err instanceof Error ? err : new Error("Failed to fetch categories")
-        );
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchCategories();
-  }, []);
+  // Flatten paginated results
+  const categories = flattenCategories(data);
 
   const handleCategoryPress = (category: Category) => {
     if (onCategoryPress) {
@@ -100,85 +95,126 @@ export default function CategoryScroller({
     return color + "20"; // Add 20% opacity
   };
 
-  if (isLoading) {
-    return (
-      <View style={styles.loadingContainer}>
-        <ActivityIndicator size="small" color="#8A3FFC" />
-      </View>
-    );
-  }
+  // Handle loading more categories when reaching the end
+  const handleLoadMore = useCallback(() => {
+    if (hasNextPage && !isFetchingNextPage) {
+      fetchNextPage();
+    }
+  }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
 
-  if (error) {
+  // Render a category item
+  const renderCategory = useCallback(({ item }: { item: Category }) => {
     return (
-      <View style={styles.errorContainer}>
-        <Text style={styles.errorText}>Failed to load categories</Text>
-      </View>
+      <TouchableOpacity
+        style={styles.categoryItem}
+        onPress={() => handleCategoryPress(item)}
+        activeOpacity={0.7}
+      >
+        <View
+          style={[
+            styles.iconContainer,
+            { backgroundColor: getIconBgColor(item.name) },
+          ]}
+        >
+          {item.image ? (
+            <Image
+              source={{ uri: `${getImageUrl(item.image)}` }}
+              style={{
+                width: "100%",
+                height: "100%",
+                borderRadius: 999,
+                objectFit: "cover",
+              }}
+            />
+          ) : (
+            <MaterialIcons
+              // @ts-ignore
+              name={getIconName(item.name)}
+              size={24}
+              color={getIconColor(item.name)}
+            />
+          )}
+        </View>
+        <Text style={{ ...styles.categoryName }}>
+          {item.name.slice(0, 10) + (item.name.length > 10 ? "..." : "")}
+        </Text>
+      </TouchableOpacity>
     );
-  }
-
-  if (!categories || categories.length === 0) {
-    return (
-      <View style={styles.errorContainer}>
-        <Text style={styles.errorText}>No categories found</Text>
-      </View>
-    );
-  }
+  }, []);
 
   return (
-    <ScrollView
-      horizontal
-      showsHorizontalScrollIndicator={false}
-      contentContainerStyle={styles.scrollContent}
-    >
-      {categories.map((category) => (
-        <TouchableOpacity
-          key={category._id}
-          style={styles.categoryItem}
-          onPress={() => handleCategoryPress(category)}
-          activeOpacity={0.7}
-        >
-          <View
-            style={[
-              styles.iconContainer,
-              { backgroundColor: getIconBgColor(category.name) },
-            ]}
-          >
-            {/* <MaterialIcons
-              // @ts-ignore
-              name={getIconName(category.name)}
-              size={24}
-              color={getIconColor(category.name)}
-            /> */}
-            {category.image ? (
-              <Image
-                source={{ uri: `${getImageUrl(category.image)}` }}
-                style={{
-                  width: "100%",
-                  height: "100%",
-                  borderRadius: 999,
-                  objectFit: "cover",
-                }}
-              />
-            ) : (
-              <MaterialIcons
-                // @ts-ignore
-                name={getIconName(category.name)}
-                size={24}
-                color={getIconColor(category.name)}
-              />
-            )}
-          </View>
-          <Text style={{ ...styles.categoryName }}>
-            {category.name.slice(0, 10) +
-              (category.name.length > 10 ? "..." : "")}
-          </Text>
-        </TouchableOpacity>
-      ))}
-    </ScrollView>
+    <View style={styles.container}>
+      {/* Header with See All button */}
+      {onSeeAllPress && (
+        <View style={styles.header}>
+          <Text style={styles.title}>Categories</Text>
+          <TouchableOpacity onPress={onSeeAllPress}>
+            <Text style={styles.seeAllText}>See all</Text>
+          </TouchableOpacity>
+        </View>
+      )}
+
+      {/* Content */}
+      {isLoading && categories.length === 0 ? (
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="small" color="#8A3FFC" />
+        </View>
+      ) : error ? (
+        <View style={styles.errorContainer}>
+          <Text style={styles.errorText}>Failed to load categories</Text>
+        </View>
+      ) : categories.length === 0 ? (
+        <View style={styles.errorContainer}>
+          <Text style={styles.errorText}>No categories found</Text>
+        </View>
+      ) : (
+        <FlatList
+          data={categories}
+          keyExtractor={(item) => item._id}
+          renderItem={renderCategory}
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={styles.scrollContent}
+          onEndReached={handleLoadMore}
+          onEndReachedThreshold={0.5}
+          ListFooterComponent={
+            isFetchingNextPage ? (
+              <View style={styles.footerLoader}>
+                <ActivityIndicator size="small" color="#8A3FFC" />
+              </View>
+            ) : hasNextPage === false && categories.length > 0 ? (
+              <View style={styles.endOfListContainer}>
+                <Text style={styles.endOfListText}>No more categories</Text>
+              </View>
+            ) : null
+          }
+        />
+      )}
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
+  container: {
+    marginVertical: 8,
+  },
+  header: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    paddingHorizontal: 16,
+    marginBottom: 12,
+  },
+  title: {
+    fontSize: 20,
+    fontFamily: "Jost-Bold",
+    color: "#000",
+  },
+  seeAllText: {
+    fontSize: 14,
+    fontFamily: "Jost-Medium",
+    color: "#8A3FFC",
+  },
   scrollContent: {
     paddingHorizontal: 10,
     paddingVertical: 4,
@@ -218,5 +254,25 @@ const styles = StyleSheet.create({
     color: "#FF3B30",
     fontSize: 14,
     fontFamily: "Jost-Regular",
+  },
+  footerLoader: {
+    paddingHorizontal: 16,
+    justifyContent: "center",
+    alignItems: "center",
+    height: 90,
+    width: 70,
+  },
+  endOfListContainer: {
+    paddingHorizontal: 16,
+    justifyContent: "center",
+    alignItems: "center",
+    height: 90,
+    width: 70,
+  },
+  endOfListText: {
+    fontSize: 12,
+    fontFamily: "Jost-Regular",
+    color: "#666",
+    textAlign: "center",
   },
 });
