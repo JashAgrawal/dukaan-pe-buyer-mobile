@@ -2,11 +2,9 @@ import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
 import {
   searchStores,
-  searchProductsOverall,
   getPopularStores,
 } from "@/lib/api/services/searchService";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { useLocationStore } from "./locationStore";
 export interface SearchItem {
   id: string;
   name: string;
@@ -26,9 +24,7 @@ interface SearchState {
   searchQuery: string;
   isSearching: boolean;
   searchResults: SearchItem[];
-  productResults: SearchItem[];
   storeResults: SearchItem[];
-  activeTab: "all" | "products" | "stores";
 
   // Actions
   setSearchQuery: (query: string) => void;
@@ -37,7 +33,6 @@ interface SearchState {
   removeFromRecentSearches: (id: string) => void;
   setIsSearching: (isSearching: boolean) => void;
   setSearchResults: (results: SearchItem[]) => void;
-  setActiveTab: (tab: "all" | "products" | "stores") => void;
 
   // API search functions
   performSearch: (query: string) => void;
@@ -54,9 +49,7 @@ export const useSearchStore = create<SearchState>()(
       searchQuery: "",
       isSearching: false,
       searchResults: [],
-      productResults: [],
       storeResults: [],
-      activeTab: "all",
 
       setSearchQuery: (query) => set({ searchQuery: query }),
 
@@ -83,29 +76,16 @@ export const useSearchStore = create<SearchState>()(
 
       setSearchResults: (results) => set({ searchResults: results }),
 
-      setActiveTab: (tab) => set({ activeTab: tab }),
-
       performSearch: async (query) => {
         set({ isSearching: true });
 
         try {
-          // Call search service for stores and products in parallel
-          const [stores, products] = await Promise.all([
-            searchStores(query),
-            searchProductsOverall(
-              query,
-              1,
-              5,
-              useLocationStore.getState().pincode
-            ),
-          ]);
+          // Call search service for stores only
+          const stores = await searchStores(query);
 
-          // Combine results for the 'all' tab
-          const allResults = [...stores, ...products];
-
+          // Store results are the same for both 'all' and 'stores' tabs
           set({
-            searchResults: allResults,
-            productResults: products,
+            searchResults: stores,
             storeResults: stores,
             isSearching: false,
           });
@@ -113,7 +93,6 @@ export const useSearchStore = create<SearchState>()(
           console.error("Search error:", error);
           set({
             searchResults: [],
-            productResults: [],
             storeResults: [],
             isSearching: false,
           });

@@ -26,7 +26,7 @@ import {
 import { StoreFilterOptions } from "@/lib/api/services/storeService";
 import { getImageUrl } from "@/lib/helpers";
 import { Store } from "@/types/store";
-import { SearchTab } from "@/components/search/SearchSuggestions";
+// No more tabs needed
 
 export default function StoreResultsScreen() {
   const insets = useSafeAreaInsets();
@@ -35,7 +35,6 @@ export default function StoreResultsScreen() {
   // State for search input and filters
   const [inputValue, setInputValue] = useState(query || "");
   const [showFilters, setShowFilters] = useState(false);
-  const [activeTab, setActiveTab] = useState<SearchTab>("stores");
   const [filters, setFilters] = useState<StoreFilterOptions>({
     query: query || "",
     page: 1,
@@ -78,24 +77,7 @@ export default function StoreResultsScreen() {
     router.push(`/store/${storeId}`);
   };
 
-  // Handle tab change
-  const handleTabChange = (tab: SearchTab) => {
-    setActiveTab(tab);
-
-    // Navigate to the appropriate screen based on the selected tab
-    if (tab === "all") {
-      router.push({
-        pathname: "/search/results",
-        params: { query: inputValue },
-      });
-    } else if (tab === "products") {
-      router.push({
-        pathname: "/search/results",
-        params: { query: inputValue },
-      });
-    }
-    // Stay on the current screen for "stores" tab
-  };
+  // No tab change handler needed anymore
 
   // Handle load more (infinite scroll)
   const handleLoadMore = () => {
@@ -191,50 +173,7 @@ export default function StoreResultsScreen() {
         </TouchableOpacity>
       </View>
 
-      {/* Tabs */}
-      <View style={styles.tabsContainer}>
-        <TouchableOpacity
-          style={[styles.tab, activeTab === "all" && styles.activeTab]}
-          onPress={() => handleTabChange("all")}
-        >
-          <Text
-            style={[
-              styles.tabText,
-              activeTab === "all" && styles.activeTabText,
-            ]}
-          >
-            All
-          </Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          style={[styles.tab, activeTab === "stores" && styles.activeTab]}
-          onPress={() => handleTabChange("stores")}
-        >
-          <Text
-            style={[
-              styles.tabText,
-              activeTab === "stores" && styles.activeTabText,
-            ]}
-          >
-            Stores
-          </Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          style={[styles.tab, activeTab === "products" && styles.activeTab]}
-          onPress={() => handleTabChange("products")}
-        >
-          <Text
-            style={[
-              styles.tabText,
-              activeTab === "products" && styles.activeTabText,
-            ]}
-          >
-            Products
-          </Text>
-        </TouchableOpacity>
-      </View>
+      {/* No tabs needed anymore */}
 
       {/* Results Header */}
       <View style={styles.resultsHeader}>
@@ -338,27 +277,5 @@ const styles = StyleSheet.create({
     paddingVertical: 20,
     alignItems: "center",
   },
-  tabsContainer: {
-    flexDirection: "row",
-    borderBottomWidth: 1,
-    borderBottomColor: "#EEEEEE",
-  },
-  tab: {
-    flex: 1,
-    paddingVertical: 12,
-    alignItems: "center",
-  },
-  activeTab: {
-    borderBottomWidth: 2,
-    borderBottomColor: "#8A3FFC",
-  },
-  tabText: {
-    fontSize: 14,
-    fontFamily: "Jost-Medium",
-    color: "#666666",
-  },
-  activeTabText: {
-    color: "#8A3FFC",
-    fontFamily: "Jost-Bold",
-  },
+  // Tab styles removed
 });

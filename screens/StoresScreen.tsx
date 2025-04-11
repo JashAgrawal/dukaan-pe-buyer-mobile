@@ -8,9 +8,7 @@ import {
   ActivityIndicator,
 } from "react-native";
 import StoreCard from "../components/store/StoreCard";
-import { Store } from "../types/store";
 import { StoreCardData } from "../types/storeCard";
-import { storeToCardData } from "../utils/storeUtils";
 
 // Sample data for demonstration
 const mockStoreData: StoreCardData[] = [
@@ -64,28 +62,6 @@ const StoresScreen = () => {
   const [storeCards, setStoreCards] = useState<StoreCardData[]>(mockStoreData);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-
-  // In a real app, you would fetch stores from an API
-  // useEffect(() => {
-  //   const fetchStores = async () => {
-  //     setLoading(true);
-  //     try {
-  //       // const response = await fetchNearbyStores();
-  //       // const storeCards = response.data.map(store =>
-  //       //   storeToCardData(store, calculateDistance(userLat, userLng, store.lat, store.lng))
-  //       // );
-  //       // setStoreCards(storeCards);
-  //       setStoreCards(mockStoreData); // Using mock data for now
-  //     } catch (err) {
-  //       setError('Failed to load stores');
-  //       console.error(err);
-  //     } finally {
-  //       setLoading(false);
-  //     }
-  //   };
-  //
-  //   fetchStores();
-  // }, []);
 
   if (loading) {
     return (

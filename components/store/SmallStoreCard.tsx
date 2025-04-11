@@ -70,7 +70,7 @@ const SmallStoreCard: React.FC<SmallStoreCardProps> = ({
 
 const styles = StyleSheet.create({
   container: {
-    width: 160,
+    width: "100%",
     backgroundColor: "white",
     borderRadius: 12,
     overflow: "hidden",
@@ -79,7 +79,6 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 4,
     elevation: 3,
-    marginRight: 12,
   },
   imageContainer: {
     width: "100%",

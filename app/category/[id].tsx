@@ -29,7 +29,8 @@ import { StoreFilterOptions } from "@/lib/api/services/storeService";
 
 // Define the screen width for responsive layout
 const { width } = Dimensions.get("window");
-const CARD_WIDTH = (width - 48) / 2; // 2 cards per row with margins
+// Adjust card width calculation to account for padding and margins
+const CARD_WIDTH = (width - 130) / 2; // 2 cards per row with margins, accounting for sidebar width (100px) and padding
 
 export default function CategoryDetailScreen() {
   const insets = useSafeAreaInsets();
@@ -205,12 +206,12 @@ export default function CategoryDetailScreen() {
 
   return (
     <View style={[styles.container, { paddingTop: insets.top }]}>
-      <StatusBar style="dark" />
+      <StatusBar style="light" />
 
       {/* Header */}
       <View style={styles.header}>
         <TouchableOpacity style={styles.backButton} onPress={handleBackPress}>
-          <MaterialIcons name="arrow-back" size={24} color="#000" />
+          <MaterialIcons name="arrow-back" size={24} color="#FFFFFF" />
         </TouchableOpacity>
 
         <View style={styles.headerTitleContainer}>
@@ -221,23 +222,8 @@ export default function CategoryDetailScreen() {
           style={styles.filterButton}
           onPress={() => setShowFilters(true)}
         >
-          <MaterialIcons name="filter-list" size={24} color="#000" />
+          <MaterialIcons name="filter-list" size={24} color="#FFFFFF" />
         </TouchableOpacity>
-      </View>
-
-      {/* Location Bar */}
-      <View style={styles.locationBar}>
-        <View style={styles.locationInfo}>
-          <MaterialIcons name="location-on" size={16} color="#8A3FFC" />
-          <Text style={styles.locationText}>Jash Ag.., Thane 421308</Text>
-        </View>
-        <View style={styles.deliveryInfo}>
-          <Text style={styles.deliveryText}>
-            <Text style={styles.quickText}>Quick</Text> Delivery Between 8 AM to
-            9 PM
-          </Text>
-          <MaterialIcons name="keyboard-arrow-down" size={16} color="#000" />
-        </View>
       </View>
 
       <View style={styles.contentContainer}>
@@ -300,8 +286,13 @@ export default function CategoryDetailScreen() {
 
         {/* Main Content */}
         <View style={styles.mainContent}>
-          {/* Sort Options */}
-          <View style={styles.sortContainer}>
+          {/* Sort Options - Scrollable */}
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            style={styles.sortContainer}
+            contentContainerStyle={styles.sortContentContainer}
+          >
             <TouchableOpacity
               style={[
                 styles.sortOption,
@@ -362,7 +353,23 @@ export default function CategoryDetailScreen() {
                 Filters
               </Text>
             </TouchableOpacity>
-          </View>
+
+            {/* Add more filter options */}
+            <TouchableOpacity style={styles.sortOption}>
+              <MaterialIcons name="local-offer" size={16} color="#666" />
+              <Text style={styles.sortText}>Offers</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity style={styles.sortOption}>
+              <MaterialIcons name="star" size={16} color="#666" />
+              <Text style={styles.sortText}>Top Rated</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity style={styles.sortOption}>
+              <MaterialIcons name="local-shipping" size={16} color="#666" />
+              <Text style={styles.sortText}>Fast Delivery</Text>
+            </TouchableOpacity>
+          </ScrollView>
 
           {/* Store Grid */}
           <FlatList
@@ -405,8 +412,8 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     paddingHorizontal: 16,
-    paddingVertical: 12,
-    backgroundColor: "#0288D1",
+    paddingVertical: 16,
+    backgroundColor: "#8A3FFC",
   },
   backButton: {
     padding: 8,
@@ -423,38 +430,7 @@ const styles = StyleSheet.create({
   filterButton: {
     padding: 8,
   },
-  locationBar: {
-    backgroundColor: "#FFFFFF",
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    borderBottomWidth: 1,
-    borderBottomColor: "#EEEEEE",
-  },
-  locationInfo: {
-    flexDirection: "row",
-    alignItems: "center",
-  },
-  locationText: {
-    fontSize: 14,
-    fontFamily: "Jost-Medium",
-    color: "#333333",
-    marginLeft: 4,
-  },
-  deliveryInfo: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginTop: 4,
-  },
-  deliveryText: {
-    fontSize: 14,
-    fontFamily: "Jost-Regular",
-    color: "#333333",
-    marginRight: 4,
-  },
-  quickText: {
-    color: "#4CAF50",
-    fontFamily: "Jost-Bold",
-  },
+
   contentContainer: {
     flex: 1,
     flexDirection: "row",
@@ -478,7 +454,7 @@ const styles = StyleSheet.create({
     borderLeftColor: "transparent",
   },
   selectedCategoryItem: {
-    borderLeftColor: "#0288D1",
+    borderLeftColor: "#8A3FFC",
     backgroundColor: "#FFFFFF",
   },
   categoryImageContainer: {
@@ -523,17 +499,21 @@ const styles = StyleSheet.create({
     minHeight: "100%",
   },
   sortContainer: {
+    borderBottomWidth: 1,
+    borderBottomColor: "#EEEEEE",
+  },
+  sortContentContainer: {
     flexDirection: "row",
     paddingHorizontal: 16,
     paddingVertical: 12,
-    borderBottomWidth: 1,
-    borderBottomColor: "#EEEEEE",
+    alignItems: "center",
   },
   sortOption: {
     flexDirection: "row",
     alignItems: "center",
-    marginRight: 16,
-    paddingVertical: 6,
+    marginRight: 12,
+    marginBottom: 8,
+    paddingVertical: 8,
     paddingHorizontal: 12,
     borderRadius: 16,
     backgroundColor: "#F5F5F5",
@@ -552,6 +532,7 @@ const styles = StyleSheet.create({
   },
   storeGrid: {
     padding: 12,
+    paddingBottom: 24,
     flexGrow: 1,
   },
   storeList: {
@@ -562,6 +543,7 @@ const styles = StyleSheet.create({
   storeCardContainer: {
     width: CARD_WIDTH,
     margin: 6,
+    marginBottom: 12,
   },
   emptyStateContainer: {
     padding: 24,
