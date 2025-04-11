@@ -9,6 +9,8 @@ interface SmallStoreCardProps {
   type: string;
   rating?: number;
   loyaltyBenefit?: string;
+  distance?: string;
+  deliveryTime?: string;
   onPress?: () => void;
 }
 
@@ -18,6 +20,8 @@ const SmallStoreCard: React.FC<SmallStoreCardProps> = ({
   type,
   rating,
   loyaltyBenefit,
+  distance,
+  deliveryTime,
   onPress,
 }) => {
   return (
@@ -63,6 +67,23 @@ const SmallStoreCard: React.FC<SmallStoreCardProps> = ({
         <Text style={styles.type} numberOfLines={1}>
           {type}
         </Text>
+
+        {/* Additional Info */}
+        <View style={styles.additionalInfoContainer}>
+          {distance && (
+            <View style={styles.infoItem}>
+              <MaterialIcons name="place" size={12} color="#666" />
+              <Text style={styles.infoText}>{distance}</Text>
+            </View>
+          )}
+
+          {deliveryTime && (
+            <View style={styles.infoItem}>
+              <MaterialIcons name="access-time" size={12} color="#666" />
+              <Text style={styles.infoText}>{deliveryTime}</Text>
+            </View>
+          )}
+        </View>
       </View>
     </TouchableOpacity>
   );
@@ -82,7 +103,7 @@ const styles = StyleSheet.create({
   },
   imageContainer: {
     width: "100%",
-    height: 120,
+    height: 140,
     position: "relative",
   },
   image: {
@@ -143,6 +164,22 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontFamily: "Jost-Regular",
     color: "#666",
+    marginBottom: 6,
+  },
+  additionalInfoContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginTop: 4,
+  },
+  infoItem: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  infoText: {
+    fontSize: 10,
+    fontFamily: "Jost-Regular",
+    color: "#666",
+    marginLeft: 2,
   },
 });
 

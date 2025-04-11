@@ -30,7 +30,7 @@ import { StoreFilterOptions } from "@/lib/api/services/storeService";
 // Define the screen width for responsive layout
 const { width } = Dimensions.get("window");
 // Adjust card width calculation to account for padding and margins
-const CARD_WIDTH = (width - 130) / 2; // 2 cards per row with margins, accounting for sidebar width (100px) and padding
+const CARD_WIDTH = (width - 110) / 2; // 2 cards per row with margins, accounting for sidebar width (80px) and padding
 
 export default function CategoryDetailScreen() {
   const insets = useSafeAreaInsets();
@@ -139,6 +139,10 @@ export default function CategoryDetailScreen() {
   const renderStoreItem = ({ item }: any) => {
     const imageUrl = item.mainImage || item.logo || item.coverImage;
 
+    // Generate random distance and delivery time for demo purposes
+    const distance = `${(Math.random() * 5).toFixed(1)} km`;
+    const deliveryTime = `${Math.floor(Math.random() * 30) + 15} min`;
+
     return (
       <View style={styles.storeCardContainer}>
         <SmallStoreCard
@@ -147,6 +151,8 @@ export default function CategoryDetailScreen() {
           type={item.categories?.[0] || "Store"}
           rating={item.averageRating}
           loyaltyBenefit={item.isVerified ? "10% Off" : undefined}
+          distance={distance}
+          deliveryTime={deliveryTime}
           onPress={() => handleStorePress(item._id)}
         />
       </View>
@@ -206,12 +212,12 @@ export default function CategoryDetailScreen() {
 
   return (
     <View style={[styles.container, { paddingTop: insets.top }]}>
-      <StatusBar style="light" />
+      <StatusBar style="dark" />
 
       {/* Header */}
       <View style={styles.header}>
         <TouchableOpacity style={styles.backButton} onPress={handleBackPress}>
-          <MaterialIcons name="arrow-back" size={24} color="#FFFFFF" />
+          <MaterialIcons name="arrow-back" size={24} color="#000" />
         </TouchableOpacity>
 
         <View style={styles.headerTitleContainer}>
@@ -222,7 +228,7 @@ export default function CategoryDetailScreen() {
           style={styles.filterButton}
           onPress={() => setShowFilters(true)}
         >
-          <MaterialIcons name="filter-list" size={24} color="#FFFFFF" />
+          <MaterialIcons name="filter-list" size={24} color="#8A3FFC" />
         </TouchableOpacity>
       </View>
 
@@ -381,9 +387,13 @@ export default function CategoryDetailScreen() {
             ListEmptyComponent={renderEmptyState}
             ListFooterComponent={renderFooter}
             onEndReached={handleLoadMore}
-            onEndReachedThreshold={0.3}
+            onEndReachedThreshold={0.5}
             showsVerticalScrollIndicator={false}
             style={styles.storeList}
+            removeClippedSubviews={false}
+            windowSize={5}
+            maxToRenderPerBatch={10}
+            initialNumToRender={8}
           />
         </View>
       </View>
@@ -412,11 +422,13 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     paddingHorizontal: 16,
-    paddingVertical: 16,
-    backgroundColor: "#8A3FFC",
+    paddingVertical: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: "#EEEEEE",
+    backgroundColor: "#FFFFFF",
   },
   backButton: {
-    padding: 8,
+    marginRight: 12,
   },
   headerTitleContainer: {
     flex: 1,
@@ -425,7 +437,7 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontSize: 18,
     fontFamily: "Jost-Bold",
-    color: "#FFFFFF",
+    color: "#000000",
   },
   filterButton: {
     padding: 8,
@@ -438,7 +450,7 @@ const styles = StyleSheet.create({
     minHeight: "100%",
   },
   sidebar: {
-    width: 100,
+    width: 80,
     backgroundColor: "#F5F5F5",
     paddingTop: 16,
     borderRightWidth: 1,
@@ -531,8 +543,8 @@ const styles = StyleSheet.create({
     color: "#8A3FFC",
   },
   storeGrid: {
-    padding: 12,
-    paddingBottom: 24,
+    padding: 8,
+    paddingBottom: 80, // Add extra padding at bottom to ensure last items are visible
     flexGrow: 1,
   },
   storeList: {
@@ -542,8 +554,8 @@ const styles = StyleSheet.create({
   },
   storeCardContainer: {
     width: CARD_WIDTH,
-    margin: 6,
-    marginBottom: 12,
+    margin: 4,
+    marginBottom: 10,
   },
   emptyStateContainer: {
     padding: 24,
