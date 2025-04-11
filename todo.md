@@ -1,6 +1,6 @@
 // My platform
 
-store search page with filters bottom sheet and api
+store search page with filters bottom sheet and new api
 
 home store continue exploring last section
 
@@ -34,6 +34,7 @@ order flow
 
 scanner to store
 link to store
+link to product
 
 // Type Wise UI Change
 
