@@ -208,56 +208,6 @@ export default function StoreDetailScreen() {
           <MaterialIcons name="share" size={20} color="#8A3FFC" />
           <Typography style={styles.shareButtonText}>Share Store</Typography>
         </TouchableOpacity>
-
-        {/* Visit Store and Add to FavRoute buttons */}
-        <View style={styles.actionButtonsContainer}>
-          <TouchableOpacity
-            style={[styles.actionButton, styles.primaryButton]}
-            onPress={() => {
-              // This will be implemented in the future for virtual store visits
-              Alert.alert(
-                "Coming Soon",
-                "This feature will be available in the next update."
-              );
-            }}
-          >
-            <MaterialIcons name="storefront" size={20} color="#FFFFFF" />
-            <Typography style={styles.primaryButtonText}>
-              Visit Store
-            </Typography>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={[styles.actionButton, styles.secondaryButton]}
-            onPress={() => {
-              if (!isAuthenticated) {
-                router.push("/auth/phone");
-                return;
-              }
-
-              const isAlreadyFavRoute = isFavRoute(store._id);
-              if (isAlreadyFavRoute) {
-                Alert.alert(
-                  "Already Saved",
-                  "This store is already in your saved routes."
-                );
-                return;
-              }
-
-              addFavRoute(
-                store._id,
-                store.name,
-                store.logo || store.mainImage || store.coverImage
-              );
-              Alert.alert("Success", "Store added to your saved routes.");
-            }}
-          >
-            <MaterialIcons name="bookmark-border" size={20} color="#8A3FFC" />
-            <Typography style={styles.secondaryButtonText}>
-              Save Route
-            </Typography>
-          </TouchableOpacity>
-        </View>
       </ScrollView>
     </View>
   );
@@ -357,39 +307,5 @@ const styles = StyleSheet.create({
     marginLeft: 8,
     color: "#8A3FFC",
     fontWeight: "600",
-  },
-  actionButtonsContainer: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    padding: 16,
-    paddingTop: 8,
-    marginBottom: 16,
-  },
-  actionButton: {
-    flex: 1,
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    paddingVertical: 12,
-    borderRadius: 8,
-    marginHorizontal: 4,
-  },
-  primaryButton: {
-    backgroundColor: "#8A3FFC",
-  },
-  secondaryButton: {
-    backgroundColor: "#F0E6FF",
-    borderWidth: 1,
-    borderColor: "#8A3FFC",
-  },
-  primaryButtonText: {
-    color: "#FFFFFF",
-    fontWeight: "600",
-    marginLeft: 8,
-  },
-  secondaryButtonText: {
-    color: "#8A3FFC",
-    fontWeight: "600",
-    marginLeft: 8,
   },
 });

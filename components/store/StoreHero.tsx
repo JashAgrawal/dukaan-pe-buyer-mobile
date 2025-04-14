@@ -6,7 +6,7 @@ import {
   TouchableOpacity,
   Dimensions,
 } from "react-native";
-import { MaterialIcons } from "@expo/vector-icons";
+import { MaterialIcons, Ionicons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { router } from "expo-router";
@@ -47,7 +47,7 @@ const StoreHero: React.FC<StoreHeroProps> = ({
 }) => {
   const insets = useSafeAreaInsets();
   const screenWidth = Dimensions.get("window").width;
-  const imageHeight = screenWidth * 0.7; // 70% of screen width for image height
+  const imageHeight = screenWidth * 0.6; // 60% of screen width for image height
 
   // Use the wishlist hooks
   const { data: hookIsFavorite } = useStoreWishlistStatus(id);
@@ -74,13 +74,13 @@ const StoreHero: React.FC<StoreHeroProps> = ({
 
         {/* Gradient overlay */}
         <LinearGradient
-          colors={["rgba(0,0,0,0.6)", "transparent", "rgba(0,0,0,0.3)"]}
+          colors={["rgba(0,0,0,0.7)", "rgba(0,0,0,0.3)", "rgba(0,0,0,0.1)"]}
           style={StyleSheet.absoluteFill}
         />
 
-        {/* Logo */}
+        {/* Logo - positioned at bottom left over the image */}
         {logoUrl && (
-          <View style={[styles.logoContainer, { top: insets.top + 16 }]}>
+          <View style={[styles.logoContainer]}>
             <Image source={{ uri: getImageUrl(logoUrl) }} style={styles.logo} />
           </View>
         )}
@@ -130,15 +130,23 @@ const StoreHero: React.FC<StoreHeroProps> = ({
         {/* Location */}
         {location && (
           <View style={styles.locationContainer}>
-            <Typography style={styles.locationText}>{location}</Typography>
-            {costForOne && (
-              <View style={styles.costContainer}>
-                <View style={styles.dot} />
-                <Typography style={styles.costText}>
-                  Cost for one ₹{costForOne}
-                </Typography>
-              </View>
-            )}
+            <Typography style={styles.locationText}>
+              {location}{" "}
+              <MaterialIcons
+                name="keyboard-arrow-down"
+                size={16}
+                color="#666"
+              />
+            </Typography>
+          </View>
+        )}
+
+        {/* Cost for one */}
+        {costForOne && (
+          <View style={styles.costContainer}>
+            <Typography style={styles.costText}>
+              Cost for one ₹{costForOne}
+            </Typography>
           </View>
         )}
 
@@ -154,7 +162,12 @@ const StoreHero: React.FC<StoreHeroProps> = ({
               {isOpen ? "Open now" : "Closed"}
             </Typography>
             <Typography style={styles.openingHours}>
-              {" - " + openingHours}
+              {" - " + openingHours}{" "}
+              <MaterialIcons
+                name="keyboard-arrow-down"
+                size={16}
+                color="#666"
+              />
             </Typography>
           </View>
         )}
@@ -176,6 +189,30 @@ const StoreHero: React.FC<StoreHeroProps> = ({
             </Typography>
           </View>
         )}
+
+        {/* Action Buttons */}
+        <View style={styles.actionButtonsContainer}>
+          <TouchableOpacity style={styles.actionButton}>
+            <Ionicons name="call-outline" size={24} color="#333" />
+            <Typography style={styles.actionButtonText}>Call</Typography>
+          </TouchableOpacity>
+
+          <View style={styles.actionButtonDivider} />
+
+          <TouchableOpacity style={styles.actionButton}>
+            <Ionicons name="flash-outline" size={24} color="#333" />
+            <Typography style={styles.actionButtonText}>
+              Loyalty check-in
+            </Typography>
+          </TouchableOpacity>
+
+          <View style={styles.actionButtonDivider} />
+
+          <TouchableOpacity style={styles.actionButton}>
+            <Ionicons name="scan-outline" size={24} color="#333" />
+            <Typography style={styles.actionButtonText}>Scan</Typography>
+          </TouchableOpacity>
+        </View>
       </View>
     </View>
   );
@@ -198,6 +235,7 @@ const styles = StyleSheet.create({
   logoContainer: {
     position: "absolute",
     left: 16,
+    bottom: -30,
     width: 60,
     height: 60,
     borderRadius: 8,
@@ -205,6 +243,7 @@ const styles = StyleSheet.create({
     overflow: "hidden",
     borderWidth: 1,
     borderColor: "rgba(255,255,255,0.2)",
+    zIndex: 10,
   },
   logo: {
     width: "100%",
@@ -233,23 +272,27 @@ const styles = StyleSheet.create({
   },
   infoContainer: {
     padding: 16,
+    paddingTop: 24,
   },
   nameRatingRow: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
     marginBottom: 8,
+    marginTop: 8,
   },
   storeName: {
-    fontSize: 28,
+    fontSize: 32,
     flex: 1,
     marginRight: 8,
+    fontFamily: "Jost-SemiBold",
   },
   ratingContainer: {
     backgroundColor: "#4CAF50",
     paddingHorizontal: 12,
     paddingVertical: 4,
     borderRadius: 16,
+    backgroundColor: "#4CAF50",
   },
   ratingText: {
     color: "white",
@@ -257,34 +300,28 @@ const styles = StyleSheet.create({
     fontFamily: "Jost-Bold",
   },
   categories: {
-    fontSize: 16,
+    fontSize: 18,
     color: "#333",
-    marginBottom: 8,
+    marginBottom: 12,
+    fontFamily: "Jost-Medium",
   },
   locationContainer: {
     flexDirection: "row",
     alignItems: "center",
     marginBottom: 8,
-    flexWrap: "wrap",
   },
   locationText: {
-    fontSize: 14,
+    fontSize: 16,
     color: "#666",
-  },
-  dot: {
-    width: 4,
-    height: 4,
-    borderRadius: 2,
-    backgroundColor: "#666",
-    marginHorizontal: 8,
+    fontFamily: "Jost-Regular",
   },
   costContainer: {
-    flexDirection: "row",
-    alignItems: "center",
+    marginBottom: 8,
   },
   costText: {
-    fontSize: 14,
+    fontSize: 16,
     color: "#666",
+    fontFamily: "Jost-Regular",
   },
   openingHoursContainer: {
     flexDirection: "row",
@@ -292,12 +329,13 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   openStatus: {
-    fontSize: 14,
+    fontSize: 16,
     fontFamily: "Jost-Medium",
   },
   openingHours: {
-    fontSize: 14,
+    fontSize: 16,
     color: "#666",
+    fontFamily: "Jost-Regular",
   },
   recommendationContainer: {
     flexDirection: "row",
@@ -306,6 +344,7 @@ const styles = StyleSheet.create({
     paddingTop: 16,
     borderTopWidth: 1,
     borderTopColor: "#F0F0F0",
+    marginBottom: 16,
   },
   recommendationIconContainer: {
     width: 32,
@@ -323,6 +362,31 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: "#333",
     flex: 1,
+    fontFamily: "Jost-Regular",
+  },
+  actionButtonsContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    borderTopWidth: 1,
+    borderTopColor: "#F0F0F0",
+    paddingTop: 16,
+  },
+  actionButton: {
+    flex: 1,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  actionButtonText: {
+    marginTop: 4,
+    fontSize: 14,
+    color: "#333",
+    fontFamily: "Jost-Medium",
+  },
+  actionButtonDivider: {
+    width: 1,
+    height: 24,
+    backgroundColor: "#F0F0F0",
   },
 });
 
