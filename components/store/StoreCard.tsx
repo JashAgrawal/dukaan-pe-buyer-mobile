@@ -158,8 +158,8 @@ const styles = StyleSheet.create({
     zIndex: 10,
   },
   favoriteButtonInner: {
-    width: 70,
-    height: 70,
+    width: 50,
+    height: 50,
     borderRadius: 20,
     backgroundColor: "rgba(0,0,0,0.3)",
     justifyContent: "center",
