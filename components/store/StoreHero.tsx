@@ -12,6 +12,11 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { router } from "expo-router";
 import { Typography } from "@/components/ui/Typography";
 import { getImageUrl } from "@/lib/helpers";
+import {
+  useStoreWishlistStatus,
+  useToggleStoreWishlist,
+} from "@/lib/api/hooks/useWishlist";
+import { useAuth } from "@/hooks/useAuth";
 
 interface StoreHeroProps {
   id: string;
@@ -43,12 +48,34 @@ const StoreHero: React.FC<StoreHeroProps> = ({
   isOpen = true,
   recommendationCount,
   recommendedBy,
-  isFavorite = false,
-  onToggleFavorite,
+  isFavorite: propIsFavorite = false,
+  onToggleFavorite: propOnToggleFavorite,
 }) => {
   const insets = useSafeAreaInsets();
   const screenWidth = Dimensions.get("window").width;
   const imageHeight = screenWidth * 0.7; // 70% of screen width for image height
+
+  // Use the wishlist hooks
+  const { isAuthenticated } = useAuth();
+  const { data: hookIsFavorite } = useStoreWishlistStatus(id);
+  const toggleWishlist = useToggleStoreWishlist();
+
+  // Use prop value if provided, otherwise use the hook value
+  const isFavorite = propIsFavorite || hookIsFavorite || false;
+
+  // Handle toggling favorite status
+  const handleToggleFavorite = () => {
+    if (propOnToggleFavorite) {
+      // Use the provided toggle function if available
+      propOnToggleFavorite();
+    } else if (isAuthenticated) {
+      // Otherwise use the hook
+      toggleWishlist.mutate({ storeId: id, isCurrentlyWishlisted: isFavorite });
+    } else {
+      // Redirect to login if not authenticated
+      router.push("/auth/phone");
+    }
+  };
 
   return (
     <View style={styles.container}>
@@ -83,12 +110,12 @@ const StoreHero: React.FC<StoreHeroProps> = ({
         {/* Favorite button */}
         <TouchableOpacity
           style={[styles.favoriteButton, { top: insets.top + 16 }]}
-          onPress={onToggleFavorite}
+          onPress={handleToggleFavorite}
         >
           <MaterialIcons
             name={isFavorite ? "favorite" : "favorite-border"}
             size={24}
-            color="#FFF"
+            color={isFavorite ? "#FF3B30" : "#FFF"}
           />
         </TouchableOpacity>
       </View>

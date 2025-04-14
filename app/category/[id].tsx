@@ -26,6 +26,11 @@ import {
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { categoryService, Category } from "@/lib/api/services/categoryService";
 import { StoreFilterOptions } from "@/lib/api/services/storeService";
+import {
+  useStoreWishlistStatus,
+  useToggleStoreWishlist,
+} from "@/lib/api/hooks/useWishlist";
+import { useAuth } from "@/hooks/useAuth";
 
 // Define the screen width for responsive layout
 const { width } = Dimensions.get("window");
@@ -135,9 +140,29 @@ export default function CategoryDetailScreen() {
     router.back();
   };
 
+  // Get auth state and wishlist mutation
+  const { isAuthenticated } = useAuth();
+  const toggleWishlist = useToggleStoreWishlist();
+
+  // Handle toggling wishlist status
+  const handleToggleFavorite = (
+    storeId: string,
+    isCurrentlyWishlisted: boolean
+  ) => {
+    if (!isAuthenticated) {
+      // Redirect to login if not authenticated
+      router.push("/auth/phone");
+      return;
+    }
+
+    toggleWishlist.mutate({ storeId, isCurrentlyWishlisted });
+  };
+
   // Render store item
   const renderStoreItem = ({ item }: any) => {
     const imageUrl = item.mainImage || item.logo || item.coverImage;
+    // Use the wishlist status hook for each store
+    const { data: isFavorite = false } = useStoreWishlistStatus(item._id);
 
     // Generate random distance and delivery time for demo purposes
     const distance = `${(Math.random() * 5).toFixed(1)} km`;
@@ -146,6 +171,7 @@ export default function CategoryDetailScreen() {
     return (
       <View style={styles.storeCardContainer}>
         <SmallStoreCard
+          id={item._id}
           imageUrl={getImageUrl(imageUrl)}
           name={item.name}
           type={item.categories?.[0] || "Store"}
@@ -153,6 +179,8 @@ export default function CategoryDetailScreen() {
           loyaltyBenefit={item.isVerified ? "10% Off" : undefined}
           distance={distance}
           deliveryTime={deliveryTime}
+          isFavorite={isFavorite}
+          onToggleFavorite={(id) => handleToggleFavorite(id, isFavorite)}
           onPress={() => handleStorePress(item._id)}
         />
       </View>

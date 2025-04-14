@@ -14,6 +14,11 @@ import { Typography, Body1 } from "@/components/ui/Typography";
 import { useSearchStore, SearchItem } from "@/stores/useSearchStore";
 import { getStoreById } from "@/lib/api/services/searchService";
 import StoreHero from "@/components/store/StoreHero";
+import {
+  useStoreWishlistStatus,
+  useToggleStoreWishlist,
+} from "@/lib/api/hooks/useWishlist";
+import { useAuth } from "@/hooks/useAuth";
 
 export default function StoreDetailScreen() {
   const insets = useSafeAreaInsets();
@@ -21,7 +26,9 @@ export default function StoreDetailScreen() {
   const [store, setStore] = useState<any | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
-  const [isFavorite, setIsFavorite] = useState(false);
+  const { isAuthenticated } = useAuth();
+  const { data: isFavorite = false } = useStoreWishlistStatus(id as string);
+  const toggleWishlist = useToggleStoreWishlist();
 
   useEffect(() => {
     const fetchStoreDetails = async () => {
@@ -108,8 +115,17 @@ export default function StoreDetailScreen() {
   }
 
   const handleToggleFavorite = () => {
-    setIsFavorite(!isFavorite);
-    // Here you would also call an API to update the favorite status
+    if (!isAuthenticated) {
+      // Redirect to login if not authenticated
+      router.push("/auth/phone");
+      return;
+    }
+
+    // Use the React Query mutation for optimistic updates
+    toggleWishlist.mutate({
+      storeId: id as string,
+      isCurrentlyWishlisted: isFavorite,
+    });
   };
 
   return (

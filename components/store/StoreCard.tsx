@@ -5,6 +5,7 @@ import { LinearGradient } from "expo-linear-gradient";
 import { StoreCardData } from "../../types/storeCard";
 
 interface StoreCardProps {
+  id: string;
   imageUrl: string;
   name: string;
   type: string;
@@ -13,10 +14,13 @@ interface StoreCardProps {
   rating?: number;
   loyaltyBenefit?: string;
   rewardText?: string;
+  isFavorite?: boolean;
+  onToggleFavorite?: (id: string) => void;
   onPress?: () => void;
 }
 
 const StoreCard: React.FC<StoreCardProps> = ({
+  id,
   imageUrl,
   name,
   type,
@@ -25,6 +29,8 @@ const StoreCard: React.FC<StoreCardProps> = ({
   rating,
   loyaltyBenefit,
   rewardText,
+  isFavorite = false,
+  onToggleFavorite,
   onPress,
 }) => {
   return (
@@ -36,6 +42,20 @@ const StoreCard: React.FC<StoreCardProps> = ({
       {/* Store Image */}
       <View style={styles.imageContainer}>
         <Image source={{ uri: imageUrl }} style={styles.image} />
+
+        {/* Favorite Button */}
+        <TouchableOpacity
+          style={styles.favoriteButton}
+          onPress={() => onToggleFavorite && onToggleFavorite(id)}
+        >
+          <View style={styles.favoriteButtonInner}>
+            <MaterialIcons
+              name={isFavorite ? "favorite" : "favorite-border"}
+              size={24}
+              color={isFavorite ? "#FF3B30" : "#FFFFFF"}
+            />
+          </View>
+        </TouchableOpacity>
 
         {/* Loyalty Badge */}
         {loyaltyBenefit && (
@@ -112,6 +132,20 @@ const styles = StyleSheet.create({
     width: "100%",
     height: "100%",
     resizeMode: "cover",
+  },
+  favoriteButton: {
+    position: "absolute",
+    top: 12,
+    right: 12,
+    zIndex: 10,
+  },
+  favoriteButtonInner: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: "rgba(0,0,0,0.3)",
+    justifyContent: "center",
+    alignItems: "center",
   },
   loyaltyBadgeContainer: {
     position: "absolute",

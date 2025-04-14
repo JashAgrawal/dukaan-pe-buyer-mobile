@@ -26,6 +26,11 @@ import {
 import { StoreFilterOptions } from "@/lib/api/services/storeService";
 import { getImageUrl } from "@/lib/helpers";
 import { Store } from "@/types/store";
+import {
+  useStoreWishlistStatus,
+  useToggleStoreWishlist,
+} from "@/lib/api/hooks/useWishlist";
+import { useAuth } from "@/hooks/useAuth";
 // No more tabs needed
 
 export default function StoreResultsScreen() {
@@ -72,9 +77,27 @@ export default function StoreResultsScreen() {
     setFilters(newFilters);
   };
 
+  // Get auth state and wishlist mutation
+  const { isAuthenticated } = useAuth();
+  const toggleWishlist = useToggleStoreWishlist();
+
   // Handle store press
   const handleStorePress = (storeId: string) => {
     router.push(`/store/${storeId}`);
+  };
+
+  // Handle toggling wishlist status
+  const handleToggleFavorite = (
+    storeId: string,
+    isCurrentlyWishlisted: boolean
+  ) => {
+    if (!isAuthenticated) {
+      // Redirect to login if not authenticated
+      router.push("/auth/phone");
+      return;
+    }
+
+    toggleWishlist.mutate({ storeId, isCurrentlyWishlisted });
   };
 
   // No tab change handler needed anymore
@@ -87,21 +110,30 @@ export default function StoreResultsScreen() {
   };
 
   // Render store item
-  const renderStoreItem = useCallback(({ item }: { item: Store }) => {
-    const imageUrl = item.mainImage || item.logo || item.coverImage;
-    return (
-      <View style={styles.storeCardContainer}>
-        <SmallStoreCard
-          imageUrl={getImageUrl(imageUrl)}
-          name={item.name}
-          type={item.categories?.[0] || "Store"}
-          rating={item.averageRating}
-          loyaltyBenefit={item.isVerified ? "10% Off" : undefined}
-          onPress={() => handleStorePress(item._id)}
-        />
-      </View>
-    );
-  }, []);
+  const renderStoreItem = useCallback(
+    ({ item }: { item: Store }) => {
+      const imageUrl = item.mainImage || item.logo || item.coverImage;
+      // Use the wishlist status hook for each store
+      const { data: isFavorite = false } = useStoreWishlistStatus(item._id);
+
+      return (
+        <View style={styles.storeCardContainer}>
+          <SmallStoreCard
+            id={item._id}
+            imageUrl={getImageUrl(imageUrl)}
+            name={item.name}
+            type={item.categories?.[0] || "Store"}
+            rating={item.averageRating}
+            loyaltyBenefit={item.isVerified ? "10% Off" : undefined}
+            isFavorite={isFavorite}
+            onToggleFavorite={(id) => handleToggleFavorite(id, isFavorite)}
+            onPress={() => handleStorePress(item._id)}
+          />
+        </View>
+      );
+    },
+    [isAuthenticated]
+  );
 
   // Render footer (loading indicator for infinite scroll)
   const renderFooter = () => {

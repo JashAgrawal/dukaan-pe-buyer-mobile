@@ -4,6 +4,7 @@ import { MaterialIcons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
 
 interface SmallStoreCardProps {
+  id: string;
   imageUrl: string;
   name: string;
   type: string;
@@ -11,10 +12,13 @@ interface SmallStoreCardProps {
   loyaltyBenefit?: string;
   distance?: string;
   deliveryTime?: string;
+  isFavorite?: boolean;
+  onToggleFavorite?: (id: string) => void;
   onPress?: () => void;
 }
 
 const SmallStoreCard: React.FC<SmallStoreCardProps> = ({
+  id,
   imageUrl,
   name,
   type,
@@ -22,6 +26,8 @@ const SmallStoreCard: React.FC<SmallStoreCardProps> = ({
   loyaltyBenefit,
   distance,
   deliveryTime,
+  isFavorite = false,
+  onToggleFavorite,
   onPress,
 }) => {
   return (
@@ -33,6 +39,20 @@ const SmallStoreCard: React.FC<SmallStoreCardProps> = ({
       {/* Store Image */}
       <View style={styles.imageContainer}>
         <Image source={{ uri: imageUrl }} style={styles.image} />
+
+        {/* Favorite Button */}
+        <TouchableOpacity
+          style={styles.favoriteButton}
+          onPress={() => onToggleFavorite && onToggleFavorite(id)}
+        >
+          <View style={styles.favoriteButtonInner}>
+            <MaterialIcons
+              name={isFavorite ? "favorite" : "favorite-border"}
+              size={18}
+              color={isFavorite ? "#FF3B30" : "#FFFFFF"}
+            />
+          </View>
+        </TouchableOpacity>
 
         {/* Loyalty Badge */}
         {loyaltyBenefit && (
@@ -110,6 +130,20 @@ const styles = StyleSheet.create({
     width: "100%",
     height: "100%",
     resizeMode: "cover",
+  },
+  favoriteButton: {
+    position: "absolute",
+    top: 8,
+    right: 8,
+    zIndex: 10,
+  },
+  favoriteButtonInner: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    backgroundColor: "rgba(0,0,0,0.3)",
+    justifyContent: "center",
+    alignItems: "center",
   },
   loyaltyBadgeContainer: {
     position: "absolute",

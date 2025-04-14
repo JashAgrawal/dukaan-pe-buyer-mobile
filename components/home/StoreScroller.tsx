@@ -6,6 +6,11 @@ import StoreCard from "../store/StoreCard";
 import SmallStoreCard from "../store/SmallStoreCard";
 import { getImageUrl } from "@/lib/helpers";
 import InfiniteScroller from "../common/InfiniteScroller";
+import {
+  useStoreWishlistStatus,
+  useToggleStoreWishlist,
+} from "@/lib/api/hooks/useWishlist";
+import { useAuth } from "@/hooks/useAuth";
 
 interface StoreScrollerProps {
   title: string;
@@ -32,22 +37,43 @@ const StoreScroller: React.FC<StoreScrollerProps> = ({
   isFetchingNextPage,
   variant = "big",
 }) => {
+  const { isAuthenticated } = useAuth();
+  const toggleWishlist = useToggleStoreWishlist();
+
   const handleStorePress = (storeId: string) => {
     router.push(`/store/${storeId}`);
+  };
+
+  const handleToggleFavorite = (
+    storeId: string,
+    isCurrentlyWishlisted: boolean
+  ) => {
+    if (!isAuthenticated) {
+      // Redirect to login if not authenticated
+      router.push("/auth/phone");
+      return;
+    }
+
+    toggleWishlist.mutate({ storeId, isCurrentlyWishlisted });
   };
 
   const renderStore = useCallback(
     ({ item }: { item: Store }) => {
       const imageUrl = item.mainImage || item.logo || item.coverImage;
+      // Use the wishlist status hook for each store
+      const { data: isFavorite = false } = useStoreWishlistStatus(item._id);
 
       if (variant === "small") {
         return (
           <SmallStoreCard
+            id={item._id}
             imageUrl={getImageUrl(imageUrl)}
             name={item.name}
             type={item.categories?.[0] || "Store"}
             rating={item.averageRating}
             loyaltyBenefit={item.isVerified ? "10% Off" : undefined}
+            isFavorite={isFavorite}
+            onToggleFavorite={(id) => handleToggleFavorite(id, isFavorite)}
             onPress={() => handleStorePress(item._id)}
           />
         );
@@ -56,6 +82,7 @@ const StoreScroller: React.FC<StoreScrollerProps> = ({
       return (
         <View style={styles.bigCardContainer}>
           <StoreCard
+            id={item._id}
             imageUrl={getImageUrl(imageUrl)}
             name={item.name}
             type={item.categories?.[0] || "Store"}
@@ -76,12 +103,14 @@ const StoreScroller: React.FC<StoreScrollerProps> = ({
             rewardText={
               item.isVerified ? "Get 20 for every recommendation" : undefined
             }
+            isFavorite={isFavorite}
+            onToggleFavorite={(id) => handleToggleFavorite(id, isFavorite)}
             onPress={() => handleStorePress(item._id)}
           />
         </View>
       );
     },
-    [variant]
+    [variant, isAuthenticated]
   );
 
   return (
