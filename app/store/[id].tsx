@@ -5,6 +5,7 @@ import {
   TouchableOpacity,
   ScrollView,
   ActivityIndicator,
+  Alert,
 } from "react-native";
 import { StatusBar } from "expo-status-bar";
 import { router, useLocalSearchParams } from "expo-router";
@@ -15,6 +16,8 @@ import ShortAppHeader from "@/components/ui/ShortAppHeader";
 import { useSearchStore, SearchItem } from "@/stores/useSearchStore";
 import { getStoreById } from "@/lib/api/services/searchService";
 import StoreHero from "@/components/store/StoreHero";
+import { useFavRoutesStore } from "@/stores/favRoutesStore";
+import { useAuth } from "@/hooks/useAuth";
 
 export default function StoreDetailScreen() {
   const insets = useSafeAreaInsets();
@@ -22,6 +25,8 @@ export default function StoreDetailScreen() {
   const [store, setStore] = useState<any | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
+  const { isAuthenticated } = useAuth();
+  const { addFavRoute, isFavRoute } = useFavRoutesStore();
   // No need for auth or wishlist hooks here as they're handled in the StoreHero component
 
   useEffect(() => {
@@ -185,6 +190,56 @@ export default function StoreDetailScreen() {
                 `info@${store.name.toLowerCase().replace(/\s+/g, "")}.com`}
             </Body1>
           </View>
+        </View>
+
+        {/* Visit Store and Add to FavRoute buttons */}
+        <View style={styles.actionButtonsContainer}>
+          <TouchableOpacity
+            style={[styles.actionButton, styles.primaryButton]}
+            onPress={() => {
+              // This will be implemented in the future for virtual store visits
+              Alert.alert(
+                "Coming Soon",
+                "This feature will be available in the next update."
+              );
+            }}
+          >
+            <MaterialIcons name="storefront" size={20} color="#FFFFFF" />
+            <Typography style={styles.primaryButtonText}>
+              Visit Store
+            </Typography>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={[styles.actionButton, styles.secondaryButton]}
+            onPress={() => {
+              if (!isAuthenticated) {
+                router.push("/auth/phone");
+                return;
+              }
+
+              const isAlreadyFavRoute = isFavRoute(store._id);
+              if (isAlreadyFavRoute) {
+                Alert.alert(
+                  "Already Saved",
+                  "This store is already in your saved routes."
+                );
+                return;
+              }
+
+              addFavRoute(
+                store._id,
+                store.name,
+                store.logo || store.mainImage || store.coverImage
+              );
+              Alert.alert("Success", "Store added to your saved routes.");
+            }}
+          >
+            <MaterialIcons name="bookmark-border" size={20} color="#8A3FFC" />
+            <Typography style={styles.secondaryButtonText}>
+              Save Route
+            </Typography>
+          </TouchableOpacity>
         </View>
       </ScrollView>
     </View>
