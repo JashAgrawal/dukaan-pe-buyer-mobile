@@ -1,7 +1,7 @@
-import { useCallback } from 'react';
-import { useRouter } from 'expo-router';
-import { useAuth } from './useAuth';
-import { useToggleStoreWishlist } from '@/lib/api/hooks/useWishlist';
+import { useCallback } from "react";
+import { useRouter } from "expo-router";
+import { useAuth } from "./useAuth";
+import { useToggleStoreWishlist } from "@/lib/api/hooks/useWishlist";
 
 /**
  * Custom hook to handle wishlist toggling with authentication check
@@ -13,23 +13,42 @@ export const useWishlistToggle = () => {
   const toggleWishlist = useToggleStoreWishlist();
 
   // Return a memoized function to handle toggling
-  const handleToggleWishlist = useCallback((storeId: string, isCurrentlyWishlisted: boolean) => {
-    if (!isAuthenticated) {
-      // Redirect to login if not authenticated
-      router.push('/auth/phone');
-      return;
-    }
+  const handleToggleWishlist = useCallback(
+    (storeId: string, isCurrentlyWishlisted: boolean) => {
+      if (!isAuthenticated) {
+        // Redirect to login if not authenticated
+        router.push("/auth/phone");
+        return;
+      }
 
-    // Use the mutation with optimistic updates
-    toggleWishlist.mutate({ 
-      storeId, 
-      isCurrentlyWishlisted 
-    });
-  }, [isAuthenticated, router, toggleWishlist]);
+      // Use the mutation with optimistic updates
+      toggleWishlist.mutate(
+        {
+          storeId,
+          isCurrentlyWishlisted,
+        },
+        {
+          // Add onSuccess callback to show feedback
+          onSuccess: () => {
+            console.log(
+              `Store ${
+                isCurrentlyWishlisted ? "removed from" : "added to"
+              } wishlist`
+            );
+          },
+          // Add onError callback to show error
+          onError: (error) => {
+            console.error("Error toggling wishlist:", error);
+          },
+        }
+      );
+    },
+    [isAuthenticated, router, toggleWishlist]
+  );
 
   return {
     toggleWishlist: handleToggleWishlist,
-    isLoading: toggleWishlist.isPending
+    isLoading: toggleWishlist.isPending,
   };
 };
 

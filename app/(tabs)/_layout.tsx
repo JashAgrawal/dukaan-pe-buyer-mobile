@@ -11,13 +11,14 @@ import { useLocation } from "@/hooks/useLocation";
 import { IconSymbol } from "@/components/ui/IconSymbol";
 import { Colors } from "@/lib/constants/Colors";
 import { useColorScheme } from "@/hooks/useColorScheme";
-import { tabBarTranslateY } from "@/components/ui/ScrollAwareWrapper";
+import { useTabBar } from "@/components/ui/TabBarContext";
 
 export default function TabLayout() {
   const colorScheme = useColorScheme();
   const insets = useSafeAreaInsets();
   const { isAuthenticated, isLoading: isAuthLoading } = useAuth();
   const { isLocationSet, isLoading: isLocationLoading } = useLocation();
+  const { tabBarTranslateY } = useTabBar();
 
   // Redirect to auth if not authenticated
   useEffect(() => {

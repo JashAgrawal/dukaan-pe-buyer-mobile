@@ -17,12 +17,21 @@ import {
 import { useAuth } from "@/hooks/useAuth";
 import SmallStoreCard from "@/components/store/SmallStoreCard";
 import { getImageUrl } from "@/lib/helpers";
-import { router } from "expo-router";
+import { router, useFocusEffect } from "expo-router";
 
 export default function WishlistScreen() {
   const { isAuthenticated } = useAuth();
   const wishlistQuery = useStoreWishlist(20);
   const stores = getWishlistedStores(wishlistQuery.data);
+
+  // Refetch wishlist when the screen comes into focus
+  useFocusEffect(
+    React.useCallback(() => {
+      if (isAuthenticated) {
+        wishlistQuery.refetch();
+      }
+    }, [isAuthenticated])
+  );
 
   const handleStorePress = (storeId: string) => {
     router.push(`/store/${storeId}`);
@@ -41,7 +50,7 @@ export default function WishlistScreen() {
           type={item.categories?.[0] || "Store"}
           rating={item.averageRating}
           loyaltyBenefit={item.isVerified ? "10% Off" : undefined}
-          isFavorite={true} // It's in the wishlist, so it's favorited
+          isFavorite={true} // It's in the wishlist, so it's favorited by default
           onPress={() => handleStorePress(item._id)}
         />
       </View>

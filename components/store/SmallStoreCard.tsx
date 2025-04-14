@@ -14,6 +14,7 @@ interface SmallStoreCardProps {
   loyaltyBenefit?: string;
   distance?: string;
   deliveryTime?: string;
+  isFavorite?: boolean;
   onPress?: () => void;
 }
 
@@ -26,15 +27,22 @@ const SmallStoreCard: React.FC<SmallStoreCardProps> = ({
   loyaltyBenefit,
   distance,
   deliveryTime,
+  isFavorite: propIsFavorite,
   onPress,
 }) => {
   // Use our custom hook for wishlist toggling
   const { toggleWishlist } = useWishlistToggle();
-  const { data: isFavorite } = useStoreWishlistStatus(id);
+  const { data: hookIsFavorite } = useStoreWishlistStatus(id);
+
+  // Use prop value if provided, otherwise use the hook value
+  const isFavorite =
+    propIsFavorite !== undefined ? propIsFavorite : hookIsFavorite || false;
 
   // Handle toggling favorite status
-  const handleToggleFavorite = () => {
-    toggleWishlist(id, isFavorite || false);
+  const handleToggleFavorite = (e: any) => {
+    // Stop event propagation to prevent card click
+    e.stopPropagation();
+    toggleWishlist(id, isFavorite);
   };
 
   return (

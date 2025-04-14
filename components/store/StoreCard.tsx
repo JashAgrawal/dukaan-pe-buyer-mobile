@@ -32,11 +32,16 @@ const StoreCard: React.FC<StoreCardProps> = ({
 }) => {
   // Use our custom hook for wishlist toggling
   const { toggleWishlist } = useWishlistToggle();
-  const { data: isFavorite } = useStoreWishlistStatus(id);
+  const { data: hookIsFavorite } = useStoreWishlistStatus(id);
+
+  // Use prop value if provided, otherwise use the hook value
+  const isFavorite = hookIsFavorite || false;
 
   // Handle toggling favorite status
-  const handleToggleFavorite = () => {
-    toggleWishlist(id, isFavorite || false);
+  const handleToggleFavorite = (e: any) => {
+    // Stop event propagation to prevent card click
+    e.stopPropagation();
+    toggleWishlist(id, isFavorite);
   };
   return (
     <TouchableOpacity
@@ -71,7 +76,9 @@ const StoreCard: React.FC<StoreCardProps> = ({
               end={{ x: 1, y: 0 }}
               style={styles.loyaltyBadge}
             >
-              <Text style={styles.loyaltyText}>🎁 Loyalty Benefits</Text>
+              <Text style={styles.loyaltyText}>
+                <Text>🎁</Text> Loyalty Benefits
+              </Text>
             </LinearGradient>
           </View>
         )}
@@ -105,7 +112,9 @@ const StoreCard: React.FC<StoreCardProps> = ({
         {rewardText && (
           <View style={styles.rewardContainer}>
             <View style={styles.rewardIconContainer}>
-              <Text style={{ color: "white", fontSize: 10 }}>💰</Text>
+              <Text style={{ color: "white", fontSize: 10 }}>
+                <Text>💰</Text>
+              </Text>
             </View>
             <Text style={styles.rewardText}>{rewardText}</Text>
           </View>
@@ -127,6 +136,7 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
     elevation: 3,
     marginBottom: 16,
+    maxWidth: 300,
   },
   imageContainer: {
     width: "100%",

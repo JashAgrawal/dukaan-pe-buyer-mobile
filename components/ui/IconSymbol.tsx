@@ -24,6 +24,13 @@ const MAPPING = {
   "arrow-back": "arrow-back",
   "00.circle.hi": "circle",
   "arrow.left": "chevron-left",
+  // Add missing icon mappings
+  "location.fill": "location-on",
+  "bag.fill": "shopping-bag",
+  "bell.fill": "notifications",
+  "lock.fill": "lock",
+  "questionmark.circle.fill": "help",
+  "doc.text.fill": "description",
 } as Partial<
   Record<
     import("expo-symbols").SymbolViewProps["name"],

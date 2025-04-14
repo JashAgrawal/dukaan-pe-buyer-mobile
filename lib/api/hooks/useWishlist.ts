@@ -71,12 +71,17 @@ export const useToggleStoreWishlist = () => {
         queryKey: ["wishlist", "status", storeId],
       });
 
-      // Snapshot the previous value
+      // Snapshot the previous values
       const previousStatus = queryClient.getQueryData([
         "wishlist",
         "status",
         storeId,
       ]);
+
+      const previousWishlist = queryClient.getQueryData([
+        "wishlist",
+        "stores",
+      ]) as any;
 
       // Optimistically update the status
       queryClient.setQueryData(
@@ -84,22 +89,59 @@ export const useToggleStoreWishlist = () => {
         !isCurrentlyWishlisted
       );
 
-      // Return a context object with the snapshotted value
-      return { previousStatus };
+      // If removing from wishlist, update the wishlist data
+      if (isCurrentlyWishlisted && previousWishlist) {
+        // This is a simplified approach - in a real app, you'd need to handle the pagination structure
+        // For now, we'll just update the first page if it exists
+        const updatedWishlist = { ...previousWishlist };
+        if (updatedWishlist.pages && updatedWishlist.pages.length > 0) {
+          updatedWishlist.pages = updatedWishlist.pages.map((page: any) => {
+            if (!page.data || !page.data.wishlist) return page;
+
+            return {
+              ...page,
+              data: {
+                ...page.data,
+                wishlist: page.data.wishlist.filter((item: any) => {
+                  const itemStoreId =
+                    typeof item.store === "string"
+                      ? item.store
+                      : item.store._id;
+                  return itemStoreId !== storeId;
+                }),
+              },
+            };
+          });
+
+          queryClient.setQueryData(["wishlist", "stores"], updatedWishlist);
+        }
+      }
+
+      // Return a context object with the snapshotted values
+      return { previousStatus, previousWishlist };
     },
 
     // If the mutation fails, use the context returned from onMutate to roll back
-    onError: (err, variables, context) => {
+    onError: (_error, variables, context) => {
+      // Restore previous status
       if (context?.previousStatus !== undefined) {
         queryClient.setQueryData(
           ["wishlist", "status", variables.storeId],
           context.previousStatus
         );
       }
+
+      // Restore previous wishlist data
+      if (context?.previousWishlist) {
+        queryClient.setQueryData(
+          ["wishlist", "stores"],
+          context.previousWishlist
+        );
+      }
     },
 
     // Always refetch after error or success
-    onSettled: (data, error, variables) => {
+    onSettled: (_data, _error, variables) => {
       queryClient.invalidateQueries({ queryKey: ["wishlist"] });
       queryClient.invalidateQueries({
         queryKey: ["wishlist", "status", variables.storeId],

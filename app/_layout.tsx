@@ -22,6 +22,7 @@ import "@/stores/useSearchStore";
 // Import components
 import LocationDetector from "@/components/location/LocationDetector";
 import FontProvider from "@/components/providers/FontProvider";
+import { TabBarProvider } from "@/components/ui/TabBarContext";
 
 // Import hooks
 import { useSearchInit } from "@/hooks/useSearchInit";
@@ -63,23 +64,25 @@ export default function RootLayout() {
   return (
     <QueryClientProvider client={queryClient}>
       <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
-        <FontProvider>
-          <Stack
-            screenOptions={{
-              headerShown: false,
-              contentStyle: { backgroundColor: "white" },
-            }}
-          >
-            <Stack.Screen name="(tabs)" />
-            <Stack.Screen name="auth" />
-            <Stack.Screen name="location" />
-            <Stack.Screen name="search" />
-            <Stack.Screen name="store" />
-            <Stack.Screen name="+not-found" />
-          </Stack>
-          <LocationDetector />
-          <StatusBar style="auto" />
-        </FontProvider>
+        <TabBarProvider>
+          <FontProvider>
+            <Stack
+              screenOptions={{
+                headerShown: false,
+                contentStyle: { backgroundColor: "white" },
+              }}
+            >
+              <Stack.Screen name="(tabs)" />
+              <Stack.Screen name="auth" />
+              <Stack.Screen name="location" />
+              <Stack.Screen name="search" />
+              <Stack.Screen name="store" />
+              <Stack.Screen name="+not-found" />
+            </Stack>
+            <LocationDetector />
+            <StatusBar style="auto" />
+          </FontProvider>
+        </TabBarProvider>
       </ThemeProvider>
     </QueryClientProvider>
   );

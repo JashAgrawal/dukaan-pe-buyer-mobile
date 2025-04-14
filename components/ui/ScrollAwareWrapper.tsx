@@ -2,7 +2,7 @@ import React, { ReactNode, useRef, useEffect } from "react";
 import {
   View,
   StyleSheet,
-  ScrollView,
+  FlatList,
   NativeSyntheticEvent,
   NativeScrollEvent,
 } from "react-native";
@@ -12,9 +12,7 @@ import Animated, {
   withTiming,
 } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-
-// Create a shared value for tab bar animation that can be accessed globally
-export const tabBarTranslateY = useSharedValue(0);
+import { useTabBar } from "./TabBarContext";
 
 interface ScrollAwareWrapperProps {
   children: ReactNode;
@@ -26,7 +24,8 @@ export default function ScrollAwareWrapper({
   headerComponent,
 }: ScrollAwareWrapperProps) {
   const insets = useSafeAreaInsets();
-  const scrollViewRef = useRef<ScrollView>(null);
+  const scrollViewRef = useRef<FlatList>(null);
+  const { tabBarTranslateY } = useTabBar();
 
   // Animation values using Reanimated
   const headerTranslateY = useSharedValue(0);
@@ -38,7 +37,7 @@ export default function ScrollAwareWrapper({
     tabBarTranslateY.value = 0;
 
     // No cleanup needed as we're using a global shared value
-  }, []);
+  }, [tabBarTranslateY]);
 
   // Handle scroll events
   const handleScroll = (event: NativeSyntheticEvent<NativeScrollEvent>) => {
@@ -51,7 +50,7 @@ export default function ScrollAwareWrapper({
     if (diff > 0 && currentScrollY > 50) {
       // Scrolling down and not at the top
       // Calculate header height (approx 120px + top insets)
-      const headerHeight = 120 + insets.top;
+      const headerHeight = 30 + insets.top;
       headerTranslateY.value = withTiming(-headerHeight, {
         duration: 300,
       });
@@ -91,7 +90,7 @@ export default function ScrollAwareWrapper({
       </Animated.View>
 
       {/* Content */}
-      <ScrollView
+      <FlatList
         ref={scrollViewRef}
         style={styles.scrollView}
         contentContainerStyle={[
@@ -101,9 +100,10 @@ export default function ScrollAwareWrapper({
         showsVerticalScrollIndicator={false}
         onScroll={handleScroll}
         scrollEventThrottle={16}
-      >
-        {children}
-      </ScrollView>
+        data={[{ key: "content" }]}
+        renderItem={() => <>{children}</>}
+        keyExtractor={(item) => item.key}
+      />
 
       {/* No Tab Bar Overlay - we'll animate the actual tab bar */}
     </View>

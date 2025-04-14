@@ -28,6 +28,7 @@ interface StoreHeroProps {
   isOpen?: boolean;
   recommendationCount?: number;
   recommendedBy?: string;
+  isFavorite?: boolean;
 }
 
 const StoreHero: React.FC<StoreHeroProps> = ({
@@ -56,7 +57,9 @@ const StoreHero: React.FC<StoreHeroProps> = ({
   const isFavorite = hookIsFavorite || false;
 
   // Handle toggling favorite status
-  const handleToggleFavorite = () => {
+  const handleToggleFavorite = (e: any) => {
+    // Stop event propagation to prevent card click
+    if (e) e.stopPropagation();
     toggleWishlist(id, isFavorite);
   };
 
