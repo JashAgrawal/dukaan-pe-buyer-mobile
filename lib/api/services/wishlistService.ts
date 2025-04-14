@@ -75,11 +75,10 @@ export const wishlistService = {
     try {
       const response = await wishlistService.getStoreWishlist(1, 100);
       const wishlistItems = response.data.wishlist;
-      
+
       return wishlistItems.some((item) => {
-        const store = typeof item.store === 'string' 
-          ? item.store 
-          : item.store._id;
+        const store =
+          typeof item.store === "string" ? item.store : item.store._id;
         return store === storeId;
       });
     } catch (error) {

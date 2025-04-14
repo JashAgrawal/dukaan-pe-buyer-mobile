@@ -92,6 +92,7 @@ const StoresScreen = () => {
         contentContainerStyle={styles.listContent}
         renderItem={({ item }) => (
           <StoreCard
+            id={item.id}
             imageUrl={item.imageUrl}
             name={item.name}
             type={item.type}

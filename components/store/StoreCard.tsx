@@ -2,10 +2,8 @@ import React from "react";
 import { View, Text, Image, StyleSheet, TouchableOpacity } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
-import { StoreCardData } from "../../types/storeCard";
-import { useAuth } from "@/hooks/useAuth";
-import { useRouter } from "expo-router";
-import { useToggleStoreWishlist } from "@/lib/api/hooks/useWishlist";
+import useWishlistToggle from "@/hooks/useWishlistToggle";
+import { useStoreWishlistStatus } from "@/lib/api/hooks/useWishlist";
 
 interface StoreCardProps {
   id: string;
@@ -17,7 +15,6 @@ interface StoreCardProps {
   rating?: number;
   loyaltyBenefit?: string;
   rewardText?: string;
-  isFavorite?: boolean;
   onPress?: () => void;
 }
 
@@ -31,25 +28,15 @@ const StoreCard: React.FC<StoreCardProps> = ({
   rating,
   loyaltyBenefit,
   rewardText,
-  isFavorite = false,
   onPress,
 }) => {
-  const { isAuthenticated } = useAuth();
-  const router = useRouter();
-
-  // Get the toggle wishlist mutation
-  const toggleWishlist = useToggleStoreWishlist();
+  // Use our custom hook for wishlist toggling
+  const { toggleWishlist } = useWishlistToggle();
+  const { data: isFavorite } = useStoreWishlistStatus(id);
 
   // Handle toggling favorite status
   const handleToggleFavorite = () => {
-    if (!isAuthenticated) {
-      // Redirect to login if not authenticated
-      router.push("/auth/phone");
-      return;
-    }
-
-    // Use the mutation with optimistic updates
-    toggleWishlist.mutate({ storeId: id, isCurrentlyWishlisted: isFavorite });
+    toggleWishlist(id, isFavorite || false);
   };
   return (
     <TouchableOpacity

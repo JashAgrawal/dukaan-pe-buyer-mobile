@@ -10,6 +10,7 @@ const StoreCardExamples = () => {
     >
       {/* Restaurant Card Example - Akkad Bakkad */}
       <StoreCard
+        id="1"
         imageUrl="https://images.unsplash.com/photo-1585937421612-70a008356c36?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=736&q=80"
         name="Akkad Bakkad Bombay Boom"
         type="Restaurant"
@@ -22,6 +23,7 @@ const StoreCardExamples = () => {
 
       {/* Salon Card Example - Bhavya S Wadhwa Salon */}
       <StoreCard
+        id="2"
         imageUrl="https://images.unsplash.com/photo-1560066984-138dadb4c035?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1074&q=80"
         name="Bhavya S Wadhwa Salon"
         type="Restaurant"

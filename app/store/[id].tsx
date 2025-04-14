@@ -14,11 +14,6 @@ import { Typography, Body1 } from "@/components/ui/Typography";
 import { useSearchStore, SearchItem } from "@/stores/useSearchStore";
 import { getStoreById } from "@/lib/api/services/searchService";
 import StoreHero from "@/components/store/StoreHero";
-import {
-  useStoreWishlistStatus,
-  useToggleStoreWishlist,
-} from "@/lib/api/hooks/useWishlist";
-import { useAuth } from "@/hooks/useAuth";
 
 export default function StoreDetailScreen() {
   const insets = useSafeAreaInsets();
@@ -26,8 +21,7 @@ export default function StoreDetailScreen() {
   const [store, setStore] = useState<any | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
-  const { isAuthenticated } = useAuth();
-  const toggleWishlist = useToggleStoreWishlist();
+  // No need for auth or wishlist hooks here as they're handled in the StoreHero component
 
   useEffect(() => {
     const fetchStoreDetails = async () => {
@@ -143,7 +137,6 @@ export default function StoreDetailScreen() {
           isOpen={store.isOpen !== undefined ? store.isOpen : true}
           recommendationCount={280}
           recommendedBy="Bhagyalaxmi"
-          isFavorite={store.inWishlist}
         />
 
         <View style={styles.storeInfo}>

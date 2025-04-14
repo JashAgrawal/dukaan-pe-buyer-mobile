@@ -41,7 +41,6 @@ export interface Store {
   is_24_7?: boolean;
   orderCount?: number;
   wishlistCount?: number;
-  inWishlist?: boolean;
   createdAt: string;
   updatedAt: string;
 }

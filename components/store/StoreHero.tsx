@@ -12,11 +12,8 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { router } from "expo-router";
 import { Typography } from "@/components/ui/Typography";
 import { getImageUrl } from "@/lib/helpers";
-import {
-  useStoreWishlistStatus,
-  useToggleStoreWishlist,
-} from "@/lib/api/hooks/useWishlist";
-import { useAuth } from "@/hooks/useAuth";
+import { useStoreWishlistStatus } from "@/lib/api/hooks/useWishlist";
+import useWishlistToggle from "@/hooks/useWishlistToggle";
 
 interface StoreHeroProps {
   id: string;
@@ -31,8 +28,6 @@ interface StoreHeroProps {
   isOpen?: boolean;
   recommendationCount?: number;
   recommendedBy?: string;
-  isFavorite?: boolean;
-  onToggleFavorite?: () => void;
 }
 
 const StoreHero: React.FC<StoreHeroProps> = ({
@@ -48,32 +43,21 @@ const StoreHero: React.FC<StoreHeroProps> = ({
   isOpen = true,
   recommendationCount,
   recommendedBy,
-  isFavorite: propIsFavorite = false,
 }) => {
   const insets = useSafeAreaInsets();
   const screenWidth = Dimensions.get("window").width;
   const imageHeight = screenWidth * 0.7; // 70% of screen width for image height
 
   // Use the wishlist hooks
-  const { isAuthenticated } = useAuth();
   const { data: hookIsFavorite } = useStoreWishlistStatus(id);
-  const toggleWishlist = useToggleStoreWishlist();
+  const { toggleWishlist } = useWishlistToggle();
 
   // Use prop value if provided, otherwise use the hook value
-  const isFavorite = propIsFavorite || hookIsFavorite || false;
+  const isFavorite = hookIsFavorite || false;
 
   // Handle toggling favorite status
   const handleToggleFavorite = () => {
-    if (isAuthenticated) {
-      // Use the mutation with optimistic updates
-      toggleWishlist.mutate({
-        storeId: id,
-        isCurrentlyWishlisted: isFavorite,
-      });
-    } else {
-      // Redirect to login if not authenticated
-      router.push("/auth/phone");
-    }
+    toggleWishlist(id, isFavorite);
   };
 
   return (

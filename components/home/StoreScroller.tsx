@@ -6,7 +6,6 @@ import StoreCard from "../store/StoreCard";
 import SmallStoreCard from "../store/SmallStoreCard";
 import { getImageUrl } from "@/lib/helpers";
 import InfiniteScroller from "../common/InfiniteScroller";
-// No need for auth or wishlist hooks in this component
 
 interface StoreScrollerProps {
   title: string;
@@ -43,8 +42,6 @@ const StoreScroller: React.FC<StoreScrollerProps> = ({
     ({ item }: { item: Store }) => {
       const imageUrl = item.mainImage || item.logo || item.coverImage;
       // Use the server-provided wishlist status or default to false
-      const isFavorite = item.inWishlist || false;
-
       if (variant === "small") {
         return (
           <SmallStoreCard
@@ -54,7 +51,6 @@ const StoreScroller: React.FC<StoreScrollerProps> = ({
             type={item.categories?.[0] || "Store"}
             rating={item.averageRating}
             loyaltyBenefit={item.isVerified ? "10% Off" : undefined}
-            isFavorite={isFavorite}
             onPress={() => handleStorePress(item._id)}
           />
         );
@@ -84,7 +80,6 @@ const StoreScroller: React.FC<StoreScrollerProps> = ({
             rewardText={
               item.isVerified ? "Get 20 for every recommendation" : undefined
             }
-            isFavorite={isFavorite}
             onPress={() => handleStorePress(item._id)}
           />
         </View>
