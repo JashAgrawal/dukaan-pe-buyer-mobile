@@ -6,6 +6,7 @@ import {
   ScrollView,
   ActivityIndicator,
   Alert,
+  Share,
 } from "react-native";
 import { StatusBar } from "expo-status-bar";
 import { router, useLocalSearchParams } from "expo-router";
@@ -18,6 +19,7 @@ import { getStoreById } from "@/lib/api/services/searchService";
 import StoreHero from "@/components/store/StoreHero";
 import { useFavRoutesStore } from "@/stores/favRoutesStore";
 import { useAuth } from "@/hooks/useAuth";
+import { generateStoreDeepLink } from "@/lib/utils/deepLinking";
 
 export default function StoreDetailScreen() {
   const insets = useSafeAreaInsets();
@@ -192,6 +194,21 @@ export default function StoreDetailScreen() {
           </View>
         </View>
 
+        {/* Share button */}
+        <TouchableOpacity
+          style={styles.shareButton}
+          onPress={() => {
+            const deepLink = generateStoreDeepLink(store._id);
+            Share.share({
+              message: `Check out ${store.name} on DUNE! ${deepLink}`,
+              url: deepLink,
+            });
+          }}
+        >
+          <MaterialIcons name="share" size={20} color="#8A3FFC" />
+          <Typography style={styles.shareButtonText}>Share Store</Typography>
+        </TouchableOpacity>
+
         {/* Visit Store and Add to FavRoute buttons */}
         <View style={styles.actionButtonsContainer}>
           <TouchableOpacity
@@ -323,5 +340,56 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontFamily: "Jost-Medium",
     color: "#FFFFFF",
+  },
+  shareButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    padding: 12,
+    marginHorizontal: 16,
+    marginTop: 8,
+    borderWidth: 1,
+    borderColor: "#E0E0E0",
+    borderRadius: 8,
+    backgroundColor: "#F8F8F8",
+  },
+  shareButtonText: {
+    marginLeft: 8,
+    color: "#8A3FFC",
+    fontWeight: "600",
+  },
+  actionButtonsContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    padding: 16,
+    paddingTop: 8,
+    marginBottom: 16,
+  },
+  actionButton: {
+    flex: 1,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    paddingVertical: 12,
+    borderRadius: 8,
+    marginHorizontal: 4,
+  },
+  primaryButton: {
+    backgroundColor: "#8A3FFC",
+  },
+  secondaryButton: {
+    backgroundColor: "#F0E6FF",
+    borderWidth: 1,
+    borderColor: "#8A3FFC",
+  },
+  primaryButtonText: {
+    color: "#FFFFFF",
+    fontWeight: "600",
+    marginLeft: 8,
+  },
+  secondaryButtonText: {
+    color: "#8A3FFC",
+    fontWeight: "600",
+    marginLeft: 8,
   },
 });

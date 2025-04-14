@@ -99,6 +99,8 @@ export default function TabLayout() {
                   })
                 : null;
 
+              if (!icon) return null;
+
               return (
                 <TouchableOpacity
                   key={route.key}
@@ -113,18 +115,20 @@ export default function TabLayout() {
                   style={styles.tabButton}
                 >
                   {icon}
-                  <Text
-                    style={[
-                      styles.tabLabel,
-                      {
-                        color: isFocused
-                          ? Colors[colorScheme ?? "light"].tint
-                          : Colors[colorScheme ?? "light"].tabIconDefault,
-                      },
-                    ]}
-                  >
-                    {label as string}
-                  </Text>
+                  {label ? (
+                    <Text
+                      style={[
+                        styles.tabLabel,
+                        {
+                          color: isFocused
+                            ? Colors[colorScheme ?? "light"].tint
+                            : Colors[colorScheme ?? "light"].tabIconDefault,
+                        },
+                      ]}
+                    >
+                      {label as string}
+                    </Text>
+                  ) : null}
                 </TouchableOpacity>
               );
             })}
@@ -167,7 +171,7 @@ export default function TabLayout() {
             <TouchableOpacity
               onPress={() => router.push("/scanner")}
               style={{
-                padding: 5,
+                padding: 16,
                 paddingHorizontal: 12,
                 backgroundColor: "#874BF9",
                 borderRadius: 100,
@@ -175,6 +179,15 @@ export default function TabLayout() {
             >
               <IconSymbol size={28} name="qrcode" color={"white"} />
             </TouchableOpacity>
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="favroutes"
+        options={{
+          title: "Routes",
+          tabBarIcon: ({ color }) => (
+            <IconSymbol size={28} name="link.fill" color={color} />
           ),
         }}
       />
@@ -187,7 +200,7 @@ export default function TabLayout() {
           ),
         }}
       />
-      <Tabs.Screen
+      {/* <Tabs.Screen
         name="profile"
         options={{
           title: "Profile",
@@ -195,7 +208,7 @@ export default function TabLayout() {
             <IconSymbol size={28} name="person.fill" color={color} />
           ),
         }}
-      />
+      /> */}
     </Tabs>
   );
 }

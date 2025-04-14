@@ -14,6 +14,7 @@ import "@/global.css";
 
 import { useColorScheme } from "@/hooks/useColorScheme";
 import { queryClient } from "@/lib/query/queryClient";
+import { setupDeepLinking } from "@/lib/utils/deepLinking";
 // Import stores
 import "@/stores/authStore";
 import "@/stores/locationStore";
@@ -54,6 +55,9 @@ export default function RootLayout() {
   useEffect(() => {
     if (loaded) {
       SplashScreen.hideAsync();
+
+      // Set up deep linking
+      setupDeepLinking();
     }
   }, [loaded]);
 

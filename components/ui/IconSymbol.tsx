@@ -28,6 +28,7 @@ const MAPPING = {
   "location.fill": "location-on",
   "bag.fill": "shopping-bag",
   "bell.fill": "notifications",
+  "link.fill": "link",
   "lock.fill": "lock",
   "questionmark.circle.fill": "help",
   "doc.text.fill": "description",
