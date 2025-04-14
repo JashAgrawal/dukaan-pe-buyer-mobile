@@ -19,7 +19,6 @@ interface StoreCardProps {
   rating?: number;
   loyaltyBenefit?: string;
   rewardText?: string;
-  onPress?: () => void;
 }
 
 const StoreCard: React.FC<StoreCardProps> = ({
@@ -32,22 +31,19 @@ const StoreCard: React.FC<StoreCardProps> = ({
   rating,
   loyaltyBenefit,
   rewardText,
-  onPress,
 }) => {
-  // Use our custom hook for wishlist toggling
   const router = useRouter();
   const toggleMutation = useToggleStoreWishlist();
-  const { data: hookIsFavorite } = useStoreWishlistStatus(id);
+  const { data: isFavorite } = useStoreWishlistStatus(id);
 
-  // Use prop value if provided, otherwise use the hook value
-  const isFavorite = hookIsFavorite || false;
-
-  // Handle toggling favorite status
-  const handleToggleFavorite = (e: any) => {
-    // Stop event propagation to prevent card click
-    e.stopPropagation();
-    toggleMutation.mutate({ storeId: id, isCurrentlyWishlisted: isFavorite });
+  const handleToggleFavorite = () => {
+    console.log("isFavorite", isFavorite);
+    toggleMutation.mutate({
+      storeId: id,
+      isCurrentlyWishlisted: isFavorite || false,
+    });
   };
+
   return (
     <TouchableOpacity
       style={styles.container}
@@ -61,18 +57,18 @@ const StoreCard: React.FC<StoreCardProps> = ({
         <Image source={{ uri: imageUrl }} style={styles.image} />
 
         {/* Favorite Button */}
-        <TouchableOpacity
-          style={styles.favoriteButton}
-          onPress={handleToggleFavorite}
-        >
-          <View style={styles.favoriteButtonInner}>
+        <View style={styles.favoriteButton}>
+          <TouchableOpacity
+            style={styles.favoriteButtonInner}
+            onPress={handleToggleFavorite}
+          >
             <MaterialIcons
               name={isFavorite ? "favorite" : "favorite-border"}
               size={24}
               color={isFavorite ? "#FF3B30" : "#FFFFFF"}
             />
-          </View>
-        </TouchableOpacity>
+          </TouchableOpacity>
+        </View>
 
         {/* Loyalty Badge */}
         {loyaltyBenefit && (
@@ -162,8 +158,8 @@ const styles = StyleSheet.create({
     zIndex: 10,
   },
   favoriteButtonInner: {
-    width: 40,
-    height: 40,
+    width: 70,
+    height: 70,
     borderRadius: 20,
     backgroundColor: "rgba(0,0,0,0.3)",
     justifyContent: "center",

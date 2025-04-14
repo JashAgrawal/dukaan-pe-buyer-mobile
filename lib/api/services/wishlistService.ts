@@ -74,10 +74,10 @@ export const wishlistService = {
    */
   checkStoreWishlistStatus: async (storeId: string): Promise<boolean> => {
     try {
-      const response = await apiClient.get<{ inWishlist: boolean }>(
+      const response = await apiClient.get<any>(
         `/store-wishlist/check/${storeId}`
       );
-      const isInWishlist = response.data.inWishlist;
+      const isInWishlist = response.data.data.inWishlist;
 
       return isInWishlist;
     } catch (error) {

@@ -30,12 +30,13 @@ export const useStoreWishlist = (limit = 10) => {
 
 // Hook for checking if a store is in the wishlist
 export const useStoreWishlistStatus = (storeId: string) => {
-  const { isAuthenticated } = useAuth();
-
   return useQuery({
     queryKey: ["wishlist", "status", storeId],
-    queryFn: () => wishlistService.checkStoreWishlistStatus(storeId),
-    enabled: !!storeId && isAuthenticated,
+    queryFn: () => {
+      const isInWishlist = wishlistService.checkStoreWishlistStatus(storeId);
+      return isInWishlist;
+    },
+    enabled: !!storeId,
   });
 };
 
