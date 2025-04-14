@@ -49,7 +49,6 @@ const StoreHero: React.FC<StoreHeroProps> = ({
   recommendationCount,
   recommendedBy,
   isFavorite: propIsFavorite = false,
-  onToggleFavorite: propOnToggleFavorite,
 }) => {
   const insets = useSafeAreaInsets();
   const screenWidth = Dimensions.get("window").width;
@@ -65,12 +64,12 @@ const StoreHero: React.FC<StoreHeroProps> = ({
 
   // Handle toggling favorite status
   const handleToggleFavorite = () => {
-    if (propOnToggleFavorite) {
-      // Use the provided toggle function if available
-      propOnToggleFavorite();
-    } else if (isAuthenticated) {
-      // Otherwise use the hook
-      toggleWishlist.mutate({ storeId: id, isCurrentlyWishlisted: isFavorite });
+    if (isAuthenticated) {
+      // Use the mutation with optimistic updates
+      toggleWishlist.mutate({
+        storeId: id,
+        isCurrentlyWishlisted: isFavorite,
+      });
     } else {
       // Redirect to login if not authenticated
       router.push("/auth/phone");

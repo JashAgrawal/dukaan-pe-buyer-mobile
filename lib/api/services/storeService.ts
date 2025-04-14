@@ -66,11 +66,12 @@ export const storeService = {
   getNearbyStores: async (
     lat: number,
     lng: number,
-    distance = 10,
+    distance = 100000,
+    page = 1,
     limit = 10
   ) => {
     const response = await apiClient.get("/stores/nearby", {
-      params: { lat, lng, distance, limit },
+      params: { latitude: lat, longitude: lng, distance, limit },
     });
     return response.data;
   },

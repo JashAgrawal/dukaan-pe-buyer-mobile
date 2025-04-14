@@ -6,11 +6,7 @@ import StoreCard from "../store/StoreCard";
 import SmallStoreCard from "../store/SmallStoreCard";
 import { getImageUrl } from "@/lib/helpers";
 import InfiniteScroller from "../common/InfiniteScroller";
-import {
-  useStoreWishlistStatus,
-  useToggleStoreWishlist,
-} from "@/lib/api/hooks/useWishlist";
-import { useAuth } from "@/hooks/useAuth";
+// No need for auth or wishlist hooks in this component
 
 interface StoreScrollerProps {
   title: string;
@@ -37,31 +33,17 @@ const StoreScroller: React.FC<StoreScrollerProps> = ({
   isFetchingNextPage,
   variant = "big",
 }) => {
-  const { isAuthenticated } = useAuth();
-  const toggleWishlist = useToggleStoreWishlist();
+  // No need for auth state in this component
 
   const handleStorePress = (storeId: string) => {
     router.push(`/store/${storeId}`);
   };
 
-  const handleToggleFavorite = (
-    storeId: string,
-    isCurrentlyWishlisted: boolean
-  ) => {
-    if (!isAuthenticated) {
-      // Redirect to login if not authenticated
-      router.push("/auth/phone");
-      return;
-    }
-
-    toggleWishlist.mutate({ storeId, isCurrentlyWishlisted });
-  };
-
   const renderStore = useCallback(
     ({ item }: { item: Store }) => {
       const imageUrl = item.mainImage || item.logo || item.coverImage;
-      // Use the wishlist status hook for each store
-      const { data: isFavorite = false } = useStoreWishlistStatus(item._id);
+      // Use the server-provided wishlist status or default to false
+      const isFavorite = item.inWishlist || false;
 
       if (variant === "small") {
         return (
@@ -73,7 +55,6 @@ const StoreScroller: React.FC<StoreScrollerProps> = ({
             rating={item.averageRating}
             loyaltyBenefit={item.isVerified ? "10% Off" : undefined}
             isFavorite={isFavorite}
-            onToggleFavorite={(id) => handleToggleFavorite(id, isFavorite)}
             onPress={() => handleStorePress(item._id)}
           />
         );
@@ -104,13 +85,12 @@ const StoreScroller: React.FC<StoreScrollerProps> = ({
               item.isVerified ? "Get 20 for every recommendation" : undefined
             }
             isFavorite={isFavorite}
-            onToggleFavorite={(id) => handleToggleFavorite(id, isFavorite)}
             onPress={() => handleStorePress(item._id)}
           />
         </View>
       );
     },
-    [variant, isAuthenticated]
+    [variant]
   );
 
   return (
@@ -127,10 +107,11 @@ const StoreScroller: React.FC<StoreScrollerProps> = ({
       hasNextPage={hasNextPage}
       isFetchingNextPage={isFetchingNextPage}
       horizontal={true}
-      contentContainerStyle={[
-        styles.scrollContent,
-        variant === "big" && styles.bigScrollContent,
-      ]}
+      contentContainerStyle={
+        variant === "big"
+          ? { ...styles.scrollContent, ...styles.bigScrollContent }
+          : styles.scrollContent
+      }
       emptyText="No stores available"
     />
   );

@@ -28,9 +28,7 @@ export default function WishlistScreen() {
     router.push(`/store/${storeId}`);
   };
 
-  const handleToggleFavorite = (storeId: string) => {
-    // This will be handled by the SmallStoreCard component
-  };
+  // No need for handleToggleFavorite here as it's handled in the SmallStoreCard component
 
   const renderStoreItem = ({ item }: { item: any }) => {
     const imageUrl = item.mainImage || item.logo || item.coverImage;
@@ -44,7 +42,6 @@ export default function WishlistScreen() {
           rating={item.averageRating}
           loyaltyBenefit={item.isVerified ? "10% Off" : undefined}
           isFavorite={true} // It's in the wishlist, so it's favorited
-          onToggleFavorite={handleToggleFavorite}
           onPress={() => handleStorePress(item._id)}
         />
       </View>

@@ -27,7 +27,6 @@ export default function StoreDetailScreen() {
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const { isAuthenticated } = useAuth();
-  const { data: isFavorite = false } = useStoreWishlistStatus(id as string);
   const toggleWishlist = useToggleStoreWishlist();
 
   useEffect(() => {
@@ -114,20 +113,6 @@ export default function StoreDetailScreen() {
     );
   }
 
-  const handleToggleFavorite = () => {
-    if (!isAuthenticated) {
-      // Redirect to login if not authenticated
-      router.push("/auth/phone");
-      return;
-    }
-
-    // Use the React Query mutation for optimistic updates
-    toggleWishlist.mutate({
-      storeId: id as string,
-      isCurrentlyWishlisted: isFavorite,
-    });
-  };
-
   return (
     <View style={styles.container}>
       <StatusBar style="light" />
@@ -158,8 +143,7 @@ export default function StoreDetailScreen() {
           isOpen={store.isOpen !== undefined ? store.isOpen : true}
           recommendationCount={280}
           recommendedBy="Bhagyalaxmi"
-          isFavorite={isFavorite}
-          onToggleFavorite={handleToggleFavorite}
+          isFavorite={store.inWishlist}
         />
 
         <View style={styles.storeInfo}>

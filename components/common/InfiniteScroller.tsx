@@ -123,7 +123,9 @@ function InfiniteScroller<T>({
           showsHorizontalScrollIndicator={false}
           showsVerticalScrollIndicator={false}
           contentContainerStyle={[
-            horizontal ? styles.horizontalScrollContent : styles.verticalScrollContent,
+            horizontal
+              ? styles.horizontalScrollContent
+              : styles.verticalScrollContent,
             contentContainerStyle,
           ]}
           onEndReached={onEndReached}
