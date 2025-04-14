@@ -11,6 +11,7 @@ import { StatusBar } from "expo-status-bar";
 import { router, useLocalSearchParams } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { MaterialIcons } from "@expo/vector-icons";
+import ShortAppHeader from "@/components/ui/ShortAppHeader";
 import { Typography } from "@/components/ui/Typography";
 import SearchInput from "@/components/search/SearchInput";
 import SmallStoreCard from "@/components/store/SmallStoreCard";
@@ -150,7 +151,7 @@ export default function StoreResultsScreen() {
     <View style={[styles.container, { paddingTop: insets.top }]}>
       <StatusBar style="dark" />
 
-      {/* Search Header */}
+      {/* Custom Search Header */}
       <View style={styles.searchHeader}>
         <TouchableOpacity
           style={styles.backButton}

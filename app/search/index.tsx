@@ -4,6 +4,7 @@ import { StatusBar } from "expo-status-bar";
 import { router, useLocalSearchParams } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { IconSymbol } from "@/components/ui/IconSymbol";
+import ShortAppHeader from "@/components/ui/ShortAppHeader";
 import { useSearchStore, SearchItem } from "@/stores/useSearchStore";
 import SearchSuggestions from "@/components/search/SearchSuggestions";
 import SearchInput, { SearchInputRef } from "@/components/search/SearchInput";
@@ -66,7 +67,7 @@ export default function SearchScreen() {
     <View style={[styles.container, { paddingTop: insets.top }]}>
       <StatusBar style="dark" />
 
-      {/* Search Header */}
+      {/* Custom Search Header */}
       <View style={styles.searchHeader}>
         <TouchableOpacity
           style={styles.backButton}

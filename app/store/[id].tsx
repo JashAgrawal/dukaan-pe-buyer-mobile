@@ -11,6 +11,7 @@ import { router, useLocalSearchParams } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { MaterialIcons } from "@expo/vector-icons";
 import { Typography, Body1 } from "@/components/ui/Typography";
+import ShortAppHeader from "@/components/ui/ShortAppHeader";
 import { useSearchStore, SearchItem } from "@/stores/useSearchStore";
 import { getStoreById } from "@/lib/api/services/searchService";
 import StoreHero from "@/components/store/StoreHero";
@@ -57,17 +58,12 @@ export default function StoreDetailScreen() {
 
   if (loading) {
     return (
-      <View style={[styles.container, { paddingTop: insets.top }]}>
+      <View style={styles.container}>
         <StatusBar style="dark" />
-        <View style={styles.header}>
-          <TouchableOpacity
-            style={styles.backButton}
-            onPress={() => router.back()}
-          >
-            <MaterialIcons name="arrow-back" size={24} color="#000" />
-          </TouchableOpacity>
-          <Typography style={styles.headerTitle}>Store Details</Typography>
-        </View>
+        <ShortAppHeader
+          title="Store Details"
+          onBackPress={() => router.back()}
+        />
         <View style={styles.loadingContainer}>
           <ActivityIndicator size="large" color="#8A3FFC" />
           <Typography style={{ marginTop: 16 }}>
@@ -80,17 +76,12 @@ export default function StoreDetailScreen() {
 
   if (error || !store) {
     return (
-      <View style={[styles.container, { paddingTop: insets.top }]}>
+      <View style={styles.container}>
         <StatusBar style="dark" />
-        <View style={styles.header}>
-          <TouchableOpacity
-            style={styles.backButton}
-            onPress={() => router.back()}
-          >
-            <MaterialIcons name="arrow-back" size={24} color="#000" />
-          </TouchableOpacity>
-          <Typography style={styles.headerTitle}>Store Details</Typography>
-        </View>
+        <ShortAppHeader
+          title="Store Details"
+          onBackPress={() => router.back()}
+        />
         <View style={styles.loadingContainer}>
           <MaterialIcons name="error-outline" size={32} color="#FF3B30" />
           <Typography style={{ marginTop: 16 }}>

@@ -4,7 +4,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { StatusBar } from "expo-status-bar";
 import { IconSymbol } from "@/components/ui/IconSymbol";
 import { Typography, H1 } from "@/components/ui/Typography";
-import AppHeader from "@/components/ui/AppHeader";
+import ShortAppHeader from "@/components/ui/ShortAppHeader";
 import ScrollAwareWrapper from "@/components/ui/ScrollAwareWrapper";
 
 export default function ProfileScreen() {
@@ -22,7 +22,12 @@ export default function ProfileScreen() {
     <View style={styles.container}>
       <StatusBar style="dark" />
 
-      <ScrollAwareWrapper headerComponent={<AppHeader />}>
+      <ScrollAwareWrapper
+        headerComponent={
+          <ShortAppHeader title="Profile" showBackButton={false} />
+        }
+        isShortHeader={true}
+      >
         {/* Header */}
         <View style={styles.header}>
           <H1 style={styles.headerTitle}>Profile</H1>

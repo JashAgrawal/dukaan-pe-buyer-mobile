@@ -21,6 +21,7 @@ import {
 // import { IconSymbol } from '@/components/ui/IconSymbol';
 import { Address } from "@/types/address";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
+import ShortAppHeader from "@/components/ui/ShortAppHeader";
 
 export default function LocationSearchScreen() {
   const [searchQuery, setSearchQuery] = useState("");
@@ -194,16 +195,10 @@ export default function LocationSearchScreen() {
     <View style={styles.container}>
       <StatusBar style="dark" />
 
-      {/* Header */}
-      <View style={styles.header}>
-        <TouchableOpacity
-          onPress={() => router.back()}
-          style={styles.backButton}
-        >
-          <MaterialIcons name="arrow-back" size={24} color="#000" />
-        </TouchableOpacity>
-        <Text style={styles.headerTitle}>Enter your area</Text>
-      </View>
+      <ShortAppHeader
+        title="Enter your area"
+        onBackPress={() => router.back()}
+      />
 
       {/* Search input */}
       <View style={styles.searchContainer}>

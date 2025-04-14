@@ -151,6 +151,7 @@ export default function CategoryScroller({
       contentContainerStyle={styles.scrollContent}
       emptyText="No categories found"
       containerStyle={styles.container}
+      hideHeader={true}
     />
   );
 }
@@ -165,7 +166,7 @@ const styles = StyleSheet.create({
     height: 90,
   },
   categoryItem: {
-    alignItems: "center",
+    alignItems: "flex-start",
     marginHorizontal: 10,
     width: 70,
   },

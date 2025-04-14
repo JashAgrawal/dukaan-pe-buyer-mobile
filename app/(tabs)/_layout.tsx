@@ -162,9 +162,19 @@ export default function TabLayout() {
       <Tabs.Screen
         name="scanner"
         options={{
-          title: "Scanner",
+          title: "",
           tabBarIcon: ({ color }) => (
-            <IconSymbol size={28} name="qrcode" color={color} />
+            <TouchableOpacity
+              onPress={() => router.push("/scanner")}
+              style={{
+                padding: 5,
+                paddingHorizontal: 12,
+                backgroundColor: "#874BF9",
+                borderRadius: 100,
+              }}
+            >
+              <IconSymbol size={28} name="qrcode" color={"white"} />
+            </TouchableOpacity>
           ),
         }}
       />
@@ -200,6 +210,10 @@ const styles = StyleSheet.create({
   },
   tabBarContent: {
     backgroundColor: "#FFFFFF",
+    borderTopWidth: 2,
+    borderLeftWidth: 1,
+    borderRightWidth: 1,
+    borderColor: "#874BF9",
     borderTopLeftRadius: 32,
     borderTopRightRadius: 32,
     shadowColor: "#000",

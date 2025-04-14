@@ -32,6 +32,7 @@ interface InfiniteScrollerProps<T> {
   subtitleStyle?: TextStyle;
   emptyText?: string;
   numColumns?: number;
+  hideHeader?: boolean;
 }
 
 function InfiniteScroller<T>({
@@ -54,6 +55,7 @@ function InfiniteScroller<T>({
   subtitleStyle,
   emptyText = "No items available",
   numColumns,
+  hideHeader = false,
 }: InfiniteScrollerProps<T>) {
   // Render loading state
   const renderLoading = () => (
@@ -91,20 +93,25 @@ function InfiniteScroller<T>({
   return (
     <View style={[styles.container, containerStyle]}>
       {/* Header */}
-      <View style={[styles.header, headerStyle]}>
-        <View>
-          <Text style={[styles.title, titleStyle]}>{title}</Text>
-          {subtitle && (
-            <Text style={[styles.subtitle, subtitleStyle]}>{subtitle}</Text>
+      {!hideHeader && (
+        <View style={[styles.header, headerStyle]}>
+          <View>
+            <Text style={[styles.title, titleStyle]}>{title}</Text>
+            {subtitle && (
+              <Text style={[styles.subtitle, subtitleStyle]}>{subtitle}</Text>
+            )}
+          </View>
+          {onSeeAllPress && (
+            <TouchableOpacity
+              onPress={onSeeAllPress}
+              style={styles.seeAllButton}
+            >
+              <Text style={styles.seeAllText}>See all</Text>
+              <MaterialIcons name="chevron-right" size={16} color="#8A3FFC" />
+            </TouchableOpacity>
           )}
         </View>
-        {onSeeAllPress && (
-          <TouchableOpacity onPress={onSeeAllPress} style={styles.seeAllButton}>
-            <Text style={styles.seeAllText}>See all</Text>
-            <MaterialIcons name="chevron-right" size={16} color="#8A3FFC" />
-          </TouchableOpacity>
-        )}
-      </View>
+      )}
 
       {/* Content */}
       {isLoading && data.length === 0 ? (

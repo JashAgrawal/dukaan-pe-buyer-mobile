@@ -10,7 +10,7 @@ import {
 import { StatusBar } from "expo-status-bar";
 import { router } from "expo-router";
 import { MaterialIcons } from "@expo/vector-icons";
-import AppHeader from "@/components/ui/AppHeader";
+import ShortAppHeader from "@/components/ui/ShortAppHeader";
 import ScrollAwareWrapper from "@/components/ui/ScrollAwareWrapper";
 import {
   useStoreCategories,
@@ -65,7 +65,12 @@ export default function CategoriesScreen() {
     <View style={styles.container}>
       <StatusBar style="dark" />
 
-      <ScrollAwareWrapper headerComponent={<AppHeader />}>
+      <ScrollAwareWrapper
+        headerComponent={
+          <ShortAppHeader title="Categories" showBackButton={false} />
+        }
+        isShortHeader={true}
+      >
         <View style={styles.header}>
           <Text style={styles.title}>Categories</Text>
           <Text style={styles.subtitle}>Browse stores by category</Text>

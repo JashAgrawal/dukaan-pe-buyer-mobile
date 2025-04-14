@@ -14,6 +14,7 @@ import { StatusBar } from "expo-status-bar";
 import { router, useLocalSearchParams } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { MaterialIcons } from "@expo/vector-icons";
+import ShortAppHeader from "@/components/ui/ShortAppHeader";
 import SmallStoreCard from "@/components/store/SmallStoreCard";
 import StoreFilterBottomSheet from "@/components/search/StoreFilterBottomSheet";
 import { getImageUrl } from "@/lib/helpers";
@@ -214,23 +215,19 @@ export default function CategoryDetailScreen() {
     <View style={[styles.container, { paddingTop: insets.top }]}>
       <StatusBar style="dark" />
 
-      {/* Header */}
-      <View style={styles.header}>
-        <TouchableOpacity style={styles.backButton} onPress={handleBackPress}>
-          <MaterialIcons name="arrow-back" size={24} color="#000" />
-        </TouchableOpacity>
+      <ShortAppHeader
+        title={category?.name || "Category"}
+        onBackPress={handleBackPress}
+        onSearchPress={() => router.push("/search")}
+      />
 
-        <View style={styles.headerTitleContainer}>
-          <Text style={styles.headerTitle}>{category?.name || "Category"}</Text>
-        </View>
-
-        <TouchableOpacity
-          style={styles.filterButton}
-          onPress={() => setShowFilters(true)}
-        >
-          <MaterialIcons name="filter-list" size={24} color="#8A3FFC" />
-        </TouchableOpacity>
-      </View>
+      {/* Filter Button - Floating */}
+      <TouchableOpacity
+        style={styles.floatingFilterButton}
+        onPress={() => setShowFilters(true)}
+      >
+        <MaterialIcons name="filter-list" size={24} color="#FFFFFF" />
+      </TouchableOpacity>
 
       <View style={styles.contentContainer}>
         {/* Category Sidebar */}
@@ -441,6 +438,23 @@ const styles = StyleSheet.create({
   },
   filterButton: {
     padding: 8,
+  },
+  floatingFilterButton: {
+    position: "absolute",
+    right: 16,
+    top: 70 + 16, // Below header
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    backgroundColor: "#8A3FFC",
+    justifyContent: "center",
+    alignItems: "center",
+    elevation: 4,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+    zIndex: 100,
   },
 
   contentContainer: {

@@ -17,11 +17,13 @@ import { useTabBar } from "./TabBarContext";
 interface ScrollAwareWrapperProps {
   children: ReactNode;
   headerComponent: ReactNode;
+  isShortHeader?: boolean;
 }
 
 export default function ScrollAwareWrapper({
   children,
   headerComponent,
+  isShortHeader = false,
 }: ScrollAwareWrapperProps) {
   const insets = useSafeAreaInsets();
   const scrollViewRef = useRef<FlatList>(null);
@@ -49,8 +51,8 @@ export default function ScrollAwareWrapper({
     // Update header position (hide when scrolling down, show when scrolling up)
     if (diff > 0 && currentScrollY > 50) {
       // Scrolling down and not at the top
-      // Calculate header height (approx 120px + top insets)
-      const headerHeight = 30 + insets.top;
+      // Calculate header height based on type
+      const headerHeight = isShortHeader ? 50 + insets.top : 130 + insets.top;
       headerTranslateY.value = withTiming(-headerHeight, {
         duration: 300,
       });
@@ -95,7 +97,7 @@ export default function ScrollAwareWrapper({
         style={styles.scrollView}
         contentContainerStyle={[
           styles.scrollContent,
-          { paddingTop: 120 + insets.top }, // Match header height
+          { paddingTop: isShortHeader ? 60 + insets.top : 120 + insets.top }, // Match header height
         ]}
         showsVerticalScrollIndicator={false}
         onScroll={handleScroll}

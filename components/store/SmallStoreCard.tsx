@@ -135,6 +135,8 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 4,
     elevation: 3,
+    maxWidth: 140,
+    marginBottom: 12,
   },
   imageContainer: {
     width: "100%",
@@ -188,7 +190,7 @@ const styles = StyleSheet.create({
     marginBottom: 2,
   },
   name: {
-    fontSize: 14,
+    fontSize: 18,
     fontFamily: "Jost-Bold",
     color: "#000",
     flex: 1,
