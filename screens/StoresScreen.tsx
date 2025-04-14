@@ -101,7 +101,6 @@ const StoresScreen = () => {
             rating={item.rating}
             loyaltyBenefit={item.loyaltyBenefit}
             rewardText={item.rewardText}
-            onPress={() => console.log(`Store ${item.name} pressed`)}
           />
         )}
       />

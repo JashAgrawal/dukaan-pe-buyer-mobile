@@ -154,7 +154,6 @@ export default function CategoryDetailScreen() {
           loyaltyBenefit={item.isVerified ? "10% Off" : undefined}
           distance={distance}
           deliveryTime={deliveryTime}
-          onPress={() => handleStorePress(item._id)}
         />
       </View>
     );

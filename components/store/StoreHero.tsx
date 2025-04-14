@@ -132,12 +132,12 @@ const StoreHero: React.FC<StoreHeroProps> = ({
           <View style={styles.locationContainer}>
             <Typography style={styles.locationText}>{location}</Typography>
             {costForOne && (
-              <>
+              <View style={styles.costContainer}>
                 <View style={styles.dot} />
                 <Typography style={styles.costText}>
                   Cost for one ₹{costForOne}
                 </Typography>
-              </>
+              </View>
             )}
           </View>
         )}
@@ -277,6 +277,10 @@ const styles = StyleSheet.create({
     borderRadius: 2,
     backgroundColor: "#666",
     marginHorizontal: 8,
+  },
+  costContainer: {
+    flexDirection: "row",
+    alignItems: "center",
   },
   costText: {
     fontSize: 14,

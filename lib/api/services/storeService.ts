@@ -57,6 +57,7 @@ export const storeService = {
     const response = await apiClient.get("/stores/best-rated", {
       params: { page, limit },
     });
+    console.log(response.data);
     return response.data;
   },
 

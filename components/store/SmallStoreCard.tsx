@@ -2,7 +2,7 @@ import React from "react";
 import { View, Text, Image, StyleSheet, TouchableOpacity } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
-import useWishlistToggle from "@/hooks/useWishlistToggle";
+// import useWishlistToggle from "@/hooks/useWishlistToggle";
 import {
   useStoreWishlistStatus,
   useToggleStoreWishlist,
@@ -18,7 +18,6 @@ interface SmallStoreCardProps {
   loyaltyBenefit?: string;
   distance?: string;
   deliveryTime?: string;
-  onPress?: () => void;
 }
 
 const SmallStoreCard: React.FC<SmallStoreCardProps> = ({
@@ -30,7 +29,6 @@ const SmallStoreCard: React.FC<SmallStoreCardProps> = ({
   loyaltyBenefit,
   distance,
   deliveryTime,
-  onPress,
 }) => {
   const router = useRouter();
   const toggleMutation = useToggleStoreWishlist();
@@ -43,12 +41,18 @@ const SmallStoreCard: React.FC<SmallStoreCardProps> = ({
     });
   };
 
+  const handleCardPress = () => {
+    // Navigate to the store detail page
+    router.push({
+      pathname: "/store/[id]",
+      params: { id },
+    });
+  };
+
   return (
     <TouchableOpacity
       style={styles.container}
-      onPress={() => {
-        router.push(`/store/${id}`);
-      }}
+      onPress={handleCardPress}
       activeOpacity={0.9}
     >
       {/* Store Image */}

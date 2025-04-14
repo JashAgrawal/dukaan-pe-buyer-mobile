@@ -20,7 +20,6 @@ const StoreCardDemoScreen = () => {
           distance="3 km"
           rating={7.5}
           loyaltyBenefit="Loyalty Benefit 10% Off"
-          onPress={() => console.log("Restaurant card pressed")}
         />
 
         <View style={styles.spacer} />
@@ -35,7 +34,6 @@ const StoreCardDemoScreen = () => {
           distance="1.5km"
           loyaltyBenefit="Loyalty Benefits"
           rewardText="Get 💰 20 for every recommendation"
-          onPress={() => console.log("Salon card pressed")}
         />
       </ScrollView>
     </SafeAreaView>

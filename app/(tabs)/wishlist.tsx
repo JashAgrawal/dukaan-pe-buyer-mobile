@@ -53,7 +53,6 @@ export default function WishlistScreen() {
           type={item.categories?.[0] || "Store"}
           rating={item.averageRating}
           loyaltyBenefit={item.isVerified ? "10% Off" : undefined}
-          onPress={() => handleStorePress(item._id)}
         />
       </View>
     );

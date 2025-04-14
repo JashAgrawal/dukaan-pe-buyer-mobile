@@ -48,7 +48,7 @@ const SearchSuggestions: React.FC<SearchSuggestionsProps> = ({
         data={[]}
         renderItem={() => null}
         ListHeaderComponent={() => (
-          <>
+          <View>
             {showRecentSearches && (
               <SearchSection
                 title="PAST SEARCHES"
@@ -65,7 +65,7 @@ const SearchSuggestions: React.FC<SearchSuggestionsProps> = ({
                 onItemPress={onItemPress}
               />
             )}
-          </>
+          </View>
         )}
         keyExtractor={() => "suggestions"}
       />

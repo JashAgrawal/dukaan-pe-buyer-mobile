@@ -51,7 +51,6 @@ const StoreScroller: React.FC<StoreScrollerProps> = ({
             type={item.categories?.[0] || "Store"}
             rating={item.averageRating}
             loyaltyBenefit={item.isVerified ? "10% Off" : undefined}
-            onPress={() => handleStorePress(item._id)}
           />
         );
       }
@@ -80,7 +79,6 @@ const StoreScroller: React.FC<StoreScrollerProps> = ({
             rewardText={
               item.isVerified ? "Get 20 for every recommendation" : undefined
             }
-            onPress={() => handleStorePress(item._id)}
           />
         </View>
       );

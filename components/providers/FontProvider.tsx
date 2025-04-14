@@ -11,7 +11,7 @@ import { StyleSheet } from "react-native";
 export function FontProvider({ children }: { children: React.ReactNode }) {
   // Simply pass through children - font styling is handled by Typography component
   // and global styles in global.css
-  return <>{children}</>;
+  return <React.Fragment>{children}</React.Fragment>;
 }
 
 export default FontProvider;

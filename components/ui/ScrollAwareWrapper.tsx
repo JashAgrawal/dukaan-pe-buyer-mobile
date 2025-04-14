@@ -103,7 +103,7 @@ export default function ScrollAwareWrapper({
         onScroll={handleScroll}
         scrollEventThrottle={16}
         data={[{ key: "content" }]}
-        renderItem={() => <>{children}</>}
+        renderItem={() => <View>{children}</View>}
         keyExtractor={(item) => item.key}
       />
 

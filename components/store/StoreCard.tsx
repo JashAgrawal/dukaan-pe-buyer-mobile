@@ -2,7 +2,7 @@ import React from "react";
 import { View, Text, Image, StyleSheet, TouchableOpacity } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
-import useWishlistToggle from "@/hooks/useWishlistToggle";
+// import useWishlistToggle from "@/hooks/useWishlistToggle";
 import {
   useStoreWishlistStatus,
   useToggleStoreWishlist,
@@ -44,12 +44,18 @@ const StoreCard: React.FC<StoreCardProps> = ({
     });
   };
 
+  const handleCardPress = () => {
+    // Navigate to the store detail page
+    router.push({
+      pathname: "/store/[id]",
+      params: { id },
+    });
+  };
+
   return (
     <TouchableOpacity
       style={styles.container}
-      onPress={() => {
-        router.push(`/store/${id}`);
-      }}
+      onPress={handleCardPress}
       activeOpacity={0.9}
     >
       {/* Store Image */}
@@ -138,7 +144,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 4,
     elevation: 3,
-    marginBottom: 16,
+    marginBottom: 12,
     maxWidth: 300,
   },
   imageContainer: {

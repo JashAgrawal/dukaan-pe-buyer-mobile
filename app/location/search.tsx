@@ -241,7 +241,7 @@ export default function LocationSearchScreen() {
 
       {/* Saved addresses section */}
       {addresses && addresses.length > 0 && (
-        <>
+        <View>
           <Text style={styles.sectionTitle}>Saved addresses</Text>
           {isLoadingAddresses ? (
             <ActivityIndicator
@@ -258,12 +258,12 @@ export default function LocationSearchScreen() {
               showsVerticalScrollIndicator={false}
             />
           )}
-        </>
+        </View>
       )}
 
       {/* Search results */}
       {searchQuery.length > 2 && (
-        <>
+        <View>
           {searchPlacesMutation.isPending ? (
             <ActivityIndicator
               size="small"
@@ -286,7 +286,7 @@ export default function LocationSearchScreen() {
               }
             />
           )}
-        </>
+        </View>
       )}
     </View>
   );
