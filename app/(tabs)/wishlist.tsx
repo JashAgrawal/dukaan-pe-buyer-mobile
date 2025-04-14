@@ -5,9 +5,10 @@ import {
   FlatList,
   ActivityIndicator,
   Text,
+  Image,
 } from "react-native";
 import { StatusBar } from "expo-status-bar";
-import { Typography, H1, Body1 } from "@/components/ui/Typography";
+import { Typography, H1, Body1, H3 } from "@/components/ui/Typography";
 import ShortAppHeader from "@/components/ui/ShortAppHeader";
 import ScrollAwareWrapper from "@/components/ui/ScrollAwareWrapper";
 import {
@@ -18,6 +19,8 @@ import { useAuth } from "@/hooks/useAuth";
 import SmallStoreCard from "@/components/store/SmallStoreCard";
 import { getImageUrl } from "@/lib/helpers";
 import { router, useFocusEffect } from "expo-router";
+//@ts-ignore
+import EmptyImg from "../../assets/images/empty-wishlist.jpg";
 
 export default function WishlistScreen() {
   const { isAuthenticated } = useAuth();
@@ -79,6 +82,10 @@ export default function WishlistScreen() {
 
     return (
       <View style={styles.emptyStateContainer}>
+        <Image
+          source={EmptyImg}
+          style={{ width: 250, height: 300, borderRadius: 16 }}
+        />
         <Text style={styles.emptyStateText}>
           Your wishlist is empty. Add stores to your favorites!
         </Text>
@@ -97,7 +104,7 @@ export default function WishlistScreen() {
         isShortHeader={true}
       >
         <View style={styles.content}>
-          <H1>Wishlist</H1>
+          <H3>Wishlist</H3>
           <Body1 style={styles.description}>
             Your favorite stores will appear here.
           </Body1>
@@ -143,12 +150,12 @@ const styles = StyleSheet.create({
   },
   content: {
     flex: 1,
-    padding: 16,
+    paddingHorizontal: 16,
   },
   description: {
-    marginTop: 8,
-    marginBottom: 16,
-    textAlign: "center",
+    marginTop: 0,
+    marginBottom: 20,
+    // textAlign: "center",
     color: "#666666",
   },
   storeGrid: {
@@ -156,14 +163,17 @@ const styles = StyleSheet.create({
   },
   storeCardContainer: {
     width: "50%",
-    padding: 8,
+    paddingVertical: 8,
   },
   emptyStateContainer: {
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
+    gap: 4,
     padding: 20,
     marginTop: 40,
+    borderColor: "#EEEEEE",
+    borderRadius: 8,
   },
   emptyStateText: {
     fontSize: 16,

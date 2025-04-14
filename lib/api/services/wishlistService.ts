@@ -53,7 +53,8 @@ export const wishlistService = {
    */
   addStoreToWishlist: async (storeId: string) => {
     const response = await apiClient.post<WishlistItemResponse>(
-      `/store-wishlist/${storeId}`
+      `/store-wishlist/`,
+      { store: storeId }
     );
     return response.data;
   },
@@ -73,14 +74,12 @@ export const wishlistService = {
    */
   checkStoreWishlistStatus: async (storeId: string): Promise<boolean> => {
     try {
-      const response = await wishlistService.getStoreWishlist(1, 100);
-      const wishlistItems = response.data.wishlist;
+      const response = await apiClient.get<{ inWishlist: boolean }>(
+        `/store-wishlist/check/${storeId}`
+      );
+      const isInWishlist = response.data.inWishlist;
 
-      return wishlistItems.some((item) => {
-        const store =
-          typeof item.store === "string" ? item.store : item.store._id;
-        return store === storeId;
-      });
+      return isInWishlist;
     } catch (error) {
       console.error("Error checking wishlist status:", error);
       return false;

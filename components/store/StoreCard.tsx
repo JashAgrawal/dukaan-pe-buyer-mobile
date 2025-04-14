@@ -3,7 +3,11 @@ import { View, Text, Image, StyleSheet, TouchableOpacity } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
 import useWishlistToggle from "@/hooks/useWishlistToggle";
-import { useStoreWishlistStatus } from "@/lib/api/hooks/useWishlist";
+import {
+  useStoreWishlistStatus,
+  useToggleStoreWishlist,
+} from "@/lib/api/hooks/useWishlist";
+import { useRouter } from "expo-router";
 
 interface StoreCardProps {
   id: string;
@@ -31,7 +35,8 @@ const StoreCard: React.FC<StoreCardProps> = ({
   onPress,
 }) => {
   // Use our custom hook for wishlist toggling
-  const { toggleWishlist } = useWishlistToggle();
+  const router = useRouter();
+  const toggleMutation = useToggleStoreWishlist();
   const { data: hookIsFavorite } = useStoreWishlistStatus(id);
 
   // Use prop value if provided, otherwise use the hook value
@@ -41,12 +46,14 @@ const StoreCard: React.FC<StoreCardProps> = ({
   const handleToggleFavorite = (e: any) => {
     // Stop event propagation to prevent card click
     e.stopPropagation();
-    toggleWishlist(id, isFavorite);
+    toggleMutation.mutate({ storeId: id, isCurrentlyWishlisted: isFavorite });
   };
   return (
     <TouchableOpacity
       style={styles.container}
-      onPress={onPress}
+      onPress={() => {
+        router.push(`/store/${id}`);
+      }}
       activeOpacity={0.9}
     >
       {/* Store Image */}
