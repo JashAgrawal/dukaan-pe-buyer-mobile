@@ -20,7 +20,7 @@ export function ThemedText({
   return (
     <Text
       style={[
-        { color, fontFamily: "Jost" },
+        { color, fontFamily: "Jost-Regular" },
         type === "default" ? styles.default : undefined,
         type === "title" ? styles.title : undefined,
         type === "defaultSemiBold" ? styles.defaultSemiBold : undefined,
@@ -41,16 +41,16 @@ const styles = StyleSheet.create({
   defaultSemiBold: {
     fontSize: 16,
     lineHeight: 24,
-    fontWeight: "600",
+    fontFamily: "Jost-SemiBold",
   },
   title: {
     fontSize: 32,
-    fontWeight: "bold",
+    fontFamily: "Jost-Bold",
     lineHeight: 32,
   },
   subtitle: {
     fontSize: 20,
-    fontWeight: "bold",
+    fontFamily: "Jost-Bold",
   },
   link: {
     lineHeight: 30,

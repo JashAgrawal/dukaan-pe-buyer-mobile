@@ -2,24 +2,43 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Apply Jost as the default font family */
+/* Apply Jost-Regular as the default font family */
 * {
-  font-family: "Jost" !important;
+  font-family: "Jost-Regular" !important;
 }
 
-/* Apply Jost to all text elements */
+/* Apply Jost-Regular to all text elements */
 p,
-h1,
-h2,
-h3,
-h4,
-h5,
-h6,
 span,
 button,
 input,
 textarea,
 select,
 option {
-  font-family: "Jost" !important;
+  font-family: "Jost-Regular" !important;
+}
+
+/* Apply weight-specific fonts to headings */
+h1 {
+  font-family: "Jost-Bold" !important;
+}
+
+h2 {
+  font-family: "Jost-Bold" !important;
+}
+
+h3 {
+  font-family: "Jost-SemiBold" !important;
+}
+
+h4 {
+  font-family: "Jost-SemiBold" !important;
+}
+
+h5 {
+  font-family: "Jost-Medium" !important;
+}
+
+h6 {
+  font-family: "Jost-Medium" !important;
 }

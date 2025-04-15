@@ -250,7 +250,7 @@ const styles = StyleSheet.create({
   },
   backButton: {
     position: "absolute",
-    top: 20,
+    top: 30,
     left: 20,
     width: 40,
     height: 40,
@@ -261,7 +261,7 @@ const styles = StyleSheet.create({
   },
   favoriteButton: {
     position: "absolute",
-    top: 20,
+    top: 30,
     right: 20,
     width: 40,
     height: 40,

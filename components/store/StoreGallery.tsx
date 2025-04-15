@@ -1,21 +1,15 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   View,
   StyleSheet,
   Image,
   TouchableOpacity,
-  Text,
-  Dimensions,
-  ScrollView,
+  ActivityIndicator,
 } from "react-native";
 import { router } from "expo-router";
 import { Typography } from "@/components/ui/Typography";
 import { getImageUrl } from "@/lib/helpers";
-
-const { width } = Dimensions.get("window");
-const GALLERY_HEIGHT = 220;
-const GALLERY_ITEM_WIDTH = width / 3 - 8;
-const GALLERY_ITEM_HEIGHT = GALLERY_HEIGHT / 2 - 4;
+import ImageViewer from "@/components/ui/ImageViewer";
 
 interface StoreGalleryProps {
   storeId: string;
@@ -28,56 +22,91 @@ const StoreGallery: React.FC<StoreGalleryProps> = ({
   images,
   onSeeAllPress,
 }) => {
+  const [selectedImageIndex, setSelectedImageIndex] = useState<number | null>(
+    null
+  );
+  const [imageLoadingStates, setImageLoadingStates] = useState<{
+    [key: number]: boolean;
+  }>({});
+
   // If there are no images, don't render anything
   if (!images || images.length === 0) {
     return null;
   }
 
-  // Limit to 5 images for the preview
-  const displayImages = images.slice(0, 5);
-  const hasMoreImages = images.length > 5;
+  // Filter out any invalid images
+  const validImages = images.filter((img) => img && typeof img === "string");
+  if (validImages.length === 0) return null;
+
+  // Limit to 4 images for the preview grid
+  const displayImages = validImages.slice(0, 4);
+  const hasMoreImages = validImages.length > 4;
 
   const handleImagePress = (index: number) => {
-    // Navigate to the gallery page with the selected image index
-    router.push({
-      //@ts-ignore
-      pathname: `/store/${storeId}/gallery`,
-      params: { initialIndex: index },
-    });
+    setSelectedImageIndex(index);
+  };
+
+  const handleCloseViewer = () => {
+    setSelectedImageIndex(null);
+  };
+
+  const handleImageLoadStart = (index: number) => {
+    setImageLoadingStates((prev) => ({ ...prev, [index]: true }));
+  };
+
+  const handleImageLoadEnd = (index: number) => {
+    setImageLoadingStates((prev) => ({ ...prev, [index]: false }));
+  };
+
+  const handleSeeAllPress = () => {
+    if (onSeeAllPress) {
+      onSeeAllPress();
+    } else {
+      // Navigate to the gallery page
+      router.push(`/store/${storeId}/gallery`);
+    }
   };
 
   return (
-    <View style={styles.container}>
-      <View style={styles.headerContainer}>
-        <Typography font="jost" style={styles.title}>
-          Gallery
-        </Typography>
-        {hasMoreImages && (
-          <TouchableOpacity onPress={onSeeAllPress}>
-            <Typography style={styles.seeAllText}>See all photos</Typography>
-          </TouchableOpacity>
-        )}
-      </View>
+    <>
+      <View style={styles.container}>
+        <View style={styles.headerContainer}>
+          <Typography style={styles.title} font="jost">
+            Gallery
+          </Typography>
+          {hasMoreImages && (
+            <TouchableOpacity onPress={handleSeeAllPress}>
+              <Typography style={styles.seeAllText}>See all photos</Typography>
+            </TouchableOpacity>
+          )}
+        </View>
 
-      <View style={styles.galleryContainer}>
-        {/* Grid of smaller images */}
-        <View style={styles.smallImagesContainer}>
-          {displayImages.slice(0, 4).map((image, index) => (
+        <View style={styles.galleryGrid}>
+          {displayImages.map((image, index) => (
             <TouchableOpacity
-              key={index}
-              style={styles.smallImageContainer}
-              onPress={() => handleImagePress(index + 1)}
+              key={`gallery-image-${index}`}
+              style={styles.imageContainer}
+              onPress={() => handleImagePress(index)}
               activeOpacity={0.9}
             >
               <Image
                 source={{ uri: getImageUrl(image) }}
-                style={styles.smallImage}
+                style={styles.image}
+                onLoadStart={() => handleImageLoadStart(index)}
+                onLoadEnd={() => handleImageLoadEnd(index)}
               />
+
+              {imageLoadingStates[index] && (
+                <View style={styles.loaderContainer}>
+                  <ActivityIndicator size="small" color="#8A3FFC" />
+                </View>
+              )}
+
               {/* Show "See more" overlay on the last image if there are more images */}
-              {hasMoreImages && index === 3 && (
+              {hasMoreImages && index === displayImages.length - 1 && (
                 <View style={styles.seeMoreOverlay}>
                   <Typography style={styles.seeMoreText}>
-                    +{images.length - 5}
+                    +{validImages.length - displayImages.length}
                   </Typography>
                 </View>
               )}
@@ -85,7 +114,18 @@ const StoreGallery: React.FC<StoreGalleryProps> = ({
           ))}
         </View>
       </View>
-    </View>
+
+      {/* Image Viewer Modal */}
+      {selectedImageIndex !== null && (
+        <View style={styles.viewerContainer}>
+          <ImageViewer
+            images={validImages}
+            initialIndex={selectedImageIndex}
+            onClose={handleCloseViewer}
+          />
+        </View>
+      )}
+    </>
   );
 };
 
@@ -95,8 +135,9 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     borderWidth: 1,
     borderColor: "#F0F0F0",
-    padding: 8,
+    padding: 12,
     marginBottom: 12,
+    backgroundColor: "#FFFFFF",
   },
   headerContainer: {
     flexDirection: "row",
@@ -105,9 +146,8 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   title: {
-    fontSize: 18,
-    // fontFamily: "Jost-Bold",
-    fontWeight: "medium",
+    fontSize: 16,
+    fontFamily: "Jost-SemiBold",
     color: "#000",
   },
   seeAllText: {
@@ -115,41 +155,45 @@ const styles = StyleSheet.create({
     color: "#8A3FFC",
     fontFamily: "Jost-Medium",
   },
-  galleryContainer: {
+  galleryGrid: {
     flexDirection: "row",
-    height: 120,
-  },
-  largeImageContainer: {
-    flex: 1,
-    marginRight: 8,
-  },
-  smallImagesContainer: {
-    flex: 1,
     flexWrap: "wrap",
-    flexDirection: "row",
     justifyContent: "space-between",
   },
-  smallImageContainer: {
-    width: "32%",
-    height: "auto",
-    margin: 0,
+  imageContainer: {
+    width: "48%",
+    aspectRatio: 1,
+    marginBottom: 8,
+    borderRadius: 8,
+    overflow: "hidden",
+    backgroundColor: "#F5F5F5",
   },
-  smallImage: {
+  image: {
     width: "100%",
     height: "100%",
-    borderRadius: 12,
+    borderRadius: 8,
+  },
+  loaderContainer: {
+    ...StyleSheet.absoluteFillObject,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "rgba(245, 245, 245, 0.7)",
   },
   seeMoreOverlay: {
     ...StyleSheet.absoluteFillObject,
     backgroundColor: "rgba(0, 0, 0, 0.5)",
     justifyContent: "center",
     alignItems: "center",
-    borderRadius: 12,
+    borderRadius: 8,
   },
   seeMoreText: {
     color: "white",
     fontSize: 16,
     fontFamily: "Jost-Bold",
+  },
+  viewerContainer: {
+    ...StyleSheet.absoluteFillObject,
+    zIndex: 1000,
   },
 });
 

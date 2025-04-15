@@ -40,17 +40,17 @@ export default function RootLayout() {
   useSearchInit();
   useCategoriesInit();
   const [loaded] = useFonts({
-    // Load Jost font family
+    // Load Jost font family with weight-specific TTF files
     "Jost-Regular": require("../assets/fonts/Jost-Regular.ttf"),
-    "Jost-Medium": require("../assets/fonts/Jost.ttf"),
-    "Jost-Bold": require("../assets/fonts/Jost.ttf"),
+    "Jost-Medium": require("../assets/fonts/Jost-Medium.ttf"),
+    "Jost-SemiBold": require("../assets/fonts/Jost-SemiBold.ttf"),
+    "Jost-Bold": require("../assets/fonts/Jost-Bold.ttf"),
+    "Jost-Black": require("../assets/fonts/Jost-Black.ttf"),
     Jost: require("../assets/fonts/Jost-Regular.ttf"),
 
     // Load Montserrat font family
-    "Montserrat-Regular": require("../assets/fonts/Montserrat.ttf"),
-    "Montserrat-Medium": require("../assets/fonts/Montserrat.ttf"),
-    "Montserrat-Bold": require("../assets/fonts/Montserrat.ttf"),
-    Montserrat: require("../assets/fonts/Montserrat.ttf"),
+    "Montserrat-Bold": require("../assets/fonts/Montserrat-Bold.ttf"),
+    Montserrat: require("../assets/fonts/Montserrat-Bold.ttf"), // Using Bold as default since we only have Bold
   });
 
   useEffect(() => {

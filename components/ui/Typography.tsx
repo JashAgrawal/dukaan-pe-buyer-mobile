@@ -15,7 +15,7 @@ export type TypographyProps = TextProps & {
     | "caption"
     | "button";
   font?: "jost" | "montserrat";
-  weight?: "regular" | "medium" | "bold";
+  weight?: "regular" | "medium" | "semibold" | "bold" | "black";
   color?: string;
   lightColor?: string;
   darkColor?: string;
@@ -39,21 +39,24 @@ export function Typography({
   const textColor = color || themeColor;
 
   // Determine font family based on font and weight
-  let fontFamily = "Jost";
+  let fontFamily = "Jost-Regular";
   if (font === "montserrat") {
-    fontFamily = "Montserrat";
-    if (weight === "medium") fontFamily = "Montserrat-Medium";
-    if (weight === "bold") fontFamily = "Montserrat-Bold";
+    // For Montserrat, we only have Bold available
+    fontFamily = "Montserrat-Bold";
   } else {
-    // Default to Jost
+    // For Jost, we have all weights
+    if (weight === "regular") fontFamily = "Jost-Regular";
     if (weight === "medium") fontFamily = "Jost-Medium";
     if (weight === "bold") fontFamily = "Jost-Bold";
+    // Additional weights
+    if (weight === "semibold") fontFamily = "Jost-SemiBold";
+    if (weight === "black") fontFamily = "Jost-Black";
   }
 
   return (
     <Text
       style={[
-        { color: "black", fontFamily },
+        { color: textColor, fontFamily },
         styles[variant],
         weight === "medium" && styles.medium,
         weight === "bold" && styles.bold,

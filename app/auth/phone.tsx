@@ -130,7 +130,9 @@ export default function PhoneScreen() {
 }
 
 // Default font style to apply to all text components
-const fontFamily = "Jost";
+const fontFamily = "Jost-Regular";
+const fontFamilyMedium = "Jost-Medium";
+const fontFamilyBold = "Jost-Bold";
 
 const styles = StyleSheet.create({
   container: {
@@ -146,7 +148,7 @@ const styles = StyleSheet.create({
   },
   headerTitle: {
     fontSize: 32,
-    fontWeight: "bold",
+    fontFamily: fontFamilyBold,
     color: "#FFFFFF",
     marginBottom: 10,
   },
@@ -155,7 +157,7 @@ const styles = StyleSheet.create({
   },
   tagline: {
     fontSize: 24,
-    fontWeight: "bold",
+    fontFamily: fontFamilyBold,
     color: "#EEFF41",
     lineHeight: 32,
   },
@@ -180,7 +182,7 @@ const styles = StyleSheet.create({
   },
   welcomeTitle: {
     fontSize: 24,
-    fontWeight: "bold",
+    fontFamily: fontFamilyBold,
     color: "#000000",
     marginBottom: 5,
   },
@@ -231,9 +233,8 @@ const styles = StyleSheet.create({
   },
   continueButtonText: {
     fontSize: 18,
-    fontWeight: "bold",
+    fontFamily: fontFamilyBold,
     color: "#FFFFFF",
-    fontFamily,
   },
   termsContainer: {
     marginTop: 20,
@@ -244,9 +245,11 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: "#666666",
     textAlign: "center",
+    fontFamily,
   },
   termsLink: {
     color: "#8A3FFC",
     textDecorationLine: "underline",
+    fontFamily: fontFamilyMedium,
   },
 });

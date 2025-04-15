@@ -11,9 +11,15 @@ module.exports = {
         themeGrayLight: "#D4D4D4",
       },
       fontFamily: {
-        sans: ["Jost", "system-ui", "sans-serif"],
-        jost: ["Jost", "system-ui", "sans-serif"],
-        montserrat: ["Montserrat", "system-ui", "sans-serif"],
+        sans: ["Jost-Regular", "system-ui", "sans-serif"],
+        jost: ["Jost-Regular", "system-ui", "sans-serif"],
+        montserrat: ["Montserrat-Bold", "system-ui", "sans-serif"],
+        // Weight-specific Jost fonts
+        "jost-regular": ["Jost-Regular", "system-ui", "sans-serif"],
+        "jost-medium": ["Jost-Medium", "system-ui", "sans-serif"],
+        "jost-semibold": ["Jost-SemiBold", "system-ui", "sans-serif"],
+        "jost-bold": ["Jost-Bold", "system-ui", "sans-serif"],
+        "jost-black": ["Jost-Black", "system-ui", "sans-serif"],
       },
     },
   },

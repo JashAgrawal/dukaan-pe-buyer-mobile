@@ -1,13 +1,13 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import {
   View,
   StyleSheet,
   FlatList,
   Image,
   TouchableOpacity,
-  Dimensions,
   ScrollView,
   ActivityIndicator,
+  SafeAreaView,
 } from "react-native";
 import { StatusBar } from "expo-status-bar";
 import { router, useLocalSearchParams } from "expo-router";
@@ -19,8 +19,7 @@ import {
   flattenStoreImageCollections,
 } from "@/lib/api/hooks/useStoreImages";
 import { getStoreById } from "@/lib/api/services/searchService";
-
-const { width, height } = Dimensions.get("window");
+import ImageViewer from "@/components/ui/ImageViewer";
 
 export default function GalleryScreen() {
   const { id, initialIndex = "0" } = useLocalSearchParams<{
@@ -28,37 +27,45 @@ export default function GalleryScreen() {
     initialIndex: string;
   }>();
   const [activeTab, setActiveTab] = useState<string>("All");
-  const [, setStore] = useState<any | null>(null);
+  const [storeName, setStoreName] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(true);
-  const [expandedImageIndex, setExpandedImageIndex] = useState<number | null>(
+  const [error, setError] = useState<string | null>(null);
+  const [selectedImageIndex, setSelectedImageIndex] = useState<number | null>(
     null
   );
   const [allImages, setAllImages] = useState<string[]>([]);
   const [tabImages, setTabImages] = useState<{ [key: string]: string[] }>({});
   const [currentImages, setCurrentImages] = useState<string[]>([]);
+  const [imageLoadingStates, setImageLoadingStates] = useState<{
+    [key: number]: boolean;
+  }>({});
 
   // Fetch store image collections
   const { data: imageCollectionsData, isLoading: isLoadingCollections } =
     useStoreImageCollections(id as string);
 
-  // Refs for FlatList
-  const gridRef = useRef<FlatList>(null);
-  const expandedRef = useRef<FlatList>(null);
-
   // Fetch store details
   useEffect(() => {
     const fetchStoreDetails = async () => {
+      if (!id) return;
+
       try {
         setLoading(true);
+        setError(null);
+
         const storeData = await getStoreById(id as string);
-        setStore(storeData);
+        setStoreName(storeData?.name || "Store");
 
         // Initialize with store's main images
         const initialImages = [
           ...(storeData.mainImage ? [storeData.mainImage] : []),
           ...(storeData.coverImage ? [storeData.coverImage] : []),
           ...(storeData.allImages || []),
-        ];
+        ].filter((img) => img && typeof img === "string"); // Filter out invalid images
+
+        if (initialImages.length === 0) {
+          setError("No images available for this store");
+        }
 
         setAllImages(initialImages);
         setCurrentImages(initialImages);
@@ -66,30 +73,30 @@ export default function GalleryScreen() {
         // Set up initial tab
         const initialTabs: { [key: string]: string[] } = {
           All: initialImages,
-          Ambience: initialImages.filter((_, i) => i % 2 === 0), // Just for demo
-          Food: initialImages.filter((_, i) => i % 2 === 1), // Just for demo
         };
 
         setTabImages(initialTabs);
         setLoading(false);
       } catch (err) {
         console.error("Error fetching store details:", err);
+        setError("Failed to load store details");
         setLoading(false);
       }
     };
 
-    if (id) {
-      fetchStoreDetails();
-    }
+    fetchStoreDetails();
   }, [id]);
 
   // Process image collections when data is loaded
   useEffect(() => {
-    if (imageCollectionsData) {
+    if (!imageCollectionsData) return;
+
+    try {
       const collections = flattenStoreImageCollections(imageCollectionsData);
+      if (!collections || collections.length === 0) return;
 
       // Create tabs based on collection headings
-      const newTabs: { [key: string]: string[] } = { ...tabImages };
+      const newTabs: { [key: string]: string[] } = { All: [...allImages] };
       let newAllImages = [...allImages];
 
       collections.forEach((collection) => {
@@ -98,8 +105,14 @@ export default function GalleryScreen() {
           collection.images &&
           collection.images.length > 0
         ) {
-          newTabs[collection.heading] = collection.images;
-          newAllImages = [...newAllImages, ...collection.images];
+          // Filter out invalid images
+          const validImages = collection.images.filter(
+            (img) => img && typeof img === "string"
+          );
+          if (validImages.length > 0) {
+            newTabs[collection.heading] = validImages;
+            newAllImages = [...newAllImages, ...validImages];
+          }
         }
       });
 
@@ -110,32 +123,45 @@ export default function GalleryScreen() {
 
       setTabImages(newTabs);
       setCurrentImages(newTabs[activeTab] || uniqueImages);
+    } catch (err) {
+      console.error("Error processing image collections:", err);
     }
-  }, [imageCollectionsData]);
+  }, [imageCollectionsData, allImages, activeTab]);
 
   // Handle tab change
   const handleTabChange = (tab: string) => {
     setActiveTab(tab);
     setCurrentImages(tabImages[tab] || []);
-    setExpandedImageIndex(null); // Close expanded view when changing tabs
   };
 
-  // Handle image press to expand
+  // Handle image press to view in full screen
   const handleImagePress = (index: number) => {
-    setExpandedImageIndex(index);
-    // Scroll to the selected image in expanded view
-    setTimeout(() => {
-      expandedRef.current?.scrollToIndex({
-        index,
-        animated: false,
-      });
-    }, 100);
+    setSelectedImageIndex(index);
   };
 
-  // Handle close expanded view
-  const handleCloseExpanded = () => {
-    setExpandedImageIndex(null);
+  // Handle close image viewer
+  const handleCloseViewer = () => {
+    setSelectedImageIndex(null);
   };
+
+  // Handle image load states
+  const handleImageLoadStart = (index: number) => {
+    setImageLoadingStates((prev) => ({ ...prev, [index]: true }));
+  };
+
+  const handleImageLoadEnd = (index: number) => {
+    setImageLoadingStates((prev) => ({ ...prev, [index]: false }));
+  };
+
+  // Set initial selected image if provided in params
+  useEffect(() => {
+    if (initialIndex && !loading && currentImages.length > 0) {
+      const index = parseInt(initialIndex);
+      if (index >= 0 && index < currentImages.length) {
+        setSelectedImageIndex(index);
+      }
+    }
+  }, [initialIndex, loading, currentImages]);
 
   // Render image item in grid
   const renderImageItem = ({
@@ -148,52 +174,39 @@ export default function GalleryScreen() {
     <TouchableOpacity
       style={styles.imageItem}
       onPress={() => handleImagePress(index)}
+      activeOpacity={0.8}
     >
       <Image
         source={{ uri: getImageUrl(item) }}
         style={styles.image}
         resizeMode="cover"
+        onLoadStart={() => handleImageLoadStart(index)}
+        onLoadEnd={() => handleImageLoadEnd(index)}
       />
+      {imageLoadingStates[index] && (
+        <View style={styles.loaderContainer}>
+          <ActivityIndicator size="small" color="#8A3FFC" />
+        </View>
+      )}
     </TouchableOpacity>
   );
 
-  // Render expanded image
-  const renderExpandedImage = ({ item }: { item: string; index: number }) => (
-    <View style={styles.expandedImageContainer}>
-      <Image
-        source={{ uri: getImageUrl(item) }}
-        style={styles.expandedImage}
-        resizeMode="contain"
-      />
-    </View>
-  );
-
-  // Set initial expanded image if provided in params
-  useEffect(() => {
-    if (initialIndex && !loading && currentImages.length > 0) {
-      const index = parseInt(initialIndex);
-      if (index >= 0 && index < currentImages.length) {
-        handleImagePress(index);
-      }
-    }
-  }, [initialIndex, loading, currentImages]);
-
+  // Loading state
   if (loading || isLoadingCollections) {
     return (
-      <View style={styles.loadingContainer}>
-        <StatusBar style="light" />
+      <SafeAreaView style={styles.loadingContainer}>
+        <StatusBar style="dark" />
         <ActivityIndicator size="large" color="#8A3FFC" />
         <Typography style={{ marginTop: 16 }}>Loading gallery...</Typography>
-      </View>
+      </SafeAreaView>
     );
   }
 
-  return (
-    <View style={styles.container}>
-      <StatusBar style={expandedImageIndex !== null ? "light" : "dark"} />
-
-      {/* Header */}
-      {expandedImageIndex === null ? (
+  // Error state
+  if (error || currentImages.length === 0) {
+    return (
+      <SafeAreaView style={styles.container}>
+        <StatusBar style="dark" />
         <View style={styles.header}>
           <TouchableOpacity
             style={styles.backButton}
@@ -204,22 +217,43 @@ export default function GalleryScreen() {
           <H3>Gallery</H3>
           <View style={{ width: 40 }} />
         </View>
-      ) : (
-        <View style={styles.expandedHeader}>
-          <TouchableOpacity
-            style={styles.expandedBackButton}
-            onPress={handleCloseExpanded}
-          >
-            <Ionicons name="close" size={24} color="white" />
-          </TouchableOpacity>
-          <Typography style={styles.expandedCounter}>
-            {expandedImageIndex + 1} / {currentImages.length}
+
+        <View style={styles.errorContainer}>
+          <Ionicons name="images-outline" size={64} color="#CCCCCC" />
+          <Typography style={styles.errorText}>
+            {error || "No images available"}
           </Typography>
+          <TouchableOpacity
+            style={styles.backToStoreButton}
+            onPress={() => router.back()}
+          >
+            <Typography style={styles.backToStoreText}>
+              Back to {storeName}
+            </Typography>
+          </TouchableOpacity>
         </View>
-      )}
+      </SafeAreaView>
+    );
+  }
+
+  return (
+    <SafeAreaView style={styles.container}>
+      <StatusBar style="dark" />
+
+      {/* Header */}
+      <View style={styles.header}>
+        <TouchableOpacity
+          style={styles.backButton}
+          onPress={() => router.back()}
+        >
+          <Ionicons name="arrow-back" size={24} color="#333" />
+        </TouchableOpacity>
+        <H3>Gallery</H3>
+        <View style={{ width: 40 }} />
+      </View>
 
       {/* Tabs */}
-      {expandedImageIndex === null && (
+      {Object.keys(tabImages).length > 1 && (
         <ScrollView
           horizontal
           showsHorizontalScrollIndicator={false}
@@ -246,40 +280,26 @@ export default function GalleryScreen() {
       )}
 
       {/* Image Grid */}
-      {expandedImageIndex === null ? (
-        <FlatList
-          key="grid-view" // Add key to force re-render when switching views
-          ref={gridRef}
-          data={currentImages}
-          renderItem={renderImageItem}
-          keyExtractor={(_, index) => `image-${index}`}
-          numColumns={3}
-          contentContainerStyle={styles.gridContainer}
-          showsVerticalScrollIndicator={false}
-        />
-      ) : (
-        <FlatList
-          key="expanded-view" // Add key to force re-render when switching views
-          ref={expandedRef}
-          data={currentImages}
-          renderItem={renderExpandedImage}
-          keyExtractor={(_, index) => `expanded-${index}`}
-          horizontal
-          pagingEnabled
-          showsHorizontalScrollIndicator={false}
-          initialScrollIndex={expandedImageIndex}
-          getItemLayout={(_, index) => ({
-            length: width,
-            offset: width * index,
-            index,
-          })}
-          onMomentumScrollEnd={(e) => {
-            const newIndex = Math.floor(e.nativeEvent.contentOffset.x / width);
-            setExpandedImageIndex(newIndex);
-          }}
-        />
+      <FlatList
+        data={currentImages}
+        renderItem={renderImageItem}
+        keyExtractor={(_, index) => `image-${index}`}
+        numColumns={3}
+        contentContainerStyle={styles.gridContainer}
+        showsVerticalScrollIndicator={false}
+      />
+
+      {/* Full Screen Image Viewer */}
+      {selectedImageIndex !== null && (
+        <View style={styles.viewerContainer}>
+          <ImageViewer
+            images={currentImages}
+            initialIndex={selectedImageIndex}
+            onClose={handleCloseViewer}
+          />
+        </View>
       )}
-    </View>
+    </SafeAreaView>
   );
 }
 
@@ -294,13 +314,36 @@ const styles = StyleSheet.create({
     alignItems: "center",
     backgroundColor: "white",
   },
+  errorContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    padding: 20,
+  },
+  errorText: {
+    marginTop: 16,
+    fontSize: 16,
+    color: "#666666",
+    textAlign: "center",
+    fontFamily: "Jost-Medium",
+  },
+  backToStoreButton: {
+    marginTop: 24,
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    backgroundColor: "#8A3FFC",
+    borderRadius: 8,
+  },
+  backToStoreText: {
+    color: "white",
+    fontFamily: "Jost-Medium",
+  },
   header: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
     paddingHorizontal: 16,
-    paddingTop: 16,
-    paddingBottom: 8,
+    paddingVertical: 12,
     backgroundColor: "white",
   },
   backButton: {
@@ -330,10 +373,10 @@ const styles = StyleSheet.create({
   tabText: {
     fontSize: 14,
     color: "#333",
+    fontFamily: "Jost-Medium",
   },
   activeTabText: {
     color: "white",
-    fontWeight: "500",
   },
   gridContainer: {
     padding: 4,
@@ -344,44 +387,20 @@ const styles = StyleSheet.create({
     aspectRatio: 1,
     borderRadius: 8,
     overflow: "hidden",
+    backgroundColor: "#F5F5F5",
   },
   image: {
     width: "100%",
     height: "100%",
   },
-  expandedImageContainer: {
-    width,
-    height: height,
+  loaderContainer: {
+    ...StyleSheet.absoluteFillObject,
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: "black",
+    backgroundColor: "rgba(245, 245, 245, 0.7)",
   },
-  expandedImage: {
-    width: width,
-    height: height,
-  },
-  expandedHeader: {
-    position: "absolute",
-    top: 0,
-    left: 0,
-    right: 0,
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    padding: 16,
-    zIndex: 10,
-  },
-  expandedBackButton: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: "rgba(0,0,0,0.5)",
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  expandedCounter: {
-    color: "white",
-    fontSize: 16,
-    fontWeight: "500",
+  viewerContainer: {
+    ...StyleSheet.absoluteFillObject,
+    zIndex: 1000,
   },
 });
