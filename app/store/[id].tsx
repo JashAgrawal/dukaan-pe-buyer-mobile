@@ -17,6 +17,10 @@ import { useSearchStore, SearchItem } from "@/stores/useSearchStore";
 import { getStoreById } from "@/lib/api/services/searchService";
 import StoreHero2 from "@/components/store/StoreHero2";
 import StoreGallery from "@/components/store/StoreGallery";
+import StoreFacilities from "@/components/store/StoreFacilities";
+import StoreReviews from "@/components/store/StoreReviews";
+import StoreRecommendations from "@/components/store/StoreRecommendations";
+import StoreFooter from "@/components/store/StoreFooter";
 import { generateStoreDeepLink } from "@/lib/utils/deepLinking";
 import { ProductCategory } from "@/types/store";
 
@@ -105,7 +109,7 @@ export default function StoreDetailScreen() {
     <View style={styles.container}>
       <StatusBar style="light" />
 
-      <ScrollView style={styles.content}>
+      <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
         <StoreHero2
           id={store._id}
           name={store.name}
@@ -142,159 +146,203 @@ export default function StoreDetailScreen() {
         />
 
         <View style={styles.storeInfo}>
-          <View style={styles.divider} />
-
           {/* About Card */}
-          <View style={styles.aboutCard}>
-            <View style={styles.aboutSection}>
-              <Typography style={styles.aboutTitle}>
-                About this store
-              </Typography>
-              <Body1 style={styles.aboutContent}>
-                {store.description ||
-                  `${store.name} is one of the leading businesses in the Fast Food Delivery Services lorem ipsum`}
-              </Body1>
-            </View>
+          <View style={styles.card}>
+            <Typography style={styles.cardTitle}>About this store</Typography>
+            <Body1 style={styles.cardContent}>
+              {store.description ||
+                `${store.name} is one of the leading businesses in the Fast Food Delivery Services lorem ipsum`}
+            </Body1>
+          </View>
 
-            <View style={styles.dividerLine} />
+          {/* Address Card */}
+          <View style={styles.card}>
+            <Typography style={styles.cardTitle}>Address</Typography>
+            <Body1 style={styles.cardContent}>
+              {store.full_address
+                ? store.full_address
+                : store.address?.street
+                ? `${store.address.street || ""}, ${
+                    store.address.city || ""
+                  }, ${store.address.state || ""} ${
+                    store.address.pincode || ""
+                  }`
+                : store.city
+                ? `${store.city}, ${store.state || ""} ${store.country || ""}`
+                : "2 Floor, Khan House, Hill Rd, above McDonald's, Bandra West, Mumbai, Maharashtra 400050"}
+            </Body1>
 
-            <View style={styles.addressSection}>
-              <Typography style={styles.addressTitle}>Address</Typography>
-              <Body1 style={styles.addressContent}>
-                {store.full_address
-                  ? store.full_address
-                  : store.address?.street
-                  ? `${store.address.street || ""}, ${
-                      store.address.city || ""
-                    }, ${store.address.state || ""} ${
-                      store.address.pincode || ""
-                    }`
-                  : store.city
-                  ? `${store.city}, ${store.state || ""} ${store.country || ""}`
-                  : "2 Floor, Khan House, Hill Rd, above McDonald's, Bandra West, Mumbai, Maharashtra 400050"}
-              </Body1>
+            <View style={styles.buttonContainer}>
+              <TouchableOpacity
+                style={styles.actionButton}
+                onPress={() => {
+                  // Get the address for directions
+                  const address =
+                    store.full_address ||
+                    (store.address?.street
+                      ? `${store.address.street || ""}, ${
+                          store.address.city || ""
+                        }, ${store.address.state || ""} ${
+                          store.address.pincode || ""
+                        }`
+                      : store.city
+                      ? `${store.city}, ${store.state || ""} ${
+                          store.country || ""
+                        }`
+                      : "2 Floor, Khan House, Hill Rd, above McDonald's, Bandra West, Mumbai, Maharashtra 400050");
 
-              <View style={styles.addressButtonsContainer}>
-                <TouchableOpacity
-                  style={styles.addressButton}
-                  onPress={() => {
-                    // Get the address for directions
-                    const address =
-                      store.full_address ||
-                      (store.address?.street
-                        ? `${store.address.street || ""}, ${
-                            store.address.city || ""
-                          }, ${store.address.state || ""} ${
-                            store.address.pincode || ""
-                          }`
-                        : store.city
-                        ? `${store.city}, ${store.state || ""} ${
-                            store.country || ""
-                          }`
-                        : "2 Floor, Khan House, Hill Rd, above McDonald's, Bandra West, Mumbai, Maharashtra 400050");
+                  // Open in maps app
+                  const encodedAddress = encodeURIComponent(address);
+                  const mapsUrl = `https://maps.google.com/maps?q=${encodedAddress}`;
+                  Linking.openURL(mapsUrl);
+                }}
+              >
+                <Ionicons name="location-outline" size={18} color="#8A3FFC" />
+                <Typography style={styles.actionButtonText}>
+                  Get directions
+                </Typography>
+              </TouchableOpacity>
 
-                    // Open in maps app
-                    const encodedAddress = encodeURIComponent(address);
-                    const mapsUrl = `https://maps.google.com/maps?q=${encodedAddress}`;
-                    Linking.openURL(mapsUrl);
-                  }}
-                >
-                  <Ionicons name="location-outline" size={18} color="#8A3FFC" />
-                  <Typography style={styles.addressButtonText}>
-                    Get directions
-                  </Typography>
-                </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.actionButton}
+                onPress={() => {
+                  // Get the phone number
+                  const phoneNumber =
+                    store.business_phone_number ||
+                    store.contactPhone ||
+                    "+1 (123) 456-7890";
 
-                <TouchableOpacity
-                  style={styles.addressButton}
-                  onPress={() => {
-                    // Get the phone number
-                    const phoneNumber =
-                      store.business_phone_number ||
-                      store.contactPhone ||
-                      "+1 (123) 456-7890";
-
-                    // Open phone app
-                    Linking.openURL(`tel:${phoneNumber}`);
-                  }}
-                >
-                  <Ionicons name="call-outline" size={18} color="#8A3FFC" />
-                  <Typography style={styles.addressButtonText}>
-                    Call us
-                  </Typography>
-                </TouchableOpacity>
-              </View>
+                  // Open phone app
+                  Linking.openURL(`tel:${phoneNumber}`);
+                }}
+              >
+                <Ionicons name="call-outline" size={18} color="#8A3FFC" />
+                <Typography style={styles.actionButtonText}>Call us</Typography>
+              </TouchableOpacity>
             </View>
           </View>
 
-          <View style={styles.section}>
-            <Typography style={styles.sectionTitle}>Hours</Typography>
-            <Body1 style={styles.sectionContent}>
+          {/* Hours Card */}
+          <View style={styles.card}>
+            <View style={styles.cardTitleContainer}>
+              <Typography style={styles.cardTitle}>Hours</Typography>
+              {store.isOpen !== undefined && (
+                <View
+                  style={[
+                    styles.statusBadge,
+                    { backgroundColor: store.isOpen ? "#4CD964" : "#FF3B30" },
+                  ]}
+                >
+                  <Typography style={styles.statusText}>
+                    {store.isOpen ? "Open Now" : "Closed"}
+                  </Typography>
+                </View>
+              )}
+            </View>
+            <Body1 style={styles.cardContent}>
               {store.is_24_7
                 ? "Open 24/7"
                 : store.opensAt && store.closesAt
                 ? `Open: ${store.opensAt} - ${store.closesAt}`
                 : `Monday - Friday: 9:00 AM - 9:00 PM\nSaturday - Sunday: 10:00 AM - 8:00 PM`}
             </Body1>
-            {store.isOpen !== undefined && (
-              <View
-                style={[
-                  styles.statusBadge,
-                  { backgroundColor: store.isOpen ? "#4CD964" : "#FF3B30" },
-                ]}
-              >
-                <Typography style={styles.statusText}>
-                  {store.isOpen ? "Open Now" : "Closed"}
-                </Typography>
-              </View>
-            )}
           </View>
 
-          <View style={styles.section}>
-            <Typography style={styles.sectionTitle}>Contact</Typography>
-            <Body1 style={styles.sectionContent}>
-              Phone:{" "}
+          {/* Contact Card */}
+          <View style={styles.card}>
+            <Typography style={styles.cardTitle}>Contact</Typography>
+            <Body1 style={styles.cardContent}>
+              <Typography style={styles.contactLabel}>Phone: </Typography>
               {store.business_phone_number ||
                 store.contactPhone ||
                 "+1 (123) 456-7890"}
-              {"\n"}
-              Email:{" "}
+            </Body1>
+            <Body1 style={styles.cardContent}>
+              <Typography style={styles.contactLabel}>Email: </Typography>
               {store.business_email ||
                 store.contactEmail ||
                 `info@${store.name.toLowerCase().replace(/\s+/g, "")}.com`}
             </Body1>
           </View>
 
-          {/* Gallery Section */}
+          {/* Facilities Card */}
+          <View style={styles.card}>
+            <StoreFacilities
+              facilities={
+                store.facilities || [
+                  "Takeaway available",
+                  "Indoor seating",
+                  "LGBTQIA Friendly",
+                  "Smoking area",
+                  "Wifi",
+                  "Romantic Dining",
+                  "Parking",
+                  "Air Conditioning",
+                ]
+              }
+            />
+          </View>
+
+          {/* Customer Reviews Card */}
+          <View style={styles.card}>
+            <StoreReviews storeId={store._id} />
+          </View>
+
+          {/* Recommended For Card */}
+          <View style={styles.card}>
+            <StoreRecommendations
+              tags={
+                store.displayTags || [
+                  "Healthy",
+                  "Good Music",
+                  "Pocket Friendly",
+                ]
+              }
+            />
+          </View>
+
+          {/* Gallery Card */}
           {(store.allImages?.length > 0 ||
             store.mainImage ||
             store.coverImage) && (
-            <StoreGallery
-              storeId={store._id}
-              images={[
-                ...(store.mainImage ? [store.mainImage] : []),
-                ...(store.coverImage ? [store.coverImage] : []),
-                ...(store.allImages || []),
-              ]}
-              onSeeAllPress={() => router.push(`/store/${store._id}/gallery`)}
-            />
+            <View style={styles.card}>
+              <StoreGallery
+                storeId={store._id}
+                images={[
+                  ...(store.mainImage ? [store.mainImage] : []),
+                  ...(store.coverImage ? [store.coverImage] : []),
+                  ...(store.allImages || []),
+                ]}
+                onSeeAllPress={() => router.push(`/store/${store._id}/gallery`)}
+              />
+            </View>
           )}
-        </View>
 
-        {/* Share button */}
-        <TouchableOpacity
-          style={styles.shareButton}
-          onPress={() => {
-            const deepLink = generateStoreDeepLink(store._id);
-            Share.share({
-              message: `Check out ${store.name} on DUNE! ${deepLink}`,
-              url: deepLink,
-            });
-          }}
-        >
-          <MaterialIcons name="share" size={20} color="#8A3FFC" />
-          <Typography style={styles.shareButtonText}>Share Store</Typography>
-        </TouchableOpacity>
+          {/* Terms & Conditions Card */}
+          <View style={styles.card}>
+            <StoreFooter
+              storeId={store._id}
+              storeName={store.name}
+              termsAndConditions={store.termsAndConditions}
+              returnPolicy={store.returnPolicy}
+            />
+          </View>
+
+          {/* Share button */}
+          <TouchableOpacity
+            style={styles.shareButton}
+            onPress={() => {
+              const deepLink = generateStoreDeepLink(store._id);
+              Share.share({
+                message: `Check out ${store.name} on DUNE! ${deepLink}`,
+                url: deepLink,
+              });
+            }}
+          >
+            <MaterialIcons name="share" size={20} color="#8A3FFC" />
+            <Typography style={styles.shareButtonText}>Share Store</Typography>
+          </TouchableOpacity>
+        </View>
       </ScrollView>
     </View>
   );
@@ -303,7 +351,7 @@ export default function StoreDetailScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#FAFAFA",
+    backgroundColor: "#F5F5F5", // Lighter background for contrast with cards
   },
   header: {
     flexDirection: "row",
@@ -318,7 +366,7 @@ const styles = StyleSheet.create({
   },
   headerTitle: {
     fontSize: 18,
-    fontFamily: "Jost-Medium",
+    fontFamily: "Jost-SemiBold",
     color: "#000",
   },
   loadingContainer: {
@@ -344,59 +392,8 @@ const styles = StyleSheet.create({
   storeInfo: {
     padding: 16,
   },
-  divider: {
-    height: 1,
-    backgroundColor: "#F0F0F0",
-    marginVertical: 16,
-  },
-  section: {
-    marginBottom: 24,
-    position: "relative",
-  },
-  sectionTitle: {
-    fontSize: 18,
-    fontFamily: "Jost-Medium",
-    color: "#000",
-    marginBottom: 8,
-  },
-  sectionContent: {
-    fontSize: 16,
-    fontFamily: "Jost-Regular",
-    color: "#333",
-    lineHeight: 24,
-  },
-  statusBadge: {
-    position: "absolute",
-    top: 0,
-    right: 0,
-    paddingVertical: 4,
-    paddingHorizontal: 8,
-    borderRadius: 4,
-  },
-  statusText: {
-    fontSize: 12,
-    fontFamily: "Jost-Medium",
-    color: "#FFFFFF",
-  },
-  shareButton: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    padding: 12,
-    marginHorizontal: 16,
-    marginTop: 8,
-    borderWidth: 1,
-    borderColor: "#E0E0E0",
-    borderRadius: 8,
-    backgroundColor: "#F8F8F8",
-  },
-  shareButtonText: {
-    marginLeft: 8,
-    color: "#8A3FFC",
-    fontWeight: "600",
-  },
-  // About Card Styles
-  aboutCard: {
+  // Card styles
+  card: {
     marginBottom: 16,
     borderRadius: 12,
     backgroundColor: "#FFFFFF",
@@ -408,49 +405,47 @@ const styles = StyleSheet.create({
     overflow: "hidden",
     borderWidth: 1,
     borderColor: "#F0F0F0",
-  },
-  aboutSection: {
     padding: 16,
   },
-  aboutTitle: {
-    fontSize: 18,
-    fontFamily: "Jost-SemiBold",
-    color: "#000",
-    marginBottom: 8,
-  },
-  aboutContent: {
-    fontSize: 16,
-    fontFamily: "Jost-Regular",
-    color: "#333",
-    lineHeight: 24,
-  },
-  dividerLine: {
-    height: 1,
-    backgroundColor: "#F0F0F0",
-    width: "100%",
-  },
-  addressSection: {
-    padding: 16,
-  },
-  addressTitle: {
-    fontSize: 18,
-    fontFamily: "Jost-SemiBold",
-    color: "#000",
-    marginBottom: 8,
-  },
-  addressContent: {
-    fontSize: 16,
-    fontFamily: "Jost-Regular",
-    color: "#333",
-    lineHeight: 24,
-    marginBottom: 16,
-  },
-  addressButtonsContainer: {
+  cardTitleContainer: {
     flexDirection: "row",
     justifyContent: "space-between",
-    marginTop: 8,
+    alignItems: "center",
+    marginBottom: 8,
   },
-  addressButton: {
+  cardTitle: {
+    fontSize: 18,
+    fontFamily: "Jost-SemiBold",
+    color: "#000",
+    marginBottom: 8,
+  },
+  cardContent: {
+    fontSize: 16,
+    fontFamily: "Jost-Regular",
+    color: "#333",
+    lineHeight: 24,
+    marginBottom: 8,
+  },
+  contactLabel: {
+    fontFamily: "Jost-Medium",
+    color: "#555",
+  },
+  statusBadge: {
+    paddingVertical: 4,
+    paddingHorizontal: 8,
+    borderRadius: 4,
+  },
+  statusText: {
+    fontSize: 12,
+    fontFamily: "Jost-Medium",
+    color: "#FFFFFF",
+  },
+  buttonContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginTop: 16,
+  },
+  actionButton: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
@@ -461,11 +456,34 @@ const styles = StyleSheet.create({
     borderColor: "#E0E0E0",
     flex: 1,
     marginHorizontal: 4,
+    backgroundColor: "#FFFFFF",
   },
-  addressButtonText: {
+  actionButtonText: {
     marginLeft: 8,
     color: "#8A3FFC",
     fontFamily: "Jost-Medium",
     fontSize: 14,
+  },
+  shareButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    padding: 14,
+    marginVertical: 16,
+    borderRadius: 8,
+    backgroundColor: "#FFFFFF",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05,
+    shadowRadius: 2,
+    elevation: 1,
+    borderWidth: 1,
+    borderColor: "#E0E0E0",
+  },
+  shareButtonText: {
+    marginLeft: 8,
+    color: "#8A3FFC",
+    fontFamily: "Jost-Medium",
+    fontSize: 16,
   },
 });

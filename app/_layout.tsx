@@ -11,6 +11,7 @@ import { StatusBar } from "expo-status-bar";
 import { useEffect } from "react";
 import "react-native-reanimated";
 import "@/global.css";
+import { handleTokenExpiration } from "@/lib/utils/tokenUtils";
 
 import { useColorScheme } from "@/hooks/useColorScheme";
 import { queryClient } from "@/lib/query/queryClient";
@@ -58,6 +59,9 @@ export default function RootLayout() {
 
       // Set up deep linking
       setupDeepLinking();
+
+      // Check for token expiration on app startup
+      handleTokenExpiration();
     }
   }, [loaded]);
 

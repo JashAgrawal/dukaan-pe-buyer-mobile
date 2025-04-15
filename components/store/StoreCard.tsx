@@ -42,8 +42,6 @@ const StoreCard: React.FC<StoreCardProps> = ({
   rewardText,
 }) => {
   const router = useRouter();
-  const toggleMutation = useToggleStoreWishlist();
-  const { data: isFavorite } = useStoreWishlistStatus(id);
 
   // Calculate distance and travel time if coordinates are provided
   let distanceText = distance;
@@ -58,14 +56,6 @@ const StoreCard: React.FC<StoreCardProps> = ({
     distanceText = formattedDistance;
     travelTimeText = formattedTravelTime;
   }
-
-  const handleToggleFavorite = () => {
-    console.log("isFavorite", isFavorite);
-    toggleMutation.mutate({
-      storeId: id,
-      isCurrentlyWishlisted: isFavorite || false,
-    });
-  };
 
   const handleCardPress = () => {
     // Navigate to the store detail page

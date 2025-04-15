@@ -10,6 +10,8 @@ export interface Review {
   };
   store?: string;
   product?: string;
+  images?: string[];
+  tags?: string[];
   createdAt: string;
   updatedAt: string;
 }
@@ -43,17 +45,31 @@ export const reviewService = {
    * Get reviews for a store
    */
   getStoreReviews: async (storeId: string, page = 1, limit = 10) => {
-    const response = await apiClient.get<ReviewsResponse>(`/stores/${storeId}/reviews`, {
-      params: { page, limit },
-    });
+    const response = await apiClient.get<ReviewsResponse>(
+      `/stores/${storeId}/reviews`,
+      {
+        params: { page, limit },
+      }
+    );
     return response.data;
   },
 
   /**
    * Create a review for a store
    */
-  createStoreReview: async (storeId: string, data: { rating: number; review: string }) => {
-    const response = await apiClient.post<ReviewResponse>(`/stores/${storeId}/reviews`, data);
+  createStoreReview: async (
+    storeId: string,
+    data: {
+      rating: number;
+      review: string;
+      images?: string[];
+      tags?: string[];
+    }
+  ) => {
+    const response = await apiClient.post<ReviewResponse>(
+      `/stores/${storeId}/reviews`,
+      data
+    );
     return response.data;
   },
 
@@ -61,17 +77,31 @@ export const reviewService = {
    * Get reviews for a product
    */
   getProductReviews: async (productId: string, page = 1, limit = 10) => {
-    const response = await apiClient.get<ReviewsResponse>(`/products/${productId}/reviews`, {
-      params: { page, limit },
-    });
+    const response = await apiClient.get<ReviewsResponse>(
+      `/products/${productId}/reviews`,
+      {
+        params: { page, limit },
+      }
+    );
     return response.data;
   },
 
   /**
    * Create a review for a product
    */
-  createProductReview: async (productId: string, data: { rating: number; review: string }) => {
-    const response = await apiClient.post<ReviewResponse>(`/products/${productId}/reviews`, data);
+  createProductReview: async (
+    productId: string,
+    data: {
+      rating: number;
+      review: string;
+      images?: string[];
+      tags?: string[];
+    }
+  ) => {
+    const response = await apiClient.post<ReviewResponse>(
+      `/products/${productId}/reviews`,
+      data
+    );
     return response.data;
   },
 
@@ -79,7 +109,7 @@ export const reviewService = {
    * Get user's reviews
    */
   getUserReviews: async (page = 1, limit = 10) => {
-    const response = await apiClient.get<ReviewsResponse>('/users/reviews', {
+    const response = await apiClient.get<ReviewsResponse>("/users/reviews", {
       params: { page, limit },
     });
     return response.data;

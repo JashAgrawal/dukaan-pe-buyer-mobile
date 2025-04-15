@@ -31,8 +31,12 @@ export const useAuthStore = create<AuthState>((set) => ({
       const userData = userDataString ? JSON.parse(userDataString) : null;
 
       if (token && userData) {
+        // Check if token is valid (not expired)
+        // We can't directly check JWT expiration without decoding
+        // But we'll set the state as authenticated and let API calls handle 401 errors
         set({ isAuthenticated: true, user: userData });
       } else {
+        // No token or user data found
         set({ isAuthenticated: false, user: null });
       }
     } catch (error) {
@@ -58,10 +62,16 @@ export const useAuthStore = create<AuthState>((set) => ({
   // Logout function
   logout: async () => {
     try {
+      // Clear auth tokens and user data
       await SecureStore.deleteItemAsync(TOKEN_KEY);
       await SecureStore.deleteItemAsync(USER_KEY);
+
+      // Update state
       set({ isAuthenticated: false, user: null });
-      router.replace("/auth/phone");
+
+      // Navigate to auth screen
+      // We don't call router.replace here to avoid duplicate navigation
+      // when called from API interceptor
     } catch (error) {
       console.error("Error during logout:", error);
       throw error;
