@@ -122,6 +122,7 @@ function InfiniteScroller<T>({
         renderEmpty()
       ) : (
         <FlatList
+          key={`${horizontal ? "horizontal" : "vertical"}-${numColumns || 1}`} // Add key to force re-render when layout changes
           data={data}
           keyExtractor={keyExtractor}
           renderItem={renderItem}

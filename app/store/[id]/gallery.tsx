@@ -11,27 +11,36 @@ import {
 } from "react-native";
 import { StatusBar } from "expo-status-bar";
 import { router, useLocalSearchParams } from "expo-router";
-import { Ionicons, MaterialIcons } from "@expo/vector-icons";
+import { Ionicons } from "@expo/vector-icons";
 import { Typography, H3 } from "@/components/ui/Typography";
 import { getImageUrl } from "@/lib/helpers";
-import { useStoreImageCollections, flattenStoreImageCollections } from "@/lib/api/hooks/useStoreImages";
+import {
+  useStoreImageCollections,
+  flattenStoreImageCollections,
+} from "@/lib/api/hooks/useStoreImages";
 import { getStoreById } from "@/lib/api/services/searchService";
 
 const { width, height } = Dimensions.get("window");
 
 export default function GalleryScreen() {
-  const { id, initialIndex = "0" } = useLocalSearchParams<{ id: string; initialIndex: string }>();
+  const { id, initialIndex = "0" } = useLocalSearchParams<{
+    id: string;
+    initialIndex: string;
+  }>();
   const [activeTab, setActiveTab] = useState<string>("All");
-  const [store, setStore] = useState<any | null>(null);
+  const [, setStore] = useState<any | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
-  const [expandedImageIndex, setExpandedImageIndex] = useState<number | null>(null);
+  const [expandedImageIndex, setExpandedImageIndex] = useState<number | null>(
+    null
+  );
   const [allImages, setAllImages] = useState<string[]>([]);
   const [tabImages, setTabImages] = useState<{ [key: string]: string[] }>({});
   const [currentImages, setCurrentImages] = useState<string[]>([]);
-  
+
   // Fetch store image collections
-  const { data: imageCollectionsData, isLoading: isLoadingCollections } = useStoreImageCollections(id as string);
-  
+  const { data: imageCollectionsData, isLoading: isLoadingCollections } =
+    useStoreImageCollections(id as string);
+
   // Refs for FlatList
   const gridRef = useRef<FlatList>(null);
   const expandedRef = useRef<FlatList>(null);
@@ -43,24 +52,24 @@ export default function GalleryScreen() {
         setLoading(true);
         const storeData = await getStoreById(id as string);
         setStore(storeData);
-        
+
         // Initialize with store's main images
         const initialImages = [
           ...(storeData.mainImage ? [storeData.mainImage] : []),
           ...(storeData.coverImage ? [storeData.coverImage] : []),
           ...(storeData.allImages || []),
         ];
-        
+
         setAllImages(initialImages);
         setCurrentImages(initialImages);
-        
+
         // Set up initial tab
         const initialTabs: { [key: string]: string[] } = {
-          "All": initialImages,
-          "Ambience": initialImages.filter((_, i) => i % 2 === 0), // Just for demo
-          "Food": initialImages.filter((_, i) => i % 2 === 1), // Just for demo
+          All: initialImages,
+          Ambience: initialImages.filter((_, i) => i % 2 === 0), // Just for demo
+          Food: initialImages.filter((_, i) => i % 2 === 1), // Just for demo
         };
-        
+
         setTabImages(initialTabs);
         setLoading(false);
       } catch (err) {
@@ -78,23 +87,27 @@ export default function GalleryScreen() {
   useEffect(() => {
     if (imageCollectionsData) {
       const collections = flattenStoreImageCollections(imageCollectionsData);
-      
+
       // Create tabs based on collection headings
       const newTabs: { [key: string]: string[] } = { ...tabImages };
       let newAllImages = [...allImages];
-      
-      collections.forEach(collection => {
-        if (collection.heading && collection.images && collection.images.length > 0) {
+
+      collections.forEach((collection) => {
+        if (
+          collection.heading &&
+          collection.images &&
+          collection.images.length > 0
+        ) {
           newTabs[collection.heading] = collection.images;
           newAllImages = [...newAllImages, ...collection.images];
         }
       });
-      
+
       // Update all images without duplicates
       const uniqueImages = Array.from(new Set(newAllImages));
       setAllImages(uniqueImages);
       newTabs["All"] = uniqueImages;
-      
+
       setTabImages(newTabs);
       setCurrentImages(newTabs[activeTab] || uniqueImages);
     }
@@ -125,7 +138,13 @@ export default function GalleryScreen() {
   };
 
   // Render image item in grid
-  const renderImageItem = ({ item, index }: { item: string; index: number }) => (
+  const renderImageItem = ({
+    item,
+    index,
+  }: {
+    item: string;
+    index: number;
+  }) => (
     <TouchableOpacity
       style={styles.imageItem}
       onPress={() => handleImagePress(index)}
@@ -139,7 +158,7 @@ export default function GalleryScreen() {
   );
 
   // Render expanded image
-  const renderExpandedImage = ({ item, index }: { item: string; index: number }) => (
+  const renderExpandedImage = ({ item }: { item: string; index: number }) => (
     <View style={styles.expandedImageContainer}>
       <Image
         source={{ uri: getImageUrl(item) }}
@@ -210,10 +229,7 @@ export default function GalleryScreen() {
           {Object.keys(tabImages).map((tab) => (
             <TouchableOpacity
               key={tab}
-              style={[
-                styles.tab,
-                activeTab === tab && styles.activeTab,
-              ]}
+              style={[styles.tab, activeTab === tab && styles.activeTab]}
               onPress={() => handleTabChange(tab)}
             >
               <Typography
@@ -232,25 +248,27 @@ export default function GalleryScreen() {
       {/* Image Grid */}
       {expandedImageIndex === null ? (
         <FlatList
+          key="grid-view" // Add key to force re-render when switching views
           ref={gridRef}
           data={currentImages}
           renderItem={renderImageItem}
-          keyExtractor={(item, index) => `image-${index}`}
+          keyExtractor={(_, index) => `image-${index}`}
           numColumns={3}
           contentContainerStyle={styles.gridContainer}
           showsVerticalScrollIndicator={false}
         />
       ) : (
         <FlatList
+          key="expanded-view" // Add key to force re-render when switching views
           ref={expandedRef}
           data={currentImages}
           renderItem={renderExpandedImage}
-          keyExtractor={(item, index) => `expanded-${index}`}
+          keyExtractor={(_, index) => `expanded-${index}`}
           horizontal
           pagingEnabled
           showsHorizontalScrollIndicator={false}
           initialScrollIndex={expandedImageIndex}
-          getItemLayout={(data, index) => ({
+          getItemLayout={(_, index) => ({
             length: width,
             offset: width * index,
             index,

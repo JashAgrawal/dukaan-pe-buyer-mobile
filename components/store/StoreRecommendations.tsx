@@ -6,33 +6,35 @@ interface StoreRecommendationsProps {
   tags: string[];
 }
 
-const StoreRecommendations: React.FC<StoreRecommendationsProps> = ({ tags }) => {
+const StoreRecommendations: React.FC<StoreRecommendationsProps> = ({
+  tags,
+}) => {
   if (!tags || tags.length === 0) {
     return null;
   }
 
   // Map of tag names to emoji icons
   const tagIcons: Record<string, string> = {
-    "Healthy": "🥗",
+    Healthy: "🥗",
     "Good Music": "🎵",
     "Pocket Friendly": "😊",
-    "Trending": "🔥",
-    "Popular": "👍",
+    Trending: "🔥",
+    Popular: "👍",
     "New Arrival": "🆕",
     "Best Seller": "🏆",
     "Top Rated": "⭐",
-    "Featured": "✨",
+    Featured: "✨",
     "Fast Delivery": "🚚",
-    "Premium": "💎",
-    "Verified": "✅",
+    Premium: "💎",
+    Verified: "✅",
     "Family Friendly": "👨‍👩‍👧‍👦",
     "Date Night": "💑",
     "Group Dining": "👥",
     "Late Night": "🌙",
-    "Breakfast": "🍳",
-    "Lunch": "🍽️",
-    "Dinner": "🍴",
-    "Dessert": "🍰",
+    Breakfast: "🍳",
+    Lunch: "🍽️",
+    Dinner: "🍴",
+    Dessert: "🍰",
   };
 
   // Get icon for a tag, default to "✨" if not found
@@ -43,9 +45,9 @@ const StoreRecommendations: React.FC<StoreRecommendationsProps> = ({ tags }) => 
   return (
     <View style={styles.container}>
       <Typography style={styles.title}>Recommended For</Typography>
-      
-      <ScrollView 
-        horizontal 
+
+      <ScrollView
+        horizontal
         showsHorizontalScrollIndicator={false}
         contentContainerStyle={styles.tagsContainer}
       >
@@ -62,14 +64,24 @@ const StoreRecommendations: React.FC<StoreRecommendationsProps> = ({ tags }) => 
 
 const styles = StyleSheet.create({
   container: {
-    marginVertical: 16,
-    paddingHorizontal: 16,
+    width: "100%",
+    backgroundColor: "#FFFFFF",
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: "#F0F0F0",
+    padding: 14,
+    marginBottom: 12,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.04,
+    shadowRadius: 3,
+    elevation: 1,
   },
   title: {
-    fontSize: 18,
-    fontWeight: "600",
-    marginBottom: 16,
+    fontSize: 16,
     fontFamily: "Jost-SemiBold",
+    marginBottom: 12,
+    color: "#000",
   },
   tagsContainer: {
     paddingRight: 16,
@@ -77,19 +89,22 @@ const styles = StyleSheet.create({
   tagItem: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "#f5f5f5",
+    backgroundColor: "#F0E6FF", // Light purple background
     borderRadius: 20,
     paddingHorizontal: 16,
-    paddingVertical: 8,
-    marginRight: 8,
+    paddingVertical: 10,
+    marginRight: 12,
+    borderWidth: 1,
+    borderColor: "#E6D9FF",
   },
   tagIcon: {
     fontSize: 16,
-    marginRight: 6,
+    marginRight: 8,
   },
   tagText: {
     fontSize: 14,
     color: "#333",
+    fontFamily: "Jost-Medium",
   },
 });
 

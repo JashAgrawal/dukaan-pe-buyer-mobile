@@ -20,7 +20,7 @@ import StoreGallery from "@/components/store/StoreGallery";
 import StoreFacilities from "@/components/store/StoreFacilities";
 import StoreReviews from "@/components/store/StoreReviews";
 import StoreRecommendations from "@/components/store/StoreRecommendations";
-import StoreFooter from "@/components/store/StoreFooter";
+// StoreFooter is no longer used as we've implemented custom terms & conditions
 import { generateStoreDeepLink } from "@/lib/utils/deepLinking";
 import { ProductCategory } from "@/types/store";
 
@@ -146,186 +146,210 @@ export default function StoreDetailScreen() {
         />
 
         <View style={styles.storeInfo}>
-          {/* About Card */}
+          {/* About & Address Card */}
           <View style={styles.card}>
-            <Typography style={styles.cardTitle}>About this store</Typography>
-            <Body1 style={styles.cardContent}>
-              {store.description ||
-                `${store.name} is one of the leading businesses in the Fast Food Delivery Services lorem ipsum`}
-            </Body1>
-          </View>
-
-          {/* Address Card */}
-          <View style={styles.card}>
-            <Typography style={styles.cardTitle}>Address</Typography>
-            <Body1 style={styles.cardContent}>
-              {store.full_address
-                ? store.full_address
-                : store.address?.street
-                ? `${store.address.street || ""}, ${
-                    store.address.city || ""
-                  }, ${store.address.state || ""} ${
-                    store.address.pincode || ""
-                  }`
-                : store.city
-                ? `${store.city}, ${store.state || ""} ${store.country || ""}`
-                : "2 Floor, Khan House, Hill Rd, above McDonald's, Bandra West, Mumbai, Maharashtra 400050"}
-            </Body1>
-
-            <View style={styles.buttonContainer}>
-              <TouchableOpacity
-                style={styles.actionButton}
-                onPress={() => {
-                  // Get the address for directions
-                  const address =
-                    store.full_address ||
-                    (store.address?.street
-                      ? `${store.address.street || ""}, ${
-                          store.address.city || ""
-                        }, ${store.address.state || ""} ${
-                          store.address.pincode || ""
-                        }`
-                      : store.city
-                      ? `${store.city}, ${store.state || ""} ${
-                          store.country || ""
-                        }`
-                      : "2 Floor, Khan House, Hill Rd, above McDonald's, Bandra West, Mumbai, Maharashtra 400050");
-
-                  // Open in maps app
-                  const encodedAddress = encodeURIComponent(address);
-                  const mapsUrl = `https://maps.google.com/maps?q=${encodedAddress}`;
-                  Linking.openURL(mapsUrl);
-                }}
-              >
-                <Ionicons name="location-outline" size={18} color="#8A3FFC" />
-                <Typography style={styles.actionButtonText}>
-                  Get directions
-                </Typography>
-              </TouchableOpacity>
-
-              <TouchableOpacity
-                style={styles.actionButton}
-                onPress={() => {
-                  // Get the phone number
-                  const phoneNumber =
-                    store.business_phone_number ||
-                    store.contactPhone ||
-                    "+1 (123) 456-7890";
-
-                  // Open phone app
-                  Linking.openURL(`tel:${phoneNumber}`);
-                }}
-              >
-                <Ionicons name="call-outline" size={18} color="#8A3FFC" />
-                <Typography style={styles.actionButtonText}>Call us</Typography>
-              </TouchableOpacity>
+            <View style={styles.cardSection}>
+              <Typography style={styles.cardTitle}>About this store</Typography>
+              <Body1 style={styles.cardContent}>
+                {store.description ||
+                  `${store.name} is one of the leading businesses in the Fast Food Delivery Services lorem ipsum`}
+              </Body1>
             </View>
-          </View>
 
-          {/* Hours Card */}
-          <View style={styles.card}>
-            <View style={styles.cardTitleContainer}>
-              <Typography style={styles.cardTitle}>Hours</Typography>
-              {store.isOpen !== undefined && (
-                <View
-                  style={[
-                    styles.statusBadge,
-                    { backgroundColor: store.isOpen ? "#4CD964" : "#FF3B30" },
-                  ]}
+            <View style={styles.dividerLine} />
+
+            <View style={styles.cardSection}>
+              <Typography style={styles.cardTitle}>Address</Typography>
+              <Body1 style={styles.cardContent}>
+                {store.full_address
+                  ? store.full_address
+                  : store.address?.street
+                  ? `${store.address.street || ""}, ${
+                      store.address.city || ""
+                    }, ${store.address.state || ""} ${
+                      store.address.pincode || ""
+                    }`
+                  : store.city
+                  ? `${store.city}, ${store.state || ""} ${store.country || ""}`
+                  : "2 Floor, Khan House, Hill Rd, above McDonald's, Bandra West, Mumbai, Maharashtra 400050"}
+              </Body1>
+
+              <View style={styles.buttonContainer}>
+                <TouchableOpacity
+                  style={styles.actionButton}
+                  onPress={() => {
+                    // Get the address for directions
+                    const address =
+                      store.full_address ||
+                      (store.address?.street
+                        ? `${store.address.street || ""}, ${
+                            store.address.city || ""
+                          }, ${store.address.state || ""} ${
+                            store.address.pincode || ""
+                          }`
+                        : store.city
+                        ? `${store.city}, ${store.state || ""} ${
+                            store.country || ""
+                          }`
+                        : "2 Floor, Khan House, Hill Rd, above McDonald's, Bandra West, Mumbai, Maharashtra 400050");
+
+                    // Open in maps app
+                    const encodedAddress = encodeURIComponent(address);
+                    const mapsUrl = `https://maps.google.com/maps?q=${encodedAddress}`;
+                    Linking.openURL(mapsUrl);
+                  }}
                 >
-                  <Typography style={styles.statusText}>
-                    {store.isOpen ? "Open Now" : "Closed"}
+                  <Ionicons name="location-outline" size={16} color="#8A3FFC" />
+                  <Typography style={styles.actionButtonText}>
+                    Get directions
                   </Typography>
-                </View>
-              )}
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                  style={styles.actionButton}
+                  onPress={() => {
+                    // Get the phone number
+                    const phoneNumber =
+                      store.business_phone_number ||
+                      store.contactPhone ||
+                      "+1 (123) 456-7890";
+
+                    // Open phone app
+                    Linking.openURL(`tel:${phoneNumber}`);
+                  }}
+                >
+                  <Ionicons name="call-outline" size={16} color="#8A3FFC" />
+                  <Typography style={styles.actionButtonText}>
+                    Call us
+                  </Typography>
+                </TouchableOpacity>
+              </View>
             </View>
-            <Body1 style={styles.cardContent}>
-              {store.is_24_7
-                ? "Open 24/7"
-                : store.opensAt && store.closesAt
-                ? `Open: ${store.opensAt} - ${store.closesAt}`
-                : `Monday - Friday: 9:00 AM - 9:00 PM\nSaturday - Sunday: 10:00 AM - 8:00 PM`}
-            </Body1>
           </View>
 
-          {/* Contact Card */}
+          {/* Hours & Contact Card */}
           <View style={styles.card}>
-            <Typography style={styles.cardTitle}>Contact</Typography>
-            <Body1 style={styles.cardContent}>
-              <Typography style={styles.contactLabel}>Phone: </Typography>
-              {store.business_phone_number ||
-                store.contactPhone ||
-                "+1 (123) 456-7890"}
-            </Body1>
-            <Body1 style={styles.cardContent}>
-              <Typography style={styles.contactLabel}>Email: </Typography>
-              {store.business_email ||
-                store.contactEmail ||
-                `info@${store.name.toLowerCase().replace(/\s+/g, "")}.com`}
-            </Body1>
+            <View style={styles.cardSection}>
+              <View style={styles.cardTitleContainer}>
+                <Typography style={styles.cardTitle}>Hours</Typography>
+                {store.isOpen !== undefined && (
+                  <View
+                    style={[
+                      styles.statusBadge,
+                      { backgroundColor: store.isOpen ? "#4CD964" : "#FF3B30" },
+                    ]}
+                  >
+                    <Typography style={styles.statusText}>
+                      {store.isOpen ? "Open Now" : "Closed"}
+                    </Typography>
+                  </View>
+                )}
+              </View>
+              <Body1 style={styles.cardContent}>
+                {store.is_24_7
+                  ? "Open 24/7"
+                  : store.opensAt && store.closesAt
+                  ? `Open: ${store.opensAt} - ${store.closesAt}`
+                  : `Monday - Friday: 9:00 AM - 9:00 PM\nSaturday - Sunday: 10:00 AM - 8:00 PM`}
+              </Body1>
+            </View>
+
+            <View style={styles.dividerLine} />
+
+            <View style={styles.cardSection}>
+              <Typography style={styles.cardTitle}>Contact</Typography>
+              <Body1 style={styles.cardContent}>
+                <Typography style={styles.contactLabel}>Phone: </Typography>
+                {store.business_phone_number ||
+                  store.contactPhone ||
+                  "+1 (123) 456-7890"}
+              </Body1>
+              <Body1 style={styles.cardContent}>
+                <Typography style={styles.contactLabel}>Email: </Typography>
+                {store.business_email ||
+                  store.contactEmail ||
+                  `info@${store.name.toLowerCase().replace(/\s+/g, "")}.com`}
+              </Body1>
+            </View>
           </View>
 
-          {/* Facilities Card */}
-          <View style={styles.card}>
-            <StoreFacilities
-              facilities={
-                store.facilities || [
-                  "Takeaway available",
-                  "Indoor seating",
-                  "LGBTQIA Friendly",
-                  "Smoking area",
-                  "Wifi",
-                  "Romantic Dining",
-                  "Parking",
-                  "Air Conditioning",
-                ]
-              }
-            />
-          </View>
+          {/* Facilities Section */}
+          <StoreFacilities
+            facilities={
+              store.facilities || [
+                "Takeaway available",
+                "Indoor seating",
+                "LGBTQIA Friendly",
+                "Smoking area",
+                "Wifi",
+                "Romantic Dining",
+                "Parking",
+                "Air Conditioning",
+              ]
+            }
+          />
 
-          {/* Customer Reviews Card */}
-          <View style={styles.card}>
-            <StoreReviews storeId={store._id} />
-          </View>
+          {/* Customer Reviews Section */}
+          <StoreReviews storeId={store._id} />
 
-          {/* Recommended For Card */}
-          <View style={styles.card}>
-            <StoreRecommendations
-              tags={
-                store.displayTags || [
-                  "Healthy",
-                  "Good Music",
-                  "Pocket Friendly",
-                ]
-              }
-            />
-          </View>
+          {/* Recommended For Section */}
+          <StoreRecommendations
+            tags={
+              store.displayTags || ["Healthy", "Good Music", "Pocket Friendly"]
+            }
+          />
 
-          {/* Gallery Card */}
+          {/* Gallery Section */}
           {(store.allImages?.length > 0 ||
             store.mainImage ||
             store.coverImage) && (
-            <View style={styles.card}>
-              <StoreGallery
-                storeId={store._id}
-                images={[
-                  ...(store.mainImage ? [store.mainImage] : []),
-                  ...(store.coverImage ? [store.coverImage] : []),
-                  ...(store.allImages || []),
-                ]}
-                onSeeAllPress={() => router.push(`/store/${store._id}/gallery`)}
-              />
-            </View>
+            <StoreGallery
+              storeId={store._id}
+              images={[
+                ...(store.mainImage ? [store.mainImage] : []),
+                ...(store.coverImage ? [store.coverImage] : []),
+                ...(store.allImages || []),
+              ]}
+              onSeeAllPress={() => router.push(`/store/${store._id}/gallery`)}
+            />
           )}
 
-          {/* Terms & Conditions Card */}
+          {/* Terms & Conditions and Return Policy Card */}
           <View style={styles.card}>
-            <StoreFooter
-              storeId={store._id}
-              storeName={store.name}
-              termsAndConditions={store.termsAndConditions}
-              returnPolicy={store.returnPolicy}
-            />
+            <View style={styles.cardSection}>
+              <Typography style={styles.cardTitle}>
+                Terms & Conditions
+              </Typography>
+              <Body1 style={styles.cardContent}>
+                {store.termsAndConditions ||
+                  "No terms and conditions available."}
+              </Body1>
+            </View>
+
+            {store.returnPolicy && (
+              <>
+                <View style={styles.dividerLine} />
+                <View style={styles.cardSection}>
+                  <Typography style={styles.cardTitle}>
+                    Return Policy
+                  </Typography>
+                  <Body1 style={styles.cardContent}>{store.returnPolicy}</Body1>
+                </View>
+              </>
+            )}
+          </View>
+
+          {/* Report Business Card */}
+          <View style={styles.card}>
+            <TouchableOpacity
+              style={styles.reportButton}
+              onPress={() => console.log(`Report ${store.name}`)}
+            >
+              <Ionicons name="flag-outline" size={16} color="#FF3B30" />
+              <Typography style={styles.reportButtonText}>
+                Report this business
+              </Typography>
+            </TouchableOpacity>
           </View>
 
           {/* Share button */}
@@ -390,100 +414,119 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   storeInfo: {
-    padding: 16,
+    padding: 12,
   },
   // Card styles
   card: {
-    marginBottom: 16,
-    borderRadius: 12,
+    marginBottom: 12,
+    borderRadius: 10,
     backgroundColor: "#FFFFFF",
     shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
-    shadowRadius: 4,
-    elevation: 2,
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.04,
+    shadowRadius: 3,
+    elevation: 1,
     overflow: "hidden",
     borderWidth: 1,
     borderColor: "#F0F0F0",
-    padding: 16,
+  },
+  cardSection: {
+    padding: 14,
   },
   cardTitleContainer: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    marginBottom: 8,
+    marginBottom: 6,
   },
   cardTitle: {
-    fontSize: 18,
+    fontSize: 16,
     fontFamily: "Jost-SemiBold",
     color: "#000",
-    marginBottom: 8,
+    marginBottom: 6,
   },
   cardContent: {
-    fontSize: 16,
+    fontSize: 14,
     fontFamily: "Jost-Regular",
     color: "#333",
-    lineHeight: 24,
-    marginBottom: 8,
+    lineHeight: 20,
+    marginBottom: 6,
   },
   contactLabel: {
     fontFamily: "Jost-Medium",
     color: "#555",
   },
+  dividerLine: {
+    height: 1,
+    backgroundColor: "#F0F0F0",
+    width: "100%",
+  },
   statusBadge: {
-    paddingVertical: 4,
-    paddingHorizontal: 8,
+    paddingVertical: 3,
+    paddingHorizontal: 6,
     borderRadius: 4,
   },
   statusText: {
-    fontSize: 12,
+    fontSize: 11,
     fontFamily: "Jost-Medium",
     color: "#FFFFFF",
   },
   buttonContainer: {
     flexDirection: "row",
     justifyContent: "space-between",
-    marginTop: 16,
+    marginTop: 12,
   },
   actionButton: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
-    paddingVertical: 10,
-    paddingHorizontal: 16,
-    borderRadius: 8,
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    borderRadius: 6,
     borderWidth: 1,
     borderColor: "#E0E0E0",
     flex: 1,
-    marginHorizontal: 4,
+    marginHorizontal: 3,
     backgroundColor: "#FFFFFF",
   },
   actionButtonText: {
-    marginLeft: 8,
+    marginLeft: 6,
     color: "#8A3FFC",
     fontFamily: "Jost-Medium",
-    fontSize: 14,
+    fontSize: 13,
   },
   shareButton: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
-    padding: 14,
-    marginVertical: 16,
+    padding: 12,
+    marginVertical: 12,
     borderRadius: 8,
     backgroundColor: "#FFFFFF",
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.05,
+    shadowOpacity: 0.04,
     shadowRadius: 2,
     elevation: 1,
     borderWidth: 1,
     borderColor: "#E0E0E0",
   },
   shareButtonText: {
-    marginLeft: 8,
+    marginLeft: 6,
     color: "#8A3FFC",
     fontFamily: "Jost-Medium",
-    fontSize: 16,
+    fontSize: 14,
+  },
+  reportButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    padding: 12,
+  },
+  reportButtonText: {
+    marginLeft: 6,
+    color: "#FF3B30",
+    fontFamily: "Jost-Medium",
+    fontSize: 13,
   },
 });

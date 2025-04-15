@@ -13,7 +13,7 @@ interface StoreReviewsProps {
 
 const StoreReviews: React.FC<StoreReviewsProps> = ({ storeId }) => {
   const { data, isLoading, error } = useStoreReviews(storeId, 1, 2); // Only fetch 2 reviews for preview
-  
+
   if (isLoading) {
     return (
       <View style={styles.container}>
@@ -22,39 +22,43 @@ const StoreReviews: React.FC<StoreReviewsProps> = ({ storeId }) => {
       </View>
     );
   }
-  
+
   if (error || !data || !data.data.reviews.length) {
     return null;
   }
-  
+
   const reviews = data.data.reviews;
   const totalReviews = data.pagination.total;
-  
+
   return (
     <View style={styles.container}>
       <View style={styles.headerRow}>
         <Typography style={styles.title}>Customer Reviews</Typography>
-        <TouchableOpacity 
+        <TouchableOpacity
           style={styles.seeAllButton}
           onPress={() => router.push(`/store/${storeId}/reviews`)}
         >
           <Typography style={styles.seeAllText}>See all reviews</Typography>
         </TouchableOpacity>
       </View>
-      
+
       {reviews.map((review, index) => (
         <ReviewItem key={index} review={review} />
       ))}
-      
+
       {totalReviews > 2 && (
-        <TouchableOpacity 
+        <TouchableOpacity
           style={styles.moreReviewsButton}
           onPress={() => router.push(`/store/${storeId}/reviews`)}
         >
           <Typography style={styles.moreReviewsText}>
             View all {totalReviews} reviews
           </Typography>
-          <MaterialIcons name="arrow-forward" size={16} color={Colors.light.tint} />
+          <MaterialIcons
+            name="arrow-forward"
+            size={16}
+            color={Colors.light.tint}
+          />
         </TouchableOpacity>
       )}
     </View>
@@ -69,8 +73,10 @@ const ReviewItem: React.FC<ReviewItemProps> = ({ review }) => {
   return (
     <View style={styles.reviewItem}>
       <View style={styles.reviewHeader}>
-        <Image 
-          source={{ uri: `https://api.dicebear.com/9.x/pixel-art/svg?seed=${review.user.name}` }}
+        <Image
+          source={{
+            uri: `https://api.dicebear.com/9.x/pixel-art/svg?seed=${review.user.name}`,
+          }}
           style={styles.userImage}
         />
         <View style={styles.reviewHeaderText}>
@@ -91,8 +97,17 @@ const ReviewItem: React.FC<ReviewItemProps> = ({ review }) => {
 
 const styles = StyleSheet.create({
   container: {
-    marginVertical: 16,
-    paddingHorizontal: 16,
+    backgroundColor: "#FFFFFF",
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: "#F0F0F0",
+    padding: 14,
+    marginBottom: 12,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.04,
+    shadowRadius: 3,
+    elevation: 1,
   },
   headerRow: {
     flexDirection: "row",
@@ -101,9 +116,9 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   title: {
-    fontSize: 18,
-    fontWeight: "600",
+    fontSize: 16,
     fontFamily: "Jost-SemiBold",
+    color: "#000",
   },
   seeAllButton: {
     padding: 4,

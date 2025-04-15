@@ -305,24 +305,24 @@ const styles = StyleSheet.create({
   },
   detailsContainer: {
     zIndex: 10,
-    paddingHorizontal: 20,
-    paddingTop: 50,
-    paddingBottom: 16,
+    paddingHorizontal: 16,
+    paddingTop: 45,
+    paddingBottom: 14,
     marginHorizontal: 12,
-    borderBottomLeftRadius: 20,
-    borderBottomRightRadius: 20,
+    borderBottomLeftRadius: 16,
+    borderBottomRightRadius: 16,
     backgroundColor: "#fff",
-    elevation: 2,
+    elevation: 1,
     shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.04,
+    shadowRadius: 3,
   },
   nameRatingContainer: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    marginBottom: 8,
+    marginBottom: 6,
   },
   ratingBadge: {
     backgroundColor: "#F5A623",
@@ -334,12 +334,14 @@ const styles = StyleSheet.create({
   },
   cuisineText: {
     color: "#333",
-    marginBottom: 12,
+    marginBottom: 10,
+    fontFamily: "Jost-Regular",
+    fontSize: 14,
   },
   locationContainer: {
     flexDirection: "row",
     alignItems: "center",
-    marginBottom: 12,
+    marginBottom: 10,
   },
   spacer: {
     flex: 1,
@@ -352,19 +354,21 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   costText: {
-    marginBottom: 12,
+    marginBottom: 10,
+    fontFamily: "Jost-Regular",
+    fontSize: 14,
   },
   timingContainer: {
     flexDirection: "row",
     alignItems: "center",
-    marginBottom: 24,
+    marginBottom: 16,
   },
   recommendationContainer: {
     flexDirection: "row",
     alignItems: "center",
-    marginBottom: 24,
+    marginBottom: 16,
     backgroundColor: "#F8F8F8",
-    padding: 12,
+    padding: 10,
     borderRadius: 8,
   },
   userImage: {
@@ -376,6 +380,8 @@ const styles = StyleSheet.create({
   recommendationText: {
     flex: 1,
     color: "#333",
+    fontFamily: "Jost-Regular",
+    fontSize: 13,
   },
   divider: {
     height: 1,
@@ -396,7 +402,9 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
   },
   actionButtonText: {
-    marginLeft: 8,
+    marginLeft: 6,
+    fontFamily: "Jost-Medium",
+    fontSize: 13,
   },
   buttonDivider: {
     width: 1,

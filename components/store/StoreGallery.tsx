@@ -57,24 +57,14 @@ const StoreGallery: React.FC<StoreGalleryProps> = ({
       </View>
 
       <View style={styles.galleryContainer}>
-        {/* First large image */}
-        <TouchableOpacity
-          style={styles.largeImageContainer}
-          onPress={() => handleImagePress(0)}
-        >
-          <Image
-            source={{ uri: getImageUrl(displayImages[0]) }}
-            style={styles.largeImage}
-          />
-        </TouchableOpacity>
-
         {/* Grid of smaller images */}
         <View style={styles.smallImagesContainer}>
-          {displayImages.slice(1, 5).map((image, index) => (
+          {displayImages.slice(0, 4).map((image, index) => (
             <TouchableOpacity
               key={index}
               style={styles.smallImageContainer}
               onPress={() => handleImagePress(index + 1)}
+              activeOpacity={0.9}
             >
               <Image
                 source={{ uri: getImageUrl(image) }}
@@ -98,36 +88,42 @@ const StoreGallery: React.FC<StoreGalleryProps> = ({
 
 const styles = StyleSheet.create({
   container: {
-    marginVertical: 16,
+    width: "100%",
+    backgroundColor: "#FFFFFF",
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: "#F0F0F0",
+    padding: 14,
+    marginBottom: 12,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.04,
+    shadowRadius: 3,
+    elevation: 1,
   },
   headerContainer: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
     marginBottom: 12,
-    paddingHorizontal: 16,
   },
   title: {
-    fontSize: 18,
-    fontWeight: "600",
+    fontSize: 16,
+    fontFamily: "Jost-SemiBold",
+    color: "#000",
   },
   seeAllText: {
     fontSize: 14,
     color: "#8A3FFC",
+    fontFamily: "Jost-Medium",
   },
   galleryContainer: {
     flexDirection: "row",
     height: GALLERY_HEIGHT,
-    paddingHorizontal: 16,
   },
   largeImageContainer: {
     flex: 1,
-    marginRight: 4,
-  },
-  largeImage: {
-    width: "100%",
-    height: "100%",
-    borderRadius: 8,
+    marginRight: 8,
   },
   smallImagesContainer: {
     flex: 1,
@@ -136,26 +132,26 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
   },
   smallImageContainer: {
-    width: GALLERY_ITEM_WIDTH / 2,
-    height: GALLERY_ITEM_HEIGHT,
+    width: "28%",
+    height: "auto",
     margin: 2,
   },
   smallImage: {
     width: "100%",
     height: "100%",
-    borderRadius: 8,
+    borderRadius: 12,
   },
   seeMoreOverlay: {
     ...StyleSheet.absoluteFillObject,
     backgroundColor: "rgba(0, 0, 0, 0.5)",
     justifyContent: "center",
     alignItems: "center",
-    borderRadius: 8,
+    borderRadius: 12,
   },
   seeMoreText: {
     color: "white",
     fontSize: 16,
-    fontWeight: "bold",
+    fontFamily: "Jost-Bold",
   },
 });
 

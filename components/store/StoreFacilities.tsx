@@ -10,7 +10,7 @@ interface StoreFacilitiesProps {
 
 const StoreFacilities: React.FC<StoreFacilitiesProps> = ({ facilities }) => {
   const [expanded, setExpanded] = useState(false);
-  
+
   // If no facilities, don't render anything
   if (!facilities || facilities.length === 0) {
     return null;
@@ -26,22 +26,22 @@ const StoreFacilities: React.FC<StoreFacilitiesProps> = ({ facilities }) => {
     "Indoor seating": "chair",
     "LGBTQIA Friendly": "diversity-3",
     "Smoking area": "smoking-rooms",
-    "Wifi": "wifi",
+    Wifi: "wifi",
     "Romantic Dining": "favorite",
-    "Parking": "local-parking",
+    Parking: "local-parking",
     "Air Conditioning": "ac-unit",
     "Home Delivery": "delivery-dining",
     "Outdoor seating": "deck",
     "Wheelchair accessible": "accessible",
     "Pet friendly": "pets",
-    "Restroom": "wc",
+    Restroom: "wc",
     "Vegan options": "eco",
     "Vegetarian friendly": "grass",
     "Live music": "music-note",
     "Happy hour": "local-bar",
     "Family friendly": "family-restroom",
     "Contactless payment": "contactless",
-    "Reservations": "event-available",
+    Reservations: "event-available",
   };
 
   // Get icon for a facility, default to "check-circle" if not found
@@ -52,33 +52,34 @@ const StoreFacilities: React.FC<StoreFacilitiesProps> = ({ facilities }) => {
   return (
     <View style={styles.container}>
       <Typography style={styles.title}>Facilities</Typography>
-      
+
       <View style={styles.facilitiesGrid}>
         {displayedFacilities.map((facility, index) => (
           <View key={index} style={styles.facilityItem}>
-            <MaterialIcons 
-              name={getIconForFacility(facility)} 
-              size={20} 
-              color="#4CD964" 
-              style={styles.facilityIcon} 
-            />
+            <View style={styles.iconContainer}>
+              <MaterialIcons
+                name={getIconForFacility(facility)}
+                size={20}
+                color="#FFFFFF"
+              />
+            </View>
             <Body1 style={styles.facilityText}>{facility}</Body1>
           </View>
         ))}
       </View>
-      
+
       {hasMoreFacilities && (
-        <TouchableOpacity 
-          style={styles.seeMoreButton} 
+        <TouchableOpacity
+          style={styles.seeMoreButton}
           onPress={() => setExpanded(!expanded)}
         >
           <Typography style={styles.seeMoreText}>
             {expanded ? "See less" : "See more"}
           </Typography>
-          <MaterialIcons 
-            name={expanded ? "keyboard-arrow-up" : "keyboard-arrow-down"} 
-            size={20} 
-            color={Colors.light.tint} 
+          <MaterialIcons
+            name={expanded ? "keyboard-arrow-up" : "keyboard-arrow-down"}
+            size={20}
+            color={Colors.light.tint}
           />
         </TouchableOpacity>
       )}
@@ -88,31 +89,51 @@ const StoreFacilities: React.FC<StoreFacilitiesProps> = ({ facilities }) => {
 
 const styles = StyleSheet.create({
   container: {
-    marginVertical: 16,
-    paddingHorizontal: 16,
+    width: "100%",
+    backgroundColor: "#FFFFFF",
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: "#F0F0F0",
+    padding: 14,
+    marginBottom: 12,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.04,
+    shadowRadius: 3,
+    elevation: 1,
   },
   title: {
-    fontSize: 18,
-    fontWeight: "600",
-    marginBottom: 16,
+    fontSize: 16,
     fontFamily: "Jost-SemiBold",
+    marginBottom: 12,
+    color: "#000",
   },
   facilitiesGrid: {
     flexDirection: "row",
     flexWrap: "wrap",
+    marginHorizontal: -4, // Compensate for item margin
   },
   facilityItem: {
     flexDirection: "row",
     alignItems: "center",
     width: "50%",
-    marginBottom: 12,
+    marginBottom: 16,
+    paddingHorizontal: 4,
   },
-  facilityIcon: {
+  iconContainer: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    backgroundColor: "#4CD964",
+    justifyContent: "center",
+    alignItems: "center",
     marginRight: 8,
   },
   facilityText: {
     fontSize: 14,
     color: "#333",
+    fontFamily: "Jost-Regular",
+    flex: 1,
   },
   seeMoreButton: {
     flexDirection: "row",
@@ -124,6 +145,7 @@ const styles = StyleSheet.create({
   seeMoreText: {
     color: Colors.light.tint,
     marginRight: 4,
+    fontFamily: "Jost-Medium",
   },
 });
 

@@ -57,7 +57,7 @@ export default function StoreReviewsScreen() {
           { text: "Cancel", style: "cancel" },
           {
             text: "Sign In",
-            onPress: () => router.push("/auth/login"),
+            onPress: () => router.push("/auth/phone"),
           },
         ]
       );
@@ -129,7 +129,7 @@ export default function StoreReviewsScreen() {
         {/* Tags */}
         {item.tags && item.tags.length > 0 && (
           <View style={styles.tagsContainer}>
-            {item.tags.map((tag, tagIndex) => {
+            {item.tags.map((tag: string, tagIndex: number) => {
               // Get emoji based on tag text
               let emoji = "✨";
               if (tag.toLowerCase().includes("healthy")) emoji = "🥗";
@@ -199,7 +199,7 @@ export default function StoreReviewsScreen() {
               "Please sign in to leave a review",
               [
                 { text: "Cancel", style: "cancel" },
-                { text: "Sign In", onPress: () => router.push("/auth/login") },
+                { text: "Sign In", onPress: () => router.push("/auth/phone") },
               ]
             );
             return;
@@ -258,7 +258,7 @@ export default function StoreReviewsScreen() {
       <View style={styles.ratingContainer}>
         <View style={styles.ratingPill}>
           <Typography style={styles.overallRating}>
-            {data?.data.reviews.length > 0
+            {data?.data.reviews && data?.data.reviews.length > 0
               ? (
                   reviews.reduce((acc, review) => acc + review.rating, 0) /
                   reviews.length
