@@ -80,172 +80,192 @@ const StoreHero: React.FC<StoreHeroProps> = ({
         />
 
         {/* Logo - positioned at bottom left over the image */}
-        {logoUrl && (
-          <View style={[styles.logoContainer]}>
-            <Image source={{ uri: getImageUrl(logoUrl) }} style={styles.logo} />
-          </View>
-        )}
-
-        {/* Back button */}
-        <TouchableOpacity
-          style={[styles.backButton, { top: insets.top + 16 }]}
-          onPress={() => router.back()}
+        <View
+          style={{
+            position: "absolute",
+            top: 70,
+            left: 10,
+            right: 10,
+            backgroundColor: "white",
+          }}
         >
-          <MaterialIcons name="arrow-back" size={24} color="#FFF" />
-        </TouchableOpacity>
-
-        {/* Favorite button */}
-        <TouchableOpacity
-          style={[styles.favoriteButton, { top: insets.top + 16 }]}
-          onPress={handleToggleFavorite}
-        >
-          <MaterialIcons
-            name={isFavorite ? "favorite" : "favorite-border"}
-            size={24}
-            color={isFavorite ? "#FF3B30" : "#FFF"}
-          />
-        </TouchableOpacity>
-      </View>
-
-      {/* Store Info */}
-      <View style={styles.infoContainer}>
-        <View style={styles.nameRatingRow}>
-          <Typography variant="h1" weight="bold" style={styles.storeName}>
-            {name}
-          </Typography>
-
-          {rating !== undefined && (
-            <View style={styles.ratingContainer}>
-              <Typography style={styles.ratingText}>{rating} ★</Typography>
+          {logoUrl && (
+            <View style={[styles.logoContainer]}>
+              <Image
+                source={{ uri: getImageUrl(logoUrl) }}
+                style={styles.logo}
+              />
             </View>
           )}
+
+          {/* Back button */}
+          <TouchableOpacity
+            style={[styles.backButton, { top: insets.top + 16 }]}
+            onPress={() => router.back()}
+          >
+            <MaterialIcons name="arrow-back" size={24} color="#FFF" />
+          </TouchableOpacity>
+
+          {/* Favorite button */}
+          <TouchableOpacity
+            style={[styles.favoriteButton, { top: insets.top + 16 }]}
+            onPress={handleToggleFavorite}
+          >
+            <MaterialIcons
+              name={isFavorite ? "favorite" : "favorite-border"}
+              size={24}
+              color={isFavorite ? "#FF3B30" : "#FFF"}
+            />
+          </TouchableOpacity>
         </View>
 
-        {/* Categories */}
-        {categories.length > 0 && (
-          <Typography style={styles.categories}>
-            {categories.join(", ")}
-          </Typography>
-        )}
-
-        {/* Location */}
-        {location && (
-          <View style={styles.locationContainer}>
-            <Typography style={styles.locationText}>
-              {location}{" "}
-              <MaterialIcons
-                name="keyboard-arrow-down"
-                size={16}
-                color="#666"
-              />
+        {/* Store Info */}
+        <View style={styles.infoContainer}>
+          <View style={styles.nameRatingRow}>
+            <Typography variant="h1" weight="bold" style={styles.storeName}>
+              {name}
             </Typography>
+
+            {rating !== undefined && (
+              <View style={styles.ratingContainer}>
+                <Typography style={styles.ratingText}>{rating} ★</Typography>
+              </View>
+            )}
           </View>
-        )}
 
-        {/* Cost for one */}
-        {costForOne && (
-          <View style={styles.costContainer}>
-            <Typography style={styles.costText}>
-              Cost for one ₹{costForOne}
+          {/* Categories */}
+          {categories.length > 0 && (
+            <Typography style={styles.categories}>
+              {categories.join(", ")}
             </Typography>
-          </View>
-        )}
+          )}
 
-        {/* Opening Hours */}
-        {openingHours && (
-          <View style={styles.openingHoursContainer}>
-            <Typography
-              style={[
-                styles.openStatus,
-                { color: isOpen ? "#4CAF50" : "#FF3B30" },
-              ]}
-            >
-              {isOpen ? "Open now" : "Closed"}
-            </Typography>
-            <Typography style={styles.openingHours}>
-              {" - " + openingHours}{" "}
-              <MaterialIcons
-                name="keyboard-arrow-down"
-                size={16}
-                color="#666"
-              />
-            </Typography>
-          </View>
-        )}
-
-        {/* Recommendations */}
-        {recommendationCount && recommendedBy && (
-          <View style={styles.recommendationContainer}>
-            <View style={styles.recommendationIconContainer}>
-              <Image
-                source={{
-                  uri: `https://api.dicebear.com/9.x/pixel-art/svg?seed=${recommendedBy}`,
-                }}
-                style={styles.recommendationIcon}
-              />
+          {/* Location */}
+          {location && (
+            <View style={styles.locationContainer}>
+              <Typography style={styles.locationText}>
+                {location}{" "}
+                <MaterialIcons
+                  name="keyboard-arrow-down"
+                  size={16}
+                  color="#666"
+                />
+              </Typography>
             </View>
-            <Typography style={styles.recommendationText}>
-              {recommendedBy} & {recommendationCount} others highly recommend
-              this business
-            </Typography>
+          )}
+
+          {/* Cost for one */}
+          {costForOne && (
+            <View style={styles.costContainer}>
+              <Typography style={styles.costText}>
+                Cost for one ₹{costForOne}
+              </Typography>
+            </View>
+          )}
+
+          {/* Opening Hours */}
+          {openingHours && (
+            <View style={styles.openingHoursContainer}>
+              <Typography
+                style={[
+                  styles.openStatus,
+                  { color: isOpen ? "#4CAF50" : "#FF3B30" },
+                ]}
+              >
+                {isOpen ? "Open now" : "Closed"}
+              </Typography>
+              <Typography style={styles.openingHours}>
+                {" - " + openingHours}{" "}
+                <MaterialIcons
+                  name="keyboard-arrow-down"
+                  size={16}
+                  color="#666"
+                />
+              </Typography>
+            </View>
+          )}
+
+          {/* Recommendations */}
+          {recommendationCount && recommendedBy && (
+            <View style={styles.recommendationContainer}>
+              <View style={styles.recommendationIconContainer}>
+                <Image
+                  source={{
+                    uri: `https://api.dicebear.com/9.x/pixel-art/svg?seed=${recommendedBy}`,
+                  }}
+                  style={styles.recommendationIcon}
+                />
+              </View>
+              <Typography style={styles.recommendationText}>
+                {recommendedBy} & {recommendationCount} others highly recommend
+                this business
+              </Typography>
+            </View>
+          )}
+
+          {/* Action Buttons */}
+          <View style={styles.actionButtonsContainer}>
+            <TouchableOpacity
+              style={styles.actionButton}
+              onPress={() => {
+                // Handle call action
+                // In a real app, this would use Linking to open the phone app
+                Alert.alert(
+                  "Call Business",
+                  `Would you like to call ${name}?`,
+                  [
+                    { text: "Cancel", style: "cancel" },
+                    {
+                      text: "Call",
+                      onPress: () => console.log("Call pressed"),
+                    },
+                  ]
+                );
+              }}
+            >
+              <Ionicons name="call-outline" size={24} color="#333" />
+              <Typography style={styles.actionButtonText}>Call</Typography>
+            </TouchableOpacity>
+
+            <View style={styles.actionButtonDivider} />
+
+            <TouchableOpacity
+              style={styles.actionButton}
+              onPress={() => {
+                // Handle loyalty check-in
+                Alert.alert(
+                  "Loyalty Check-in",
+                  "Check in to earn loyalty points",
+                  [
+                    { text: "Cancel", style: "cancel" },
+                    {
+                      text: "Check In",
+                      onPress: () => console.log("Loyalty check-in pressed"),
+                    },
+                  ]
+                );
+              }}
+            >
+              <Ionicons name="flash-outline" size={24} color="#333" />
+              <Typography style={styles.actionButtonText}>
+                Loyalty check-in
+              </Typography>
+            </TouchableOpacity>
+
+            <View style={styles.actionButtonDivider} />
+
+            <TouchableOpacity
+              style={styles.actionButton}
+              onPress={() => {
+                // Handle scan action
+                // In a real app, this would open the camera for scanning
+                router.push("/scanner");
+              }}
+            >
+              <Ionicons name="scan-outline" size={24} color="#333" />
+              <Typography style={styles.actionButtonText}>Scan</Typography>
+            </TouchableOpacity>
           </View>
-        )}
-
-        {/* Action Buttons */}
-        <View style={styles.actionButtonsContainer}>
-          <TouchableOpacity
-            style={styles.actionButton}
-            onPress={() => {
-              // Handle call action
-              // In a real app, this would use Linking to open the phone app
-              Alert.alert("Call Business", `Would you like to call ${name}?`, [
-                { text: "Cancel", style: "cancel" },
-                { text: "Call", onPress: () => console.log("Call pressed") },
-              ]);
-            }}
-          >
-            <Ionicons name="call-outline" size={24} color="#333" />
-            <Typography style={styles.actionButtonText}>Call</Typography>
-          </TouchableOpacity>
-
-          <View style={styles.actionButtonDivider} />
-
-          <TouchableOpacity
-            style={styles.actionButton}
-            onPress={() => {
-              // Handle loyalty check-in
-              Alert.alert(
-                "Loyalty Check-in",
-                "Check in to earn loyalty points",
-                [
-                  { text: "Cancel", style: "cancel" },
-                  {
-                    text: "Check In",
-                    onPress: () => console.log("Loyalty check-in pressed"),
-                  },
-                ]
-              );
-            }}
-          >
-            <Ionicons name="flash-outline" size={24} color="#333" />
-            <Typography style={styles.actionButtonText}>
-              Loyalty check-in
-            </Typography>
-          </TouchableOpacity>
-
-          <View style={styles.actionButtonDivider} />
-
-          <TouchableOpacity
-            style={styles.actionButton}
-            onPress={() => {
-              // Handle scan action
-              // In a real app, this would open the camera for scanning
-              router.push("/scanner");
-            }}
-          >
-            <Ionicons name="scan-outline" size={24} color="#333" />
-            <Typography style={styles.actionButtonText}>Scan</Typography>
-          </TouchableOpacity>
         </View>
       </View>
     </View>
@@ -255,7 +275,8 @@ const StoreHero: React.FC<StoreHeroProps> = ({
 const styles = StyleSheet.create({
   container: {
     width: "100%",
-    backgroundColor: "white",
+    backgroundColor: "black",
+    // position: "relative",
   },
   imageContainer: {
     width: "100%",
@@ -273,7 +294,7 @@ const styles = StyleSheet.create({
     width: 60,
     height: 60,
     borderRadius: 8,
-    backgroundColor: "#000",
+    backgroundColor: "white",
     overflow: "hidden",
     borderWidth: 1,
     borderColor: "rgba(255,255,255,0.2)",

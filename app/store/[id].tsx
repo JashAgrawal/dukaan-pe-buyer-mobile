@@ -20,6 +20,7 @@ import StoreHero from "@/components/store/StoreHero";
 import { useFavRoutesStore } from "@/stores/favRoutesStore";
 import { useAuth } from "@/hooks/useAuth";
 import { generateStoreDeepLink } from "@/lib/utils/deepLinking";
+import StoreHero2 from "@/components/store/StoreHero2";
 
 export default function StoreDetailScreen() {
   const insets = useSafeAreaInsets();
@@ -110,7 +111,7 @@ export default function StoreDetailScreen() {
       <StatusBar style="light" />
 
       <ScrollView style={styles.content}>
-        <StoreHero
+        <StoreHero2
           id={store._id}
           name={store.name}
           imageUrl={store.mainImage || store.coverImage}
@@ -216,7 +217,7 @@ export default function StoreDetailScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#FFFFFF",
+    backgroundColor: "#FAFAFA",
   },
   header: {
     flexDirection: "row",
