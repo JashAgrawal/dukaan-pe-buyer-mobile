@@ -17,6 +17,7 @@ import { LinearGradient } from "expo-linear-gradient";
 // } from "@/lib/api/hooks/useWishlist";
 import { Link, useRouter } from "expo-router";
 import { getStoreDistanceAndTime } from "@/lib/helpers";
+import { CARD_STYLES } from "@/lib/constants/Styles";
 
 interface SmallStoreCardProps {
   id: string;
@@ -143,19 +144,9 @@ const SmallStoreCard: React.FC<SmallStoreCardProps> = ({
 
 const styles = StyleSheet.create({
   container: {
-    // width: "100%",
-    backgroundColor: "white",
-    borderRadius: 12,
-    overflow: "hidden",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
-    minWidth: 100,
-    maxWidth: 140,
-    marginRight: 8,
-    marginBottom: 8,
+    ...CARD_STYLES.storeCard,
+    width: 125,
+    marginRight: 6,
   },
   imageContainer: {
     width: "100%",
@@ -209,7 +200,7 @@ const styles = StyleSheet.create({
     marginBottom: 2,
   },
   name: {
-    fontSize: 18,
+    fontSize: 14,
     fontFamily: "Jost-Medium",
     color: "#000",
     flex: 1,
@@ -231,7 +222,7 @@ const styles = StyleSheet.create({
     marginRight: 2,
   },
   type: {
-    fontSize: 12,
+    fontSize: 10,
     fontFamily: "Jost-Regular",
     color: "#666",
     marginBottom: 6,

@@ -6,6 +6,7 @@ import {
   TouchableOpacity,
   Image,
   ActivityIndicator,
+  Text,
 } from "react-native";
 import { StatusBar } from "expo-status-bar";
 import { router, useFocusEffect } from "expo-router";
@@ -19,7 +20,8 @@ import { getImageUrl } from "@/lib/helpers";
 import EmptyImg from "../../assets/images/empty-wishlist.jpg";
 
 export default function FavRoutesScreen() {
-  const { favRoutes, isLoading, removeFavRoute, loadFavRoutes } = useFavRoutesStore();
+  const { favRoutes, isLoading, removeFavRoute, loadFavRoutes } =
+    useFavRoutesStore();
 
   // Refetch favRoutes when the screen comes into focus
   useFocusEffect(
@@ -89,7 +91,7 @@ export default function FavRoutesScreen() {
         isShortHeader={true}
       >
         <View style={styles.content}>
-          <H3>Saved Routes</H3>
+          <Text style={styles.title}>All Saved Routes</Text>
           <Body1 style={styles.description}>
             Your favorite store routes for quick access.
           </Body1>
@@ -123,6 +125,12 @@ const styles = StyleSheet.create({
   content: {
     flex: 1,
     padding: 16,
+    paddingTop: 0,
+  },
+  title: {
+    fontSize: 24,
+    fontFamily: "Jost-Medium",
+    color: "#000000",
   },
   description: {
     marginTop: 4,

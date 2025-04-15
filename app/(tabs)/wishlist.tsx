@@ -104,7 +104,7 @@ export default function WishlistScreen() {
         isShortHeader={true}
       >
         <View style={styles.content}>
-          <H3>Wishlist</H3>
+          <Text style={styles.title}>Wishlist</Text>
           <Body1 style={styles.description}>
             Your favorite stores will appear here.
           </Body1>
@@ -151,6 +151,11 @@ const styles = StyleSheet.create({
   content: {
     flex: 1,
     paddingHorizontal: 16,
+  },
+  title: {
+    fontSize: 24,
+    fontFamily: "Jost-Medium",
+    color: "#000000",
   },
   description: {
     marginTop: 0,
