@@ -100,7 +100,7 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.04,
     shadowRadius: 3,
-    elevation: 1,
+    elevation: 0.5,
   },
   title: {
     fontSize: 16,
@@ -121,8 +121,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: 4,
   },
   iconContainer: {
-    width: 32,
-    height: 32,
+    width: 20,
+    height: 20,
     borderRadius: 16,
     backgroundColor: "#4CD964",
     justifyContent: "center",

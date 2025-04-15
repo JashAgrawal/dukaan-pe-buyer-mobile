@@ -40,6 +40,7 @@ const StoreGallery: React.FC<StoreGalleryProps> = ({
   const handleImagePress = (index: number) => {
     // Navigate to the gallery page with the selected image index
     router.push({
+      //@ts-ignore
       pathname: `/store/${storeId}/gallery`,
       params: { initialIndex: index },
     });
@@ -48,7 +49,9 @@ const StoreGallery: React.FC<StoreGalleryProps> = ({
   return (
     <View style={styles.container}>
       <View style={styles.headerContainer}>
-        <Typography style={styles.title}>Gallery</Typography>
+        <Typography font="jost" style={styles.title}>
+          Gallery
+        </Typography>
         {hasMoreImages && (
           <TouchableOpacity onPress={onSeeAllPress}>
             <Typography style={styles.seeAllText}>See all photos</Typography>
@@ -89,17 +92,11 @@ const StoreGallery: React.FC<StoreGalleryProps> = ({
 const styles = StyleSheet.create({
   container: {
     width: "100%",
-    backgroundColor: "#FFFFFF",
     borderRadius: 10,
     borderWidth: 1,
     borderColor: "#F0F0F0",
-    padding: 14,
+    padding: 8,
     marginBottom: 12,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.04,
-    shadowRadius: 3,
-    elevation: 1,
   },
   headerContainer: {
     flexDirection: "row",
@@ -108,8 +105,9 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   title: {
-    fontSize: 16,
-    fontFamily: "Jost-SemiBold",
+    fontSize: 18,
+    // fontFamily: "Jost-Bold",
+    fontWeight: "medium",
     color: "#000",
   },
   seeAllText: {
@@ -119,7 +117,7 @@ const styles = StyleSheet.create({
   },
   galleryContainer: {
     flexDirection: "row",
-    height: GALLERY_HEIGHT,
+    height: 120,
   },
   largeImageContainer: {
     flex: 1,
@@ -132,9 +130,9 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
   },
   smallImageContainer: {
-    width: "28%",
+    width: "32%",
     height: "auto",
-    margin: 2,
+    margin: 0,
   },
   smallImage: {
     width: "100%",
