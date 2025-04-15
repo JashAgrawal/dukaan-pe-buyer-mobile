@@ -7,7 +7,7 @@ import { router } from "expo-router";
  * Enhanced auth hook that includes token expiration checks
  */
 export const useAuth = () => {
-  const { isAuthenticated, isLoading, user, logout } = useAuthStore();
+  const { isAuthenticated, isLoading, user, logout, login } = useAuthStore();
 
   // Check for token expiration periodically when authenticated
   useEffect(() => {
@@ -31,7 +31,7 @@ export const useAuth = () => {
     }
   }, [isLoading, isAuthenticated, logout]);
 
-  return { isAuthenticated, isLoading, user, logout };
+  return { isAuthenticated, isLoading, user, logout, login };
 };
 
 // For backward compatibility

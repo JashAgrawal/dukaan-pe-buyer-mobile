@@ -294,7 +294,7 @@ const styles = StyleSheet.create({
   },
   headerTitle: {
     fontSize: 18,
-    fontFamily: "Jost-SemiBold",
+    fontFamily: "Jost-Medium",
     color: "#000",
   },
   loadingContainer: {
@@ -346,7 +346,7 @@ const styles = StyleSheet.create({
   },
   cardTitle: {
     fontSize: 16,
-    fontFamily: "Jost-SemiBold",
+    fontFamily: "Jost-Medium",
     color: "#000",
     marginBottom: 6,
   },
@@ -469,7 +469,7 @@ const styles = StyleSheet.create({
   },
   openStoreButtonText: {
     color: "#FFFFFF",
-    fontFamily: "Jost-SemiBold",
+    fontFamily: "Jost-Medium",
     fontSize: 16,
   },
 });

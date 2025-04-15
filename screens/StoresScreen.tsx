@@ -125,7 +125,7 @@ const styles = StyleSheet.create({
   },
   headerTitle: {
     fontSize: 20,
-    fontFamily: "Jost-Bold",
+    fontFamily: "Jost-Medium",
     color: "#000",
   },
   listContent: {

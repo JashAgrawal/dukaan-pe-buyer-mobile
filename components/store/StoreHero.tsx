@@ -121,12 +121,17 @@ const StoreHero: React.FC<StoreHeroProps> = ({
         {/* Restaurant Details */}
         <View style={styles.detailsContainer}>
           <View style={styles.nameRatingContainer}>
-            <H3>{name}</H3>
+            <Typography
+              color="#000"
+              font="jost"
+              weight="medium"
+              style={{ fontSize: 20 }}
+            >
+              {name}
+            </Typography>
             {rating !== undefined && (
               <View style={styles.ratingBadge}>
-                <Typography color="white" weight="bold">
-                  {rating} ★
-                </Typography>
+                <Typography color="white">{rating} ★</Typography>
               </View>
             )}
           </View>

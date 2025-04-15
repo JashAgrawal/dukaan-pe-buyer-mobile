@@ -1,6 +1,7 @@
 import React from "react";
 import { Text, TextProps, StyleSheet } from "react-native";
 import { useThemeColor } from "@/hooks/useThemeColor";
+import { FONTS, FONT_SIZES, LINE_HEIGHTS } from "@/lib/constants/Styles";
 
 export type TypographyProps = TextProps & {
   variant?:
@@ -36,21 +37,21 @@ export function Typography({
     { light: lightColor, dark: darkColor },
     "text"
   );
-  const textColor = color || themeColor;
+  const textColor = color || "#000000";
 
   // Determine font family based on font and weight
-  let fontFamily = "Jost-Regular";
+  let fontFamily = FONTS.REGULAR;
   if (font === "montserrat") {
     // For Montserrat, we only have Bold available
-    fontFamily = "Montserrat-Bold";
+    fontFamily = FONTS.MONTSERRAT_BOLD;
   } else {
     // For Jost, we have all weights
-    if (weight === "regular") fontFamily = "Jost-Regular";
-    if (weight === "medium") fontFamily = "Jost-Medium";
-    if (weight === "bold") fontFamily = "Jost-Bold";
+    if (weight === "regular") fontFamily = FONTS.REGULAR;
+    if (weight === "medium") fontFamily = FONTS.MEDIUM;
+    if (weight === "bold") fontFamily = FONTS.BOLD;
     // Additional weights
-    if (weight === "semibold") fontFamily = "Jost-SemiBold";
-    if (weight === "black") fontFamily = "Jost-Black";
+    if (weight === "semibold") fontFamily = FONTS.SEMIBOLD;
+    if (weight === "black") fontFamily = FONTS.BLACK;
   }
 
   return (
@@ -71,44 +72,44 @@ export function Typography({
 
 const styles = StyleSheet.create({
   h1: {
-    fontSize: 32,
-    lineHeight: 40,
+    fontSize: FONT_SIZES.HUGE,
+    lineHeight: LINE_HEIGHTS.XXXL,
   },
   h2: {
-    fontSize: 28,
-    lineHeight: 36,
+    fontSize: FONT_SIZES.XXXL,
+    lineHeight: LINE_HEIGHTS.XXL,
   },
   h3: {
-    fontSize: 24,
-    lineHeight: 32,
+    fontSize: FONT_SIZES.XXL,
+    lineHeight: LINE_HEIGHTS.XL,
   },
   h4: {
-    fontSize: 20,
-    lineHeight: 28,
+    fontSize: FONT_SIZES.XL,
+    lineHeight: LINE_HEIGHTS.LG,
   },
   h5: {
-    fontSize: 18,
-    lineHeight: 26,
+    fontSize: FONT_SIZES.LG,
+    lineHeight: LINE_HEIGHTS.MD,
   },
   h6: {
-    fontSize: 16,
-    lineHeight: 24,
+    fontSize: FONT_SIZES.MD,
+    lineHeight: LINE_HEIGHTS.MD,
   },
   body1: {
-    fontSize: 16,
-    lineHeight: 24,
+    fontSize: FONT_SIZES.MD,
+    lineHeight: LINE_HEIGHTS.MD,
   },
   body2: {
-    fontSize: 14,
-    lineHeight: 20,
+    fontSize: FONT_SIZES.SM,
+    lineHeight: LINE_HEIGHTS.SM,
   },
   caption: {
-    fontSize: 12,
-    lineHeight: 16,
+    fontSize: FONT_SIZES.XS,
+    lineHeight: LINE_HEIGHTS.XS,
   },
   button: {
-    fontSize: 16,
-    lineHeight: 24,
+    fontSize: FONT_SIZES.MD,
+    lineHeight: LINE_HEIGHTS.MD,
     textTransform: "uppercase",
   },
   medium: {

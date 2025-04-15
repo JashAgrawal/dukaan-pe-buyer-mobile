@@ -132,7 +132,6 @@ export default function PhoneScreen() {
 // Default font style to apply to all text components
 const fontFamily = "Jost-Regular";
 const fontFamilyMedium = "Jost-Medium";
-const fontFamilyBold = "Jost-Bold";
 
 const styles = StyleSheet.create({
   container: {
@@ -148,7 +147,7 @@ const styles = StyleSheet.create({
   },
   headerTitle: {
     fontSize: 32,
-    fontFamily: fontFamilyBold,
+    fontFamily: fontFamilyMedium,
     color: "#FFFFFF",
     marginBottom: 10,
   },
@@ -157,7 +156,7 @@ const styles = StyleSheet.create({
   },
   tagline: {
     fontSize: 24,
-    fontFamily: fontFamilyBold,
+    fontFamily: fontFamilyMedium,
     color: "#EEFF41",
     lineHeight: 32,
   },
@@ -182,7 +181,7 @@ const styles = StyleSheet.create({
   },
   welcomeTitle: {
     fontSize: 24,
-    fontFamily: fontFamilyBold,
+    fontFamily: fontFamilyMedium,
     color: "#000000",
     marginBottom: 5,
   },
@@ -233,7 +232,7 @@ const styles = StyleSheet.create({
   },
   continueButtonText: {
     fontSize: 18,
-    fontFamily: fontFamilyBold,
+    fontFamily: fontFamilyMedium,
     color: "#FFFFFF",
   },
   termsContainer: {

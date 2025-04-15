@@ -131,8 +131,8 @@ const styles = StyleSheet.create({
     // paddingTop: 32,
   },
   header: {
-    paddingTop: 20,
-    paddingBottom: 20,
+    paddingTop: 0,
+    paddingBottom: 0,
     paddingHorizontal: 20,
   },
   headerTitle: {
@@ -147,7 +147,8 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     backgroundColor: "#FFFFFF",
-    padding: 20,
+    paddingHorizontal: 20,
+    paddingVertical: 4,
     marginBottom: 15,
   },
   avatarContainer: {

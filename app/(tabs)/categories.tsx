@@ -72,7 +72,7 @@ export default function CategoriesScreen() {
         isShortHeader={true}
       >
         <View style={styles.header}>
-          <Text style={styles.title}>Categories</Text>
+          <Text style={styles.title}>All Categories</Text>
           <Text style={styles.subtitle}>Browse stores by category</Text>
         </View>
 
@@ -106,11 +106,12 @@ const styles = StyleSheet.create({
     // paddingTop: 32,
   },
   header: {
-    padding: 16,
+    paddingHorizontal: 16,
+    marginBottom: 16,
   },
   title: {
     fontSize: 24,
-    fontFamily: "Jost-Bold",
+    fontFamily: "Jost-Medium",
     color: "#000000",
   },
   subtitle: {

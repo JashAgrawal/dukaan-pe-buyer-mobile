@@ -187,7 +187,7 @@ const styles = StyleSheet.create({
   },
   modalTitle: {
     fontSize: 18,
-    fontFamily: "Jost-SemiBold",
+    fontFamily: "Jost-Medium",
     color: "#000",
   },
   modalScrollView: {

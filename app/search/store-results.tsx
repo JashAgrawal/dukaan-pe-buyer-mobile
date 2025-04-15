@@ -244,7 +244,7 @@ const styles = StyleSheet.create({
   },
   resultsTitle: {
     fontSize: 16,
-    fontFamily: "Jost-Bold",
+    fontFamily: "Jost-Medium",
     color: "#000000",
   },
   resultsCount: {

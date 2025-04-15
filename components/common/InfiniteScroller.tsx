@@ -158,7 +158,7 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 20,
-    fontFamily: "Jost-Bold",
+    fontFamily: "Jost-Medium",
     color: "#000",
   },
   subtitle: {

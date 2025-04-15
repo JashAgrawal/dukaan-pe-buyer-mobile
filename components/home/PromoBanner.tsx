@@ -105,7 +105,7 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 28,
-    fontFamily: "Jost-Bold",
+    fontFamily: "Jost-Medium",
     marginBottom: 4,
   },
   subtitleContainer: {
@@ -116,7 +116,7 @@ const styles = StyleSheet.create({
   },
   subtitle: {
     fontSize: 28,
-    fontFamily: "Jost-Bold",
+    fontFamily: "Jost-Medium",
   },
   highlightContainer: {
     borderRadius: 20,
@@ -125,7 +125,7 @@ const styles = StyleSheet.create({
   },
   highlightText: {
     fontSize: 28,
-    fontFamily: "Jost-Bold",
+    fontFamily: "Jost-Medium",
   },
   featuresContainer: {
     flexDirection: "row",

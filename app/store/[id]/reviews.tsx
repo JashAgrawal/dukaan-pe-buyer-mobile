@@ -314,7 +314,7 @@ const styles = StyleSheet.create({
   },
   headerTitle: {
     fontSize: 18,
-    fontFamily: "Jost-SemiBold",
+    fontFamily: "Jost-Medium",
     flex: 1,
     textAlign: "center",
   },
@@ -359,7 +359,7 @@ const styles = StyleSheet.create({
   },
   overallRating: {
     color: "#FFFFFF",
-    fontFamily: "Jost-SemiBold",
+    fontFamily: "Jost-Medium",
     fontSize: 14,
   },
   ratedCount: {
@@ -404,7 +404,7 @@ const styles = StyleSheet.create({
   },
   avatarText: {
     color: "#FFFFFF",
-    fontFamily: "Jost-SemiBold",
+    fontFamily: "Jost-Medium",
     fontSize: 16,
   },
   reviewHeaderText: {
@@ -414,7 +414,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   userName: {
-    fontFamily: "Jost-SemiBold",
+    fontFamily: "Jost-Medium",
     fontSize: 16,
   },
   tagsContainer: {

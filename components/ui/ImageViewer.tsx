@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef } from "react";
 import {
   View,
   Image,
@@ -9,12 +9,12 @@ import {
   StatusBar,
   ActivityIndicator,
   SafeAreaView,
-} from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
-import { Typography } from '@/components/ui/Typography';
-import { getImageUrl } from '@/lib/helpers';
+} from "react-native";
+import { Ionicons } from "@expo/vector-icons";
+import { Typography } from "@/components/ui/Typography";
+import { getImageUrl } from "@/lib/helpers";
 
-const { width, height } = Dimensions.get('window');
+const { width, height } = Dimensions.get("window");
 
 interface ImageViewerProps {
   images: string[];
@@ -28,28 +28,35 @@ const ImageViewer: React.FC<ImageViewerProps> = ({
   onClose,
 }) => {
   const [currentIndex, setCurrentIndex] = useState(initialIndex);
-  const [loading, setLoading] = useState<{[key: number]: boolean}>({});
+  const [loading, setLoading] = useState<{ [key: number]: boolean }>({});
   const flatListRef = useRef<FlatList>(null);
 
   // Ensure images array is valid
-  const validImages = Array.isArray(images) && images.length > 0 
-    ? images 
-    : ['https://picsum.photos/800/1200']; // Fallback image
+  const validImages =
+    Array.isArray(images) && images.length > 0
+      ? images
+      : ["https://picsum.photos/800/1200"]; // Fallback image
 
   // Handle image load start
   const handleLoadStart = (index: number) => {
-    setLoading(prev => ({ ...prev, [index]: true }));
+    setLoading((prev) => ({ ...prev, [index]: true }));
   };
 
   // Handle image load end
   const handleLoadEnd = (index: number) => {
-    setLoading(prev => ({ ...prev, [index]: false }));
+    setLoading((prev) => ({ ...prev, [index]: false }));
   };
 
   // Render each image item
   const renderItem = ({ item, index }: { item: string; index: number }) => {
-    const imageUrl = getImageUrl(item);
-    
+    // Process the image URL - handle both full URLs and relative paths
+    let imageUrl = item;
+
+    // If it's not already a full URL, use the helper to get the full URL
+    if (!item.startsWith("http")) {
+      imageUrl = getImageUrl(item);
+    }
+
     return (
       <View style={styles.slide}>
         <Image
@@ -103,7 +110,7 @@ const ImageViewer: React.FC<ImageViewerProps> = ({
   return (
     <View style={styles.container}>
       <StatusBar barStyle="light-content" backgroundColor="#000000" />
-      
+
       {/* Header */}
       <SafeAreaView style={styles.header}>
         <TouchableOpacity style={styles.closeButton} onPress={onClose}>
@@ -114,7 +121,7 @@ const ImageViewer: React.FC<ImageViewerProps> = ({
         </Typography>
         <View style={{ width: 40 }} />
       </SafeAreaView>
-      
+
       {/* Image Gallery */}
       <FlatList
         ref={flatListRef}
@@ -133,16 +140,16 @@ const ImageViewer: React.FC<ImageViewerProps> = ({
         onMomentumScrollEnd={handleScrollEnd}
         onScrollToIndexFailed={(info) => {
           // Handle scroll to index failure
-          const wait = new Promise(resolve => setTimeout(resolve, 500));
+          const wait = new Promise((resolve) => setTimeout(resolve, 500));
           wait.then(() => {
             flatListRef.current?.scrollToIndex({
               index: info.index,
-              animated: false
+              animated: false,
             });
           });
         }}
       />
-      
+
       {/* Navigation Buttons */}
       <View style={styles.navigationContainer}>
         {currentIndex > 0 && (
@@ -150,10 +157,10 @@ const ImageViewer: React.FC<ImageViewerProps> = ({
             <Ionicons name="chevron-back" size={28} color="#FFFFFF" />
           </TouchableOpacity>
         )}
-        
+
         {currentIndex < validImages.length - 1 && (
-          <TouchableOpacity 
-            style={[styles.navButton, styles.navButtonRight]} 
+          <TouchableOpacity
+            style={[styles.navButton, styles.navButtonRight]}
             onPress={goToNext}
           >
             <Ionicons name="chevron-forward" size={28} color="#FFFFFF" />
@@ -167,12 +174,12 @@ const ImageViewer: React.FC<ImageViewerProps> = ({
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#000000',
+    backgroundColor: "#000000",
   },
   header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
     paddingHorizontal: 16,
     paddingVertical: 12,
     zIndex: 10,
@@ -181,20 +188,20 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    justifyContent: 'center',
-    alignItems: 'center',
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
+    justifyContent: "center",
+    alignItems: "center",
   },
   counter: {
-    color: '#FFFFFF',
+    color: "#FFFFFF",
     fontSize: 16,
-    fontFamily: 'Jost-Medium',
+    fontFamily: "Jost-Medium",
   },
   slide: {
     width,
     height: height,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
   },
   image: {
     width: width,
@@ -202,27 +209,27 @@ const styles = StyleSheet.create({
   },
   loaderContainer: {
     ...StyleSheet.absoluteFillObject,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
   },
   navigationContainer: {
-    position: 'absolute',
+    position: "absolute",
     top: 0,
     left: 0,
     right: 0,
     bottom: 0,
-    justifyContent: 'center',
-    pointerEvents: 'box-none',
+    justifyContent: "center",
+    pointerEvents: "box-none",
   },
   navButton: {
-    position: 'absolute',
+    position: "absolute",
     left: 16,
     width: 50,
     height: 50,
     borderRadius: 25,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    justifyContent: 'center',
-    alignItems: 'center',
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
+    justifyContent: "center",
+    alignItems: "center",
   },
   navButtonRight: {
     left: undefined,

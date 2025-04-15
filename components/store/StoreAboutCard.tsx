@@ -103,7 +103,7 @@ const styles = StyleSheet.create({
   cardTitle: {
     fontSize: 18,
     fontWeight: "600",
-    fontFamily: "Jost-SemiBold",
+    fontFamily: "Jost-Medium",
     color: "#000",
     marginBottom: 6,
   },

@@ -1,18 +1,26 @@
 import React from "react";
-import { View, Text, Image, StyleSheet, TouchableOpacity } from "react-native";
+import {
+  View,
+  Text,
+  Image,
+  StyleSheet,
+  TouchableOpacity,
+  Pressable,
+} from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
+import {
+  FONTS,
+  COLORS,
+  CARD_STYLES,
+  TEXT_STYLES,
+  SPACING,
+  BORDER_RADIUS,
+  BUTTON_STYLES,
+  BADGE_STYLES,
+} from "@/lib/constants/Styles";
 import { LinearGradient } from "expo-linear-gradient";
-// import useWishlistToggle from "@/hooks/useWishlistToggle";
-import {
-  useStoreWishlistStatus,
-  useToggleStoreWishlist,
-} from "@/lib/api/hooks/useWishlist";
 import { Link, useRouter } from "expo-router";
-import {
-  formatDistance,
-  formatTravelTime,
-  getStoreDistanceAndTime,
-} from "@/lib/helpers";
+import { getStoreDistanceAndTime } from "@/lib/helpers";
 
 interface StoreCardProps {
   id: string;
@@ -58,7 +66,7 @@ const StoreCard: React.FC<StoreCardProps> = ({
   }
 
   return (
-    <Link href={`/store/${id}`} asChild>
+    <Pressable onPress={() => router.push(`/store/${id}`)}>
       <View style={styles.container}>
         {/* Store Image */}
         <View style={styles.imageContainer}>
@@ -140,67 +148,43 @@ const StoreCard: React.FC<StoreCardProps> = ({
           )}
         </View>
       </View>
-    </Link>
+    </Pressable>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
-    width: "100%",
-    backgroundColor: "white",
-    borderRadius: 12,
-    overflow: "hidden",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
-    marginBottom: 12,
-    maxWidth: 300,
+    ...CARD_STYLES.storeCard,
   },
   imageContainer: {
-    width: "100%",
-    height: 180,
-    position: "relative",
+    ...CARD_STYLES.imageContainer,
   },
   image: {
-    width: "100%",
-    height: "100%",
-    resizeMode: "cover",
+    ...CARD_STYLES.image,
   },
   favoriteButton: {
-    position: "absolute",
-    top: 12,
-    right: 12,
-    zIndex: 10,
+    ...BUTTON_STYLES.favoriteButton,
   },
   favoriteButtonInner: {
-    width: 50,
-    height: 50,
-    borderRadius: 20,
-    backgroundColor: "rgba(0,0,0,0.3)",
-    justifyContent: "center",
-    alignItems: "center",
+    ...BUTTON_STYLES.favoriteButtonInner,
   },
   loyaltyBadgeContainer: {
     position: "absolute",
-    bottom: 12,
-    left: 12,
+    bottom: SPACING.MD,
+    left: SPACING.MD,
   },
   loyaltyBadge: {
     flexDirection: "row",
     alignItems: "center",
-    paddingHorizontal: 10,
-    paddingVertical: 6,
-    borderRadius: 4,
+    paddingHorizontal: SPACING.MD,
+    paddingVertical: SPACING.XS,
+    borderRadius: BORDER_RADIUS.XS,
   },
   loyaltyText: {
-    color: "white",
-    fontSize: 12,
-    fontFamily: "Jost-Medium",
+    ...BADGE_STYLES.badgeText,
   },
   infoContainer: {
-    padding: 12,
+    ...CARD_STYLES.cardContent,
   },
   nameRatingRow: {
     flexDirection: "row",
@@ -209,50 +193,43 @@ const styles = StyleSheet.create({
     marginBottom: 4,
   },
   name: {
+    ...TEXT_STYLES.cardTitle,
     fontSize: 18,
-    fontFamily: "Jost-Bold",
-    color: "#000",
     flex: 1,
-    marginRight: 8,
+    marginRight: SPACING.SM,
   },
   ratingContainer: {
-    backgroundColor: "#4CAF50",
+    backgroundColor: COLORS.SUCCESS,
     flexDirection: "row",
     alignItems: "center",
-    paddingHorizontal: 6,
+    paddingHorizontal: SPACING.XS,
     paddingVertical: 2,
-    borderRadius: 4,
+    borderRadius: BORDER_RADIUS.XS,
   },
   ratingText: {
-    color: "white",
+    color: COLORS.WHITE,
     fontSize: 12,
-    fontFamily: "Jost-Medium",
+    fontFamily: FONTS.MEDIUM,
     marginRight: 2,
   },
   type: {
-    fontSize: 14,
-    fontFamily: "Jost-Regular",
-    color: "#666",
-    marginBottom: 4,
+    ...TEXT_STYLES.cardSubtitle,
+    marginBottom: SPACING.XS,
   },
   locationRow: {
     flexDirection: "row",
     alignItems: "center",
   },
   location: {
-    fontSize: 14,
-    fontFamily: "Jost-Regular",
-    color: "#666",
+    ...TEXT_STYLES.cardContent,
   },
   dot: {
     fontSize: 14,
-    color: "#666",
-    marginHorizontal: 4,
+    color: COLORS.TEXT_LIGHT,
+    marginHorizontal: SPACING.XS,
   },
   distance: {
-    fontSize: 14,
-    fontFamily: "Jost-Regular",
-    color: "#666",
+    ...TEXT_STYLES.cardContent,
   },
   rewardContainer: {
     flexDirection: "row",
@@ -260,18 +237,18 @@ const styles = StyleSheet.create({
     marginTop: 8,
   },
   rewardIconContainer: {
-    backgroundColor: "#8A3FFC",
-    borderRadius: 50,
+    backgroundColor: COLORS.PRIMARY_DARK,
+    borderRadius: BORDER_RADIUS.ROUND,
     width: 18,
     height: 18,
     justifyContent: "center",
     alignItems: "center",
-    marginRight: 6,
+    marginRight: SPACING.XS,
   },
   rewardText: {
     fontSize: 14,
-    fontFamily: "Jost-Medium",
-    color: "#8A3FFC",
+    fontFamily: FONTS.MEDIUM,
+    color: COLORS.PRIMARY_DARK,
   },
   travelTimeContainer: {
     flexDirection: "row",
@@ -279,10 +256,8 @@ const styles = StyleSheet.create({
     marginTop: 4,
   },
   travelTimeText: {
-    fontSize: 14,
-    fontFamily: "Jost-Regular",
-    color: "#666",
-    marginLeft: 4,
+    ...TEXT_STYLES.cardContent,
+    marginLeft: SPACING.XS,
   },
 });
 

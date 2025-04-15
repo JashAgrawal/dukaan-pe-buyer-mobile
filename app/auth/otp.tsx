@@ -240,6 +240,10 @@ export default function OtpScreen() {
   );
 }
 
+// Default font style to apply to all text components
+const fontFamily = "Jost-Regular";
+const fontFamilyMedium = "Jost-Medium";
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -254,7 +258,7 @@ const styles = StyleSheet.create({
   },
   headerTitle: {
     fontSize: 32,
-    fontWeight: "bold",
+    fontFamily: fontFamilyMedium,
     color: "#FFFFFF",
     marginBottom: 10,
   },
@@ -263,7 +267,7 @@ const styles = StyleSheet.create({
   },
   tagline: {
     fontSize: 24,
-    fontWeight: "bold",
+    fontFamily: fontFamilyMedium,
     color: "#EEFF41",
     lineHeight: 32,
   },
@@ -288,13 +292,14 @@ const styles = StyleSheet.create({
   },
   welcomeTitle: {
     fontSize: 24,
-    fontWeight: "bold",
+    fontFamily: fontFamilyMedium,
     color: "#000000",
     marginBottom: 5,
   },
   welcomeSubtitle: {
     fontSize: 16,
     color: "#666666",
+    fontFamily,
   },
   otpContainer: {
     marginTop: 40,
@@ -302,20 +307,22 @@ const styles = StyleSheet.create({
   },
   otpTitle: {
     fontSize: 16,
-    fontWeight: "bold",
+    fontFamily: fontFamilyMedium,
     color: "#000000",
     marginBottom: 5,
   },
   otpSubtitle: {
     fontSize: 14,
     color: "#666666",
+    fontFamily,
   },
   phoneText: {
     color: "#8A3FFC",
-    fontWeight: "bold",
+    fontFamily: fontFamilyMedium,
   },
   editButton: {
     fontSize: 14,
+    fontFamily,
   },
   otpInputContainer: {
     flexDirection: "row",
@@ -329,7 +336,7 @@ const styles = StyleSheet.create({
     borderBottomColor: "#8A3FFC",
     textAlign: "center",
     fontSize: 24,
-    fontWeight: "bold",
+    fontFamily: fontFamilyMedium,
   },
   timerContainer: {
     alignItems: "center",
@@ -337,13 +344,14 @@ const styles = StyleSheet.create({
   },
   timer: {
     fontSize: 24,
-    fontWeight: "bold",
+    fontFamily: fontFamilyMedium,
     color: "#000000",
     marginBottom: 10,
   },
   resendText: {
     fontSize: 14,
     color: "#8A3FFC",
+    fontFamily: fontFamilyMedium,
   },
   resendDisabled: {
     color: "#BBBBBB",
@@ -359,7 +367,7 @@ const styles = StyleSheet.create({
   },
   submitButtonText: {
     fontSize: 18,
-    fontWeight: "bold",
+    fontFamily: fontFamilyMedium,
     color: "#FFFFFF",
   },
 });

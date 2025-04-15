@@ -432,7 +432,7 @@ const styles = StyleSheet.create({
   },
   headerTitle: {
     fontSize: 18,
-    fontFamily: "Jost-Bold",
+    fontFamily: "Jost-Medium",
     color: "#000000",
   },
   filterButton: {
@@ -508,7 +508,7 @@ const styles = StyleSheet.create({
   },
   categoryImagePlaceholderText: {
     fontSize: 18,
-    fontFamily: "Jost-Bold",
+    fontFamily: "Jost-Medium",
     color: "#666666",
   },
   categoryName: {

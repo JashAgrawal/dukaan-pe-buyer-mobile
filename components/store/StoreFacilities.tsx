@@ -77,7 +77,7 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 18,
-    // fontFamily: "Jost-SemiBold",
+    fontFamily: "Jost-Medium",
     marginBottom: 12,
     color: "#000",
   },

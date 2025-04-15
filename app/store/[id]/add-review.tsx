@@ -76,7 +76,7 @@ export default function AddReviewScreen() {
         "Please sign in to leave a review",
         [
           { text: "Cancel", style: "cancel", onPress: () => router.back() },
-          { text: "Sign In", onPress: () => router.push("/auth/login") },
+          { text: "Sign In", onPress: () => router.push("/auth/phone") },
         ]
       );
     }
@@ -103,7 +103,7 @@ export default function AddReviewScreen() {
         "Please sign in to leave a review",
         [
           { text: "Cancel", style: "cancel" },
-          { text: "Sign In", onPress: () => router.push("/auth/login") },
+          { text: "Sign In", onPress: () => router.push("/auth/phone") },
         ]
       );
       return;
@@ -335,7 +335,7 @@ const styles = StyleSheet.create({
   },
   headerTitle: {
     fontSize: 18,
-    fontFamily: "Jost-SemiBold",
+    fontFamily: "Jost-Medium",
     flex: 1,
     textAlign: "center",
   },

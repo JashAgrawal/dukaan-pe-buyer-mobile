@@ -5,6 +5,7 @@ import {
   Image,
   TouchableOpacity,
   ActivityIndicator,
+  ScrollView,
 } from "react-native";
 import { router } from "expo-router";
 import { Typography } from "@/components/ui/Typography";
@@ -38,9 +39,9 @@ const StoreGallery: React.FC<StoreGalleryProps> = ({
   const validImages = images.filter((img) => img && typeof img === "string");
   if (validImages.length === 0) return null;
 
-  // Limit to 4 images for the preview grid
-  const displayImages = validImages.slice(0, 4);
-  const hasMoreImages = validImages.length > 4;
+  // Limit to 6 images for the preview scroll
+  const displayImages = validImages.slice(0, 6);
+  const hasMoreImages = validImages.length > 6;
 
   const handleImagePress = (index: number) => {
     setSelectedImageIndex(index);
@@ -81,7 +82,12 @@ const StoreGallery: React.FC<StoreGalleryProps> = ({
           )}
         </View>
 
-        <View style={styles.galleryGrid}>
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          style={styles.galleryScroll}
+          contentContainerStyle={styles.galleryScrollContent}
+        >
           {displayImages.map((image, index) => (
             <TouchableOpacity
               key={`gallery-image-${index}`}
@@ -90,7 +96,9 @@ const StoreGallery: React.FC<StoreGalleryProps> = ({
               activeOpacity={0.9}
             >
               <Image
-                source={{ uri: getImageUrl(image) }}
+                source={{
+                  uri: image.startsWith("http") ? image : getImageUrl(image),
+                }}
                 style={styles.image}
                 onLoadStart={() => handleImageLoadStart(index)}
                 onLoadEnd={() => handleImageLoadEnd(index)}
@@ -112,7 +120,7 @@ const StoreGallery: React.FC<StoreGalleryProps> = ({
               )}
             </TouchableOpacity>
           ))}
-        </View>
+        </ScrollView>
       </View>
 
       {/* Image Viewer Modal */}
@@ -147,7 +155,7 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 16,
-    fontFamily: "Jost-SemiBold",
+    fontFamily: "Jost-Medium",
     color: "#000",
   },
   seeAllText: {
@@ -155,15 +163,16 @@ const styles = StyleSheet.create({
     color: "#8A3FFC",
     fontFamily: "Jost-Medium",
   },
-  galleryGrid: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    justifyContent: "space-between",
+  galleryScroll: {
+    width: "100%",
+  },
+  galleryScrollContent: {
+    paddingRight: 8,
   },
   imageContainer: {
-    width: "48%",
-    aspectRatio: 1,
-    marginBottom: 8,
+    width: 120,
+    height: 120,
+    marginRight: 8,
     borderRadius: 8,
     overflow: "hidden",
     backgroundColor: "#F5F5F5",
@@ -189,7 +198,7 @@ const styles = StyleSheet.create({
   seeMoreText: {
     color: "white",
     fontSize: 16,
-    fontFamily: "Jost-Bold",
+    fontFamily: "Jost-Medium",
   },
   viewerContainer: {
     ...StyleSheet.absoluteFillObject,

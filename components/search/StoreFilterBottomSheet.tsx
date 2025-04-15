@@ -295,7 +295,7 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 18,
-    fontFamily: "Jost-Bold",
+    fontFamily: "Jost-Medium",
     color: "#000000",
   },
   resetText: {
@@ -311,7 +311,7 @@ const styles = StyleSheet.create({
   },
   sectionTitle: {
     fontSize: 16,
-    fontFamily: "Jost-Bold",
+    fontFamily: "Jost-Medium",
     color: "#000000",
     marginBottom: 12,
   },
@@ -391,7 +391,7 @@ const styles = StyleSheet.create({
   },
   applyButtonText: {
     fontSize: 16,
-    fontFamily: "Jost-Bold",
+    fontFamily: "Jost-Medium",
     color: "#FFFFFF",
   },
 });

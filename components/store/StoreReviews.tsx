@@ -117,7 +117,7 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 16,
-    fontFamily: "Jost-SemiBold",
+    fontFamily: "Jost-Medium",
     color: "#000",
   },
   seeAllButton: {

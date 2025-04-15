@@ -1,5 +1,12 @@
 import React from "react";
-import { View, Text, Image, StyleSheet, TouchableOpacity } from "react-native";
+import {
+  View,
+  Text,
+  Image,
+  StyleSheet,
+  TouchableOpacity,
+  Pressable,
+} from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
 // Wishlist functionality is handled at a higher level
@@ -55,8 +62,11 @@ const SmallStoreCard: React.FC<SmallStoreCardProps> = ({
   }
 
   return (
-    <Link href={`/store/${id}`} asChild>
-      <View style={styles.container}>
+    <Pressable
+      style={styles.container}
+      onPress={() => router.push(`/store/${id}`)}
+    >
+      <View>
         {/* Store Image */}
         <View style={styles.imageContainer}>
           <Image source={{ uri: imageUrl }} style={styles.image} />
@@ -127,13 +137,13 @@ const SmallStoreCard: React.FC<SmallStoreCardProps> = ({
           </View>
         </View>
       </View>
-    </Link>
+    </Pressable>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
-    width: "100%",
+    // width: "100%",
     backgroundColor: "white",
     borderRadius: 12,
     overflow: "hidden",
@@ -142,8 +152,10 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 4,
     elevation: 3,
+    minWidth: 100,
     maxWidth: 140,
-    marginBottom: 12,
+    marginRight: 8,
+    marginBottom: 8,
   },
   imageContainer: {
     width: "100%",
@@ -198,7 +210,7 @@ const styles = StyleSheet.create({
   },
   name: {
     fontSize: 18,
-    fontFamily: "Jost-Bold",
+    fontFamily: "Jost-Medium",
     color: "#000",
     flex: 1,
     marginRight: 4,

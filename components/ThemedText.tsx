@@ -1,6 +1,11 @@
 import { Text, type TextProps, StyleSheet } from "react-native";
-
 import { useThemeColor } from "@/hooks/useThemeColor";
+import {
+  FONTS,
+  FONT_SIZES,
+  LINE_HEIGHTS,
+  TEXT_STYLES,
+} from "@/lib/constants/Styles";
 
 export type ThemedTextProps = TextProps & {
   lightColor?: string;
@@ -20,7 +25,7 @@ export function ThemedText({
   return (
     <Text
       style={[
-        { color, fontFamily: "Jost-Regular" },
+        { color, fontFamily: FONTS.REGULAR },
         type === "default" ? styles.default : undefined,
         type === "title" ? styles.title : undefined,
         type === "defaultSemiBold" ? styles.defaultSemiBold : undefined,
@@ -35,26 +40,19 @@ export function ThemedText({
 
 const styles = StyleSheet.create({
   default: {
-    fontSize: 16,
-    lineHeight: 24,
+    ...TEXT_STYLES.body1,
   },
   defaultSemiBold: {
-    fontSize: 16,
-    lineHeight: 24,
-    fontFamily: "Jost-SemiBold",
+    ...TEXT_STYLES.body1,
+    fontFamily: FONTS.SEMIBOLD,
   },
   title: {
-    fontSize: 32,
-    fontFamily: "Jost-Bold",
-    lineHeight: 32,
+    ...TEXT_STYLES.h1,
   },
   subtitle: {
-    fontSize: 20,
-    fontFamily: "Jost-Bold",
+    ...TEXT_STYLES.h4,
   },
   link: {
-    lineHeight: 30,
-    fontSize: 16,
-    color: "#0a7ea4",
+    ...TEXT_STYLES.link,
   },
 });
