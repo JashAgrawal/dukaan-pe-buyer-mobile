@@ -8,6 +8,7 @@ import {
   useToggleStoreWishlist,
 } from "@/lib/api/hooks/useWishlist";
 import { useRouter } from "expo-router";
+import { getStoreDistanceAndTime } from "@/lib/helpers";
 
 interface SmallStoreCardProps {
   id: string;
@@ -18,6 +19,8 @@ interface SmallStoreCardProps {
   loyaltyBenefit?: string;
   distance?: string;
   deliveryTime?: string;
+  coordinates?: [number, number]; // [longitude, latitude]
+  userCoordinates?: [number, number]; // [longitude, latitude]
 }
 
 const SmallStoreCard: React.FC<SmallStoreCardProps> = ({
@@ -29,10 +32,28 @@ const SmallStoreCard: React.FC<SmallStoreCardProps> = ({
   loyaltyBenefit,
   distance,
   deliveryTime,
+  coordinates,
+  userCoordinates,
 }) => {
   const router = useRouter();
   const toggleMutation = useToggleStoreWishlist();
   const { data: isFavorite } = useStoreWishlistStatus(id);
+
+  // Calculate distance and travel time if coordinates are provided
+  let distanceText = distance;
+  let travelTimeText = deliveryTime;
+
+  if (coordinates && userCoordinates) {
+    const { formattedDistance, formattedTravelTime } = getStoreDistanceAndTime(
+      coordinates,
+      userCoordinates,
+      "driving"
+    );
+    distanceText = formattedDistance;
+    if (!deliveryTime) {
+      travelTimeText = formattedTravelTime;
+    }
+  }
 
   const handleToggleFavorite = () => {
     toggleMutation.mutate({
@@ -60,7 +81,7 @@ const SmallStoreCard: React.FC<SmallStoreCardProps> = ({
         <Image source={{ uri: imageUrl }} style={styles.image} />
 
         {/* Favorite Button */}
-        <TouchableOpacity
+        {/* <TouchableOpacity
           style={styles.favoriteButton}
           onPress={handleToggleFavorite}
         >
@@ -71,7 +92,7 @@ const SmallStoreCard: React.FC<SmallStoreCardProps> = ({
               color={isFavorite ? "#FF3B30" : "#FFFFFF"}
             />
           </View>
-        </TouchableOpacity>
+        </TouchableOpacity> */}
 
         {/* Loyalty Badge */}
         {loyaltyBenefit && (
@@ -109,17 +130,17 @@ const SmallStoreCard: React.FC<SmallStoreCardProps> = ({
 
         {/* Additional Info */}
         <View style={styles.additionalInfoContainer}>
-          {distance && (
+          {distanceText && (
             <View style={styles.infoItem}>
               <MaterialIcons name="place" size={12} color="#666" />
-              <Text style={styles.infoText}>{distance}</Text>
+              <Text style={styles.infoText}>{distanceText}</Text>
             </View>
           )}
 
-          {deliveryTime && (
+          {travelTimeText && (
             <View style={styles.infoItem}>
               <MaterialIcons name="access-time" size={12} color="#666" />
-              <Text style={styles.infoText}>{deliveryTime}</Text>
+              <Text style={styles.infoText}>{travelTimeText}</Text>
             </View>
           )}
         </View>

@@ -8,6 +8,11 @@ import {
   useToggleStoreWishlist,
 } from "@/lib/api/hooks/useWishlist";
 import { useRouter } from "expo-router";
+import {
+  formatDistance,
+  formatTravelTime,
+  getStoreDistanceAndTime,
+} from "@/lib/helpers";
 
 interface StoreCardProps {
   id: string;
@@ -15,7 +20,9 @@ interface StoreCardProps {
   name: string;
   type: string;
   location: string;
-  distance: string;
+  distance?: string;
+  coordinates?: [number, number]; // [longitude, latitude]
+  userCoordinates?: [number, number]; // [longitude, latitude]
   rating?: number;
   loyaltyBenefit?: string;
   rewardText?: string;
@@ -28,6 +35,8 @@ const StoreCard: React.FC<StoreCardProps> = ({
   type,
   location,
   distance,
+  coordinates,
+  userCoordinates,
   rating,
   loyaltyBenefit,
   rewardText,
@@ -35,6 +44,20 @@ const StoreCard: React.FC<StoreCardProps> = ({
   const router = useRouter();
   const toggleMutation = useToggleStoreWishlist();
   const { data: isFavorite } = useStoreWishlistStatus(id);
+
+  // Calculate distance and travel time if coordinates are provided
+  let distanceText = distance;
+  let travelTimeText = "";
+
+  if (coordinates && userCoordinates) {
+    const { formattedDistance, formattedTravelTime } = getStoreDistanceAndTime(
+      coordinates,
+      userCoordinates,
+      "driving"
+    );
+    distanceText = formattedDistance;
+    travelTimeText = formattedTravelTime;
+  }
 
   const handleToggleFavorite = () => {
     console.log("isFavorite", isFavorite);
@@ -63,7 +86,7 @@ const StoreCard: React.FC<StoreCardProps> = ({
         <Image source={{ uri: imageUrl }} style={styles.image} />
 
         {/* Favorite Button */}
-        <View style={styles.favoriteButton}>
+        {/* <View style={styles.favoriteButton}>
           <TouchableOpacity
             style={styles.favoriteButtonInner}
             onPress={handleToggleFavorite}
@@ -74,7 +97,7 @@ const StoreCard: React.FC<StoreCardProps> = ({
               color={isFavorite ? "#FF3B30" : "#FFFFFF"}
             />
           </TouchableOpacity>
-        </View>
+        </View> */}
 
         {/* Loyalty Badge */}
         {loyaltyBenefit && (
@@ -114,8 +137,16 @@ const StoreCard: React.FC<StoreCardProps> = ({
             {location}
           </Text>
           <Text style={styles.dot}>•</Text>
-          <Text style={styles.distance}>{distance}</Text>
+          <Text style={styles.distance}>{distanceText}</Text>
         </View>
+
+        {/* Travel Time (only shown if calculated) */}
+        {travelTimeText && (
+          <View style={styles.travelTimeContainer}>
+            <MaterialIcons name="directions-car" size={14} color="#666" />
+            <Text style={styles.travelTimeText}>{travelTimeText}</Text>
+          </View>
+        )}
 
         {/* Reward Text */}
         {rewardText && (
@@ -261,6 +292,17 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontFamily: "Jost-Medium",
     color: "#8A3FFC",
+  },
+  travelTimeContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginTop: 4,
+  },
+  travelTimeText: {
+    fontSize: 14,
+    fontFamily: "Jost-Regular",
+    color: "#666",
+    marginLeft: 4,
   },
 });
 

@@ -210,14 +210,6 @@ const StoreHero2: React.FC<StoreHeroProps> = ({
 
             <View style={styles.buttonDivider} />
 
-            <TouchableOpacity
-              style={styles.actionButton}
-              onPress={handleLoyaltyCheckIn}
-            >
-              <Ionicons name="flash-outline" size={24} color="#6366f1" />
-              <Text style={styles.actionButtonText}>Loyalty check-in</Text>
-            </TouchableOpacity>
-
             <View style={styles.buttonDivider} />
 
             <TouchableOpacity
