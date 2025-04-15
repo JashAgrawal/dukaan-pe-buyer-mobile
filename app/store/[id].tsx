@@ -7,11 +7,12 @@ import {
   ActivityIndicator,
   Alert,
   Share,
+  Linking,
 } from "react-native";
 import { StatusBar } from "expo-status-bar";
 import { router, useLocalSearchParams } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { MaterialIcons } from "@expo/vector-icons";
+import { MaterialIcons, Ionicons } from "@expo/vector-icons";
 import { Typography, Body1 } from "@/components/ui/Typography";
 import ShortAppHeader from "@/components/ui/ShortAppHeader";
 import { useSearchStore, SearchItem } from "@/stores/useSearchStore";
@@ -141,23 +142,76 @@ export default function StoreDetailScreen() {
         <View style={styles.storeInfo}>
           <View style={styles.divider} />
 
-          <View style={styles.section}>
-            <Typography style={styles.sectionTitle}>About</Typography>
-            <Body1 style={styles.sectionContent}>
-              {store.description ||
-                `This is a placeholder description for ${store.name}. In a real app, this would contain detailed information about the store, its products, and services.`}
-            </Body1>
-          </View>
+          {/* About Card */}
+          <View style={styles.aboutCard}>
+            <View style={styles.aboutSection}>
+              <Typography style={styles.aboutTitle}>
+                About this store
+              </Typography>
+              <Body1 style={styles.aboutContent}>
+                {store.description ||
+                  `${store.name} is one of the leading businesses in the Fast Food Delivery Services lorem ipsum`}
+              </Body1>
+            </View>
 
-          <View style={styles.section}>
-            <Typography style={styles.sectionTitle}>Location</Typography>
-            <Body1 style={styles.sectionContent}>
-              {store.full_address || store.city
-                ? `${store.full_address || ""}, ${store.city || ""}, ${
-                    store.state || ""
-                  }, ${store.country || ""}`
-                : "123 Main Street, City, Country"}
-            </Body1>
+            <View style={styles.dividerLine} />
+
+            <View style={styles.addressSection}>
+              <Typography style={styles.addressTitle}>Address</Typography>
+              <Body1 style={styles.addressContent}>
+                {store.full_address || store.address?.street
+                  ? `${store.full_address || store.address?.street || ""}, ${
+                      store.address?.city || ""
+                    }, ${store.address?.state || ""} ${
+                      store.address?.pincode || ""
+                    }`
+                  : "2 Floor, Khan House, Hill Rd, above McDonald's, Bandra West, Mumbai, Maharashtra 400050"}
+              </Body1>
+
+              <View style={styles.addressButtonsContainer}>
+                <TouchableOpacity
+                  style={styles.addressButton}
+                  onPress={() => {
+                    // Get the address for directions
+                    const address =
+                      store.full_address ||
+                      `${store.address?.street || ""}, ${
+                        store.address?.city || ""
+                      }, ${store.address?.state || ""} ${
+                        store.address?.pincode || ""
+                      }` ||
+                      "2 Floor, Khan House, Hill Rd, above McDonald's, Bandra West, Mumbai, Maharashtra 400050";
+
+                    // Open in maps app
+                    const encodedAddress = encodeURIComponent(address);
+                    const mapsUrl = `https://maps.google.com/maps?q=${encodedAddress}`;
+                    Linking.openURL(mapsUrl);
+                  }}
+                >
+                  <Ionicons name="location-outline" size={18} color="#8A3FFC" />
+                  <Typography style={styles.addressButtonText}>
+                    Get directions
+                  </Typography>
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                  style={styles.addressButton}
+                  onPress={() => {
+                    // Get the phone number
+                    const phoneNumber =
+                      store.business_phone_number || "+1 (123) 456-7890";
+
+                    // Open phone app
+                    Linking.openURL(`tel:${phoneNumber}`);
+                  }}
+                >
+                  <Ionicons name="call-outline" size={18} color="#8A3FFC" />
+                  <Typography style={styles.addressButtonText}>
+                    Call us
+                  </Typography>
+                </TouchableOpacity>
+              </View>
+            </View>
           </View>
 
           <View style={styles.section}>
@@ -308,5 +362,78 @@ const styles = StyleSheet.create({
     marginLeft: 8,
     color: "#8A3FFC",
     fontWeight: "600",
+  },
+  // About Card Styles
+  aboutCard: {
+    marginBottom: 16,
+    borderRadius: 12,
+    backgroundColor: "#FFFFFF",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 4,
+    elevation: 2,
+    overflow: "hidden",
+    borderWidth: 1,
+    borderColor: "#F0F0F0",
+  },
+  aboutSection: {
+    padding: 16,
+  },
+  aboutTitle: {
+    fontSize: 18,
+    fontFamily: "Jost-SemiBold",
+    color: "#000",
+    marginBottom: 8,
+  },
+  aboutContent: {
+    fontSize: 16,
+    fontFamily: "Jost-Regular",
+    color: "#333",
+    lineHeight: 24,
+  },
+  dividerLine: {
+    height: 1,
+    backgroundColor: "#F0F0F0",
+    width: "100%",
+  },
+  addressSection: {
+    padding: 16,
+  },
+  addressTitle: {
+    fontSize: 18,
+    fontFamily: "Jost-SemiBold",
+    color: "#000",
+    marginBottom: 8,
+  },
+  addressContent: {
+    fontSize: 16,
+    fontFamily: "Jost-Regular",
+    color: "#333",
+    lineHeight: 24,
+    marginBottom: 16,
+  },
+  addressButtonsContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginTop: 8,
+  },
+  addressButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    paddingVertical: 10,
+    paddingHorizontal: 16,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: "#E0E0E0",
+    flex: 1,
+    marginHorizontal: 4,
+  },
+  addressButtonText: {
+    marginLeft: 8,
+    color: "#8A3FFC",
+    fontFamily: "Jost-Medium",
+    fontSize: 14,
   },
 });

@@ -211,7 +211,7 @@ export default function CategoryDetailScreen() {
     storesQuery.data?.pages?.flatMap((page) => page.data?.stores || []) || [];
 
   return (
-    <View style={[styles.container, { paddingTop: insets.top }]}>
+    <View style={styles.container}>
       <StatusBar style="dark" />
 
       <ShortAppHeader
@@ -441,7 +441,7 @@ const styles = StyleSheet.create({
   floatingFilterButton: {
     position: "absolute",
     right: 16,
-    top: 70 + 16, // Below header
+    bottom: 30, // Below header
     width: 48,
     height: 48,
     borderRadius: 24,
