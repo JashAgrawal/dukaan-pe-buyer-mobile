@@ -155,12 +155,20 @@ export const useToggleStoreWishlist = () => {
 export const getWishlistedStores = (data: any): Store[] => {
   if (!data || !data.pages) return [];
 
-  return data.pages.flatMap((page: any) =>
-    page.data.wishlist.map(
-      (item: any) =>
-        typeof item.store === "string"
-          ? { _id: item.store } // If store is just an ID
-          : item.store // If store is a full object
-    )
-  );
+  return data.pages.flatMap((page: any) => {
+    if (!page?.data?.wishlist) return [];
+
+    return page.data.wishlist
+      .filter((item: any) => item && item.store) // Filter out null/undefined items
+      .map((item: any) => {
+        if (typeof item.store === "string") {
+          return { _id: item.store }; // If store is just an ID
+        } else if (item.store && typeof item.store === "object") {
+          return item.store; // If store is a full object
+        } else {
+          return null; // Handle unexpected cases
+        }
+      })
+      .filter(Boolean); // Filter out any null values that might have been returned
+  });
 };

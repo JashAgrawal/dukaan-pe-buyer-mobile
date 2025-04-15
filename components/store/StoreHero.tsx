@@ -1,20 +1,22 @@
 import React from "react";
 import {
   View,
-  StyleSheet,
   Image,
+  StyleSheet,
   TouchableOpacity,
-  Dimensions,
+  StatusBar,
+  SafeAreaView,
+  ScrollView,
   Alert,
+  Linking,
 } from "react-native";
-import { MaterialIcons, Ionicons } from "@expo/vector-icons";
-import { LinearGradient } from "expo-linear-gradient";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { Ionicons, MaterialIcons } from "@expo/vector-icons";
 import { router } from "expo-router";
-import { Typography } from "@/components/ui/Typography";
 import { getImageUrl } from "@/lib/helpers";
 import { useStoreWishlistStatus } from "@/lib/api/hooks/useWishlist";
 import useWishlistToggle from "@/hooks/useWishlistToggle";
+import { Typography, H3, Body1, Body2 } from "@/components/ui/Typography";
+import { Colors } from "@/lib/constants/Colors";
 
 interface StoreHeroProps {
   id: string;
@@ -46,10 +48,6 @@ const StoreHero: React.FC<StoreHeroProps> = ({
   recommendationCount,
   recommendedBy,
 }) => {
-  const insets = useSafeAreaInsets();
-  const screenWidth = Dimensions.get("window").width;
-  const imageHeight = screenWidth * 0.6; // 60% of screen width for image height
-
   // Use the wishlist hooks
   const { data: hookIsFavorite } = useStoreWishlistStatus(id);
   const { toggleWishlist } = useWishlistToggle();
@@ -58,389 +56,342 @@ const StoreHero: React.FC<StoreHeroProps> = ({
   const isFavorite = hookIsFavorite || false;
 
   // Handle toggling favorite status
-  const handleToggleFavorite = (e: any) => {
-    // Stop event propagation to prevent card click
-    if (e) e.stopPropagation();
+  const handleToggleFavorite = () => {
     toggleWishlist(id, isFavorite);
   };
 
+  // Handle call button press
+  const handleCallPress = () => {
+    Alert.alert("Call Business", `Would you like to call ${name}?`, [
+      { text: "Cancel", style: "cancel" },
+      {
+        text: "Call",
+        onPress: () => {
+          // In a real app, this would use the actual phone number
+          Linking.openURL("tel:+1234567890");
+        },
+      },
+    ]);
+  };
+
+  // Handle scan button press
+  const handleScanPress = () => {
+    router.push("/scanner");
+  };
+
   return (
-    <View style={styles.container}>
-      {/* Hero Image */}
-      <View style={[styles.imageContainer, { height: imageHeight }]}>
-        <Image
-          source={{ uri: getImageUrl(imageUrl || "") }}
-          style={styles.heroImage}
-        />
-
-        {/* Gradient overlay */}
-        <LinearGradient
-          colors={["rgba(0,0,0,0.7)", "rgba(0,0,0,0.3)", "rgba(0,0,0,0.1)"]}
-          style={StyleSheet.absoluteFill}
-        />
-
-        {/* Logo - positioned at bottom left over the image */}
-        <View
-          style={{
-            position: "absolute",
-            top: 70,
-            left: 10,
-            right: 10,
-            backgroundColor: "white",
-          }}
-        >
+    <SafeAreaView style={styles.container}>
+      <StatusBar barStyle="light-content" />
+      <ScrollView
+        style={styles.scrollView}
+        contentContainerStyle={styles.contentContainer}
+      >
+        {/* Header Image */}
+        <View style={styles.imageContainer}>
+          <Image
+            source={{ uri: getImageUrl(imageUrl || "") }}
+            style={styles.headerImage}
+          />
+          <TouchableOpacity
+            style={styles.backButton}
+            onPress={() => router.back()}
+          >
+            <Ionicons name="arrow-back" size={24} color="white" />
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.favoriteButton}
+            onPress={handleToggleFavorite}
+          >
+            <Ionicons
+              name={isFavorite ? "heart" : "heart-outline"}
+              size={24}
+              color={isFavorite ? "#FF3B30" : "white"}
+            />
+          </TouchableOpacity>
           {logoUrl && (
-            <View style={[styles.logoContainer]}>
+            <View style={styles.logoContainer}>
               <Image
                 source={{ uri: getImageUrl(logoUrl) }}
                 style={styles.logo}
               />
             </View>
           )}
-
-          {/* Back button */}
-          <TouchableOpacity
-            style={[styles.backButton, { top: insets.top + 16 }]}
-            onPress={() => router.back()}
-          >
-            <MaterialIcons name="arrow-back" size={24} color="#FFF" />
-          </TouchableOpacity>
-
-          {/* Favorite button */}
-          <TouchableOpacity
-            style={[styles.favoriteButton, { top: insets.top + 16 }]}
-            onPress={handleToggleFavorite}
-          >
-            <MaterialIcons
-              name={isFavorite ? "favorite" : "favorite-border"}
-              size={24}
-              color={isFavorite ? "#FF3B30" : "#FFF"}
-            />
-          </TouchableOpacity>
         </View>
 
-        {/* Store Info */}
-        <View style={styles.infoContainer}>
-          <View style={styles.nameRatingRow}>
-            <Typography variant="h1" weight="bold" style={styles.storeName}>
-              {name}
-            </Typography>
-
+        {/* Restaurant Details */}
+        <View style={styles.detailsContainer}>
+          <View style={styles.nameRatingContainer}>
+            <H3>{name}</H3>
             {rating !== undefined && (
-              <View style={styles.ratingContainer}>
-                <Typography style={styles.ratingText}>{rating} ★</Typography>
+              <View style={styles.ratingBadge}>
+                <Typography color="white" weight="bold">
+                  {rating} ★
+                </Typography>
               </View>
             )}
           </View>
 
-          {/* Categories */}
           {categories.length > 0 && (
-            <Typography style={styles.categories}>
-              {categories.join(", ")}
-            </Typography>
+            <Body1 style={styles.cuisineText}>{categories.join(", ")}</Body1>
           )}
 
-          {/* Location */}
           {location && (
             <View style={styles.locationContainer}>
-              <Typography style={styles.locationText}>
-                {location}{" "}
+              <Body1 color="#666">{location}</Body1>
+              <MaterialIcons
+                name="keyboard-arrow-down"
+                size={20}
+                color={Colors.light.tint}
+              />
+              <View style={styles.spacer} />
+              <TouchableOpacity style={styles.mapButton}>
                 <MaterialIcons
-                  name="keyboard-arrow-down"
-                  size={16}
-                  color="#666"
+                  name="directions"
+                  size={24}
+                  color={Colors.light.tint}
                 />
-              </Typography>
+              </TouchableOpacity>
             </View>
           )}
 
-          {/* Cost for one */}
           {costForOne && (
-            <View style={styles.costContainer}>
-              <Typography style={styles.costText}>
-                Cost for one ₹{costForOne}
-              </Typography>
-            </View>
+            <Body1 color="#666" style={styles.costText}>
+              Cost for one ₹{costForOne}
+            </Body1>
           )}
 
-          {/* Opening Hours */}
           {openingHours && (
-            <View style={styles.openingHoursContainer}>
+            <View style={styles.timingContainer}>
               <Typography
-                style={[
-                  styles.openStatus,
-                  { color: isOpen ? "#4CAF50" : "#FF3B30" },
-                ]}
+                weight="medium"
+                color={isOpen ? "#4CAF50" : "#FF3B30"}
               >
                 {isOpen ? "Open now" : "Closed"}
               </Typography>
-              <Typography style={styles.openingHours}>
-                {" - " + openingHours}{" "}
-                <MaterialIcons
-                  name="keyboard-arrow-down"
-                  size={16}
-                  color="#666"
-                />
-              </Typography>
+              <Body1 color="#666"> - {openingHours}</Body1>
+              <MaterialIcons
+                name="keyboard-arrow-down"
+                size={20}
+                color={Colors.light.tint}
+              />
             </View>
           )}
 
-          {/* Recommendations */}
-          {recommendationCount && recommendedBy && (
-            <View style={styles.recommendationContainer}>
-              <View style={styles.recommendationIconContainer}>
-                <Image
-                  source={{
-                    uri: `https://api.dicebear.com/9.x/pixel-art/svg?seed=${recommendedBy}`,
-                  }}
-                  style={styles.recommendationIcon}
-                />
-              </View>
-              <Typography style={styles.recommendationText}>
-                {recommendedBy} & {recommendationCount} others highly recommend
-                this business
-              </Typography>
-            </View>
-          )}
+          <View style={styles.divider} />
 
           {/* Action Buttons */}
           <View style={styles.actionButtonsContainer}>
             <TouchableOpacity
               style={styles.actionButton}
-              onPress={() => {
-                // Handle call action
-                // In a real app, this would use Linking to open the phone app
-                Alert.alert(
-                  "Call Business",
-                  `Would you like to call ${name}?`,
-                  [
-                    { text: "Cancel", style: "cancel" },
-                    {
-                      text: "Call",
-                      onPress: () => console.log("Call pressed"),
-                    },
-                  ]
-                );
-              }}
+              onPress={handleCallPress}
             >
-              <Ionicons name="call-outline" size={24} color="#333" />
-              <Typography style={styles.actionButtonText}>Call</Typography>
-            </TouchableOpacity>
-
-            <View style={styles.actionButtonDivider} />
-
-            <TouchableOpacity
-              style={styles.actionButton}
-              onPress={() => {
-                // Handle loyalty check-in
-                Alert.alert(
-                  "Loyalty Check-in",
-                  "Check in to earn loyalty points",
-                  [
-                    { text: "Cancel", style: "cancel" },
-                    {
-                      text: "Check In",
-                      onPress: () => console.log("Loyalty check-in pressed"),
-                    },
-                  ]
-                );
-              }}
-            >
-              <Ionicons name="flash-outline" size={24} color="#333" />
-              <Typography style={styles.actionButtonText}>
-                Loyalty check-in
+              <Ionicons
+                name="call-outline"
+                size={24}
+                color={Colors.light.tint}
+              />
+              <Typography
+                color={Colors.light.tint}
+                style={styles.actionButtonText}
+              >
+                Call
               </Typography>
             </TouchableOpacity>
 
-            <View style={styles.actionButtonDivider} />
+            <View style={styles.buttonDivider} />
+
+            <View style={styles.buttonDivider} />
 
             <TouchableOpacity
               style={styles.actionButton}
-              onPress={() => {
-                // Handle scan action
-                // In a real app, this would open the camera for scanning
-                router.push("/scanner");
-              }}
+              onPress={handleScanPress}
             >
-              <Ionicons name="scan-outline" size={24} color="#333" />
-              <Typography style={styles.actionButtonText}>Scan</Typography>
+              <MaterialIcons
+                name="qr-code-scanner"
+                size={24}
+                color={Colors.light.tint}
+              />
+              <Typography
+                color={Colors.light.tint}
+                style={styles.actionButtonText}
+              >
+                Scan
+              </Typography>
             </TouchableOpacity>
           </View>
         </View>
-      </View>
-    </View>
+      </ScrollView>
+    </SafeAreaView>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
-    width: "100%",
-    backgroundColor: "black",
-    // position: "relative",
+    flex: 1,
+    backgroundColor: "#000",
+  },
+  scrollView: {
+    flex: 1,
+    backgroundColor: "#fff",
+  },
+  contentContainer: {
+    paddingBottom: 20,
+    backgroundColor: "#000",
   },
   imageContainer: {
-    width: "100%",
+    height: 250,
     position: "relative",
   },
-  heroImage: {
+  headerImage: {
     width: "100%",
     height: "100%",
     resizeMode: "cover",
+    backgroundColor: "#e0e0e0",
+  },
+  backButton: {
+    position: "absolute",
+    top: 20,
+    left: 20,
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "rgba(0,0,0,0.3)",
+  },
+  favoriteButton: {
+    position: "absolute",
+    top: 20,
+    right: 20,
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "rgba(0,0,0,0.3)",
   },
   logoContainer: {
     position: "absolute",
-    left: 16,
-    bottom: -30,
+    bottom: -40,
+    left: 40,
     width: 60,
     height: 60,
+    zIndex: 20,
     borderRadius: 8,
-    backgroundColor: "white",
+    backgroundColor: "#000",
     overflow: "hidden",
-    borderWidth: 1,
-    borderColor: "rgba(255,255,255,0.2)",
-    zIndex: 10,
+    borderWidth: 2,
+    borderColor: "#fff",
   },
   logo: {
     width: "100%",
     height: "100%",
     resizeMode: "cover",
   },
-  backButton: {
-    position: "absolute",
-    left: 16,
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: "rgba(0,0,0,0.3)",
-    justifyContent: "center",
-    alignItems: "center",
+  detailsContainer: {
+    zIndex: 10,
+    paddingHorizontal: 16,
+    paddingTop: 45,
+    paddingBottom: 14,
+    marginHorizontal: 12,
+    borderBottomLeftRadius: 16,
+    borderBottomRightRadius: 16,
+    backgroundColor: "#fff",
+    elevation: 1,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.04,
+    shadowRadius: 3,
   },
-  favoriteButton: {
-    position: "absolute",
-    right: 16,
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: "rgba(0,0,0,0.3)",
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  infoContainer: {
-    padding: 16,
-    paddingTop: 24,
-  },
-  nameRatingRow: {
+  nameRatingContainer: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    marginBottom: 8,
-    marginTop: 8,
+    // marginBottom: 6,
   },
-  storeName: {
-    fontSize: 32,
-    flex: 1,
-    marginRight: 8,
-    fontFamily: "Jost-SemiBold",
-  },
-  ratingContainer: {
+  ratingBadge: {
     backgroundColor: "#F5A623",
-    paddingHorizontal: 12,
-    paddingVertical: 4,
+    paddingHorizontal: 10,
+    paddingVertical: 2,
     borderRadius: 16,
+    alignItems: "center",
+    justifyContent: "center",
   },
-  ratingText: {
-    color: "white",
-    fontSize: 16,
-    fontFamily: "Jost-Bold",
-  },
-  categories: {
-    fontSize: 18,
+  cuisineText: {
     color: "#333",
-    marginBottom: 12,
-    fontFamily: "Jost-Medium",
+    // marginBottom: 10,
+    fontFamily: "Jost-Regular",
+    fontSize: 14,
   },
   locationContainer: {
     flexDirection: "row",
     alignItems: "center",
-    marginBottom: 8,
+    // marginBottom: 10,
   },
-  locationText: {
-    fontSize: 16,
-    color: "#666",
-    fontFamily: "Jost-Regular",
+  spacer: {
+    flex: 1,
   },
-  costContainer: {
-    marginBottom: 8,
+  mapButton: {
+    width: 32,
+    height: 32,
   },
   costText: {
-    fontSize: 16,
-    color: "#666",
+    // marginBottom: 10,
     fontFamily: "Jost-Regular",
+    fontSize: 14,
   },
-  openingHoursContainer: {
+  timingContainer: {
     flexDirection: "row",
     alignItems: "center",
     marginBottom: 16,
-  },
-  openStatus: {
-    fontSize: 16,
-    fontFamily: "Jost-Medium",
-  },
-  openingHours: {
-    fontSize: 16,
-    color: "#666",
-    fontFamily: "Jost-Regular",
   },
   recommendationContainer: {
     flexDirection: "row",
     alignItems: "center",
-    marginTop: 8,
-    paddingTop: 16,
-    borderTopWidth: 1,
-    borderTopColor: "#F0F0F0",
     marginBottom: 16,
+    backgroundColor: "#F8F8F8",
+    padding: 10,
+    borderRadius: 8,
   },
-  recommendationIconContainer: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-    overflow: "hidden",
-    marginRight: 12,
-  },
-  recommendationIcon: {
-    width: "100%",
-    height: "100%",
-    resizeMode: "cover",
+  userImage: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    marginRight: 10,
   },
   recommendationText: {
-    fontSize: 14,
-    color: "#333",
     flex: 1,
+    color: "#333",
     fontFamily: "Jost-Regular",
+    fontSize: 13,
+  },
+  divider: {
+    height: 1,
+    backgroundColor: "#e0e0e0",
+    marginBottom: 16,
   },
   actionButtonsContainer: {
     flexDirection: "row",
-    justifyContent: "space-between",
+    justifyContent: "space-around",
     alignItems: "center",
-    borderTopWidth: 1,
-    borderTopColor: "#F0F0F0",
-    paddingTop: 16,
+    marginTop: 0,
   },
   actionButton: {
     flex: 1,
+    flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
+    paddingVertical: 0,
   },
   actionButtonText: {
-    marginTop: 4,
-    fontSize: 14,
-    color: "#333",
+    marginLeft: 6,
     fontFamily: "Jost-Medium",
+    fontSize: 13,
   },
-  actionButtonDivider: {
+  buttonDivider: {
     width: 1,
-    height: 24,
-    backgroundColor: "#F0F0F0",
+    height: 20,
+    backgroundColor: "#e0e0e0",
   },
 });
 

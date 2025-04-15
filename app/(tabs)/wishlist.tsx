@@ -8,7 +8,7 @@ import {
   Image,
 } from "react-native";
 import { StatusBar } from "expo-status-bar";
-import { Typography, H1, Body1, H3 } from "@/components/ui/Typography";
+import { Body1, H3 } from "@/components/ui/Typography";
 import ShortAppHeader from "@/components/ui/ShortAppHeader";
 import ScrollAwareWrapper from "@/components/ui/ScrollAwareWrapper";
 import {
@@ -18,7 +18,7 @@ import {
 import { useAuth } from "@/hooks/useAuth";
 import SmallStoreCard from "@/components/store/SmallStoreCard";
 import { getImageUrl } from "@/lib/helpers";
-import { router, useFocusEffect } from "expo-router";
+import { useFocusEffect } from "expo-router";
 //@ts-ignore
 import EmptyImg from "../../assets/images/empty-wishlist.jpg";
 
@@ -36,20 +36,22 @@ export default function WishlistScreen() {
     }, [isAuthenticated])
   );
 
-  const handleStorePress = (storeId: string) => {
-    router.push(`/store/${storeId}`);
-  };
-
   // No need for handleToggleFavorite here as it's handled in the SmallStoreCard component
 
   const renderStoreItem = ({ item }: { item: any }) => {
-    const imageUrl = item.mainImage || item.logo || item.coverImage;
+    // Skip rendering if item is null or doesn't have required properties
+    if (!item || !item._id) {
+      console.warn("Attempted to render a store item with missing data:", item);
+      return null;
+    }
+
+    const imageUrl = item.mainImage || item.logo || item.coverImage || "";
     return (
       <View style={styles.storeCardContainer}>
         <SmallStoreCard
           id={item._id}
           imageUrl={getImageUrl(imageUrl)}
-          name={item.name}
+          name={item.name || "Unknown Store"}
           type={item.categories?.[0] || "Store"}
           rating={item.averageRating}
           loyaltyBenefit={item.isVerified ? "10% Off" : undefined}
@@ -109,9 +111,9 @@ export default function WishlistScreen() {
 
           {stores.length > 0 ? (
             <FlatList
-              data={stores}
+              data={stores.filter((store) => store && store._id)} // Filter out invalid stores
               renderItem={renderStoreItem}
-              keyExtractor={(item) => item._id}
+              keyExtractor={(item) => item?._id || `store-${Math.random()}`} // Fallback for missing IDs
               numColumns={2}
               contentContainerStyle={styles.storeGrid}
               showsVerticalScrollIndicator={false}

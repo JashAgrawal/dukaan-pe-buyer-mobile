@@ -2,12 +2,13 @@ import React from "react";
 import { View, Text, Image, StyleSheet, TouchableOpacity } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
+// Wishlist functionality is handled at a higher level
 // import useWishlistToggle from "@/hooks/useWishlistToggle";
-import {
-  useStoreWishlistStatus,
-  useToggleStoreWishlist,
-} from "@/lib/api/hooks/useWishlist";
-import { useRouter } from "expo-router";
+// import {
+//   useStoreWishlistStatus,
+//   useToggleStoreWishlist,
+// } from "@/lib/api/hooks/useWishlist";
+import { Link, useRouter } from "expo-router";
 import { getStoreDistanceAndTime } from "@/lib/helpers";
 
 interface SmallStoreCardProps {
@@ -53,26 +54,15 @@ const SmallStoreCard: React.FC<SmallStoreCardProps> = ({
     }
   }
 
-  const handleCardPress = () => {
-    // Navigate to the store detail page
-    router.push({
-      pathname: "/store/[id]",
-      params: { id },
-    });
-  };
-
   return (
-    <TouchableOpacity
-      style={styles.container}
-      onPress={handleCardPress}
-      activeOpacity={0.9}
-    >
-      {/* Store Image */}
-      <View style={styles.imageContainer}>
-        <Image source={{ uri: imageUrl }} style={styles.image} />
+    <Link href={`/store/${id}`} asChild>
+      <View style={styles.container}>
+        {/* Store Image */}
+        <View style={styles.imageContainer}>
+          <Image source={{ uri: imageUrl }} style={styles.image} />
 
-        {/* Favorite Button */}
-        {/* <TouchableOpacity
+          {/* Favorite Button */}
+          {/* <TouchableOpacity
           style={styles.favoriteButton}
           onPress={handleToggleFavorite}
         >
@@ -85,58 +75,59 @@ const SmallStoreCard: React.FC<SmallStoreCardProps> = ({
           </View>
         </TouchableOpacity> */}
 
-        {/* Loyalty Badge */}
-        {loyaltyBenefit && (
-          <View style={styles.loyaltyBadgeContainer}>
-            <LinearGradient
-              colors={["#8A3FFC", "#6F3BFA"]}
-              start={{ x: 0, y: 0 }}
-              end={{ x: 1, y: 0 }}
-              style={styles.loyaltyBadge}
-            >
-              <MaterialIcons name="bolt" size={12} color="white" />
-              <Text style={styles.loyaltyText}>{loyaltyBenefit}</Text>
-            </LinearGradient>
+          {/* Loyalty Badge */}
+          {loyaltyBenefit && (
+            <View style={styles.loyaltyBadgeContainer}>
+              <LinearGradient
+                colors={["#8A3FFC", "#6F3BFA"]}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 0 }}
+                style={styles.loyaltyBadge}
+              >
+                <MaterialIcons name="bolt" size={12} color="white" />
+                <Text style={styles.loyaltyText}>{loyaltyBenefit}</Text>
+              </LinearGradient>
+            </View>
+          )}
+        </View>
+
+        {/* Store Info */}
+        <View style={styles.infoContainer}>
+          <View style={styles.nameRatingRow}>
+            <Text style={styles.name} numberOfLines={1}>
+              {name}
+            </Text>
+            {rating && (
+              <View style={styles.ratingContainer}>
+                <Text style={styles.ratingText}>{rating}</Text>
+                <MaterialIcons name="star" size={10} color="white" />
+              </View>
+            )}
           </View>
-        )}
-      </View>
 
-      {/* Store Info */}
-      <View style={styles.infoContainer}>
-        <View style={styles.nameRatingRow}>
-          <Text style={styles.name} numberOfLines={1}>
-            {name}
+          <Text style={styles.type} numberOfLines={1}>
+            {type}
           </Text>
-          {rating && (
-            <View style={styles.ratingContainer}>
-              <Text style={styles.ratingText}>{rating}</Text>
-              <MaterialIcons name="star" size={10} color="white" />
-            </View>
-          )}
-        </View>
 
-        <Text style={styles.type} numberOfLines={1}>
-          {type}
-        </Text>
+          {/* Additional Info */}
+          <View style={styles.additionalInfoContainer}>
+            {distanceText && (
+              <View style={styles.infoItem}>
+                <MaterialIcons name="place" size={12} color="#666" />
+                <Text style={styles.infoText}>{distanceText}</Text>
+              </View>
+            )}
 
-        {/* Additional Info */}
-        <View style={styles.additionalInfoContainer}>
-          {distanceText && (
-            <View style={styles.infoItem}>
-              <MaterialIcons name="place" size={12} color="#666" />
-              <Text style={styles.infoText}>{distanceText}</Text>
-            </View>
-          )}
-
-          {travelTimeText && (
-            <View style={styles.infoItem}>
-              <MaterialIcons name="access-time" size={12} color="#666" />
-              <Text style={styles.infoText}>{travelTimeText}</Text>
-            </View>
-          )}
+            {travelTimeText && (
+              <View style={styles.infoItem}>
+                <MaterialIcons name="access-time" size={12} color="#666" />
+                <Text style={styles.infoText}>{travelTimeText}</Text>
+              </View>
+            )}
+          </View>
         </View>
       </View>
-    </TouchableOpacity>
+    </Link>
   );
 };
 

@@ -7,7 +7,7 @@ import {
   useStoreWishlistStatus,
   useToggleStoreWishlist,
 } from "@/lib/api/hooks/useWishlist";
-import { useRouter } from "expo-router";
+import { Link, useRouter } from "expo-router";
 import {
   formatDistance,
   formatTravelTime,
@@ -57,26 +57,15 @@ const StoreCard: React.FC<StoreCardProps> = ({
     travelTimeText = formattedTravelTime;
   }
 
-  const handleCardPress = () => {
-    // Navigate to the store detail page
-    router.push({
-      pathname: "/store/[id]",
-      params: { id },
-    });
-  };
-
   return (
-    <TouchableOpacity
-      style={styles.container}
-      onPress={handleCardPress}
-      activeOpacity={0.9}
-    >
-      {/* Store Image */}
-      <View style={styles.imageContainer}>
-        <Image source={{ uri: imageUrl }} style={styles.image} />
+    <Link href={`/store/${id}`} asChild>
+      <View style={styles.container}>
+        {/* Store Image */}
+        <View style={styles.imageContainer}>
+          <Image source={{ uri: imageUrl }} style={styles.image} />
 
-        {/* Favorite Button */}
-        {/* <View style={styles.favoriteButton}>
+          {/* Favorite Button */}
+          {/* <View style={styles.favoriteButton}>
           <TouchableOpacity
             style={styles.favoriteButtonInner}
             onPress={handleToggleFavorite}
@@ -89,68 +78,69 @@ const StoreCard: React.FC<StoreCardProps> = ({
           </TouchableOpacity>
         </View> */}
 
-        {/* Loyalty Badge */}
-        {loyaltyBenefit && (
-          <View style={styles.loyaltyBadgeContainer}>
-            <LinearGradient
-              colors={["#8A3FFC", "#6F3BFA"]}
-              start={{ x: 0, y: 0 }}
-              end={{ x: 1, y: 0 }}
-              style={styles.loyaltyBadge}
-            >
-              <Text style={styles.loyaltyText}>
-                <Text>🎁</Text> Loyalty Benefits
-              </Text>
-            </LinearGradient>
-          </View>
-        )}
-      </View>
-
-      {/* Store Info */}
-      <View style={styles.infoContainer}>
-        <View style={styles.nameRatingRow}>
-          <Text style={styles.name} numberOfLines={1}>
-            {name}
-          </Text>
-          {rating && (
-            <View style={styles.ratingContainer}>
-              <Text style={styles.ratingText}>{rating}</Text>
-              <MaterialIcons name="star" size={12} color="white" />
+          {/* Loyalty Badge */}
+          {loyaltyBenefit && (
+            <View style={styles.loyaltyBadgeContainer}>
+              <LinearGradient
+                colors={["#8A3FFC", "#6F3BFA"]}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 0 }}
+                style={styles.loyaltyBadge}
+              >
+                <Text style={styles.loyaltyText}>
+                  <Text>🎁</Text> Loyalty Benefits
+                </Text>
+              </LinearGradient>
             </View>
           )}
         </View>
 
-        <Text style={styles.type}>{type}</Text>
-
-        <View style={styles.locationRow}>
-          <Text style={styles.location} numberOfLines={1}>
-            {location}
-          </Text>
-          <Text style={styles.dot}>•</Text>
-          <Text style={styles.distance}>{distanceText}</Text>
-        </View>
-
-        {/* Travel Time (only shown if calculated) */}
-        {travelTimeText && (
-          <View style={styles.travelTimeContainer}>
-            <MaterialIcons name="directions-car" size={14} color="#666" />
-            <Text style={styles.travelTimeText}>{travelTimeText}</Text>
+        {/* Store Info */}
+        <View style={styles.infoContainer}>
+          <View style={styles.nameRatingRow}>
+            <Text style={styles.name} numberOfLines={1}>
+              {name}
+            </Text>
+            {rating && (
+              <View style={styles.ratingContainer}>
+                <Text style={styles.ratingText}>{rating}</Text>
+                <MaterialIcons name="star" size={12} color="white" />
+              </View>
+            )}
           </View>
-        )}
 
-        {/* Reward Text */}
-        {rewardText && (
-          <View style={styles.rewardContainer}>
-            <View style={styles.rewardIconContainer}>
-              <Text style={{ color: "white", fontSize: 10 }}>
-                <Text>💰</Text>
-              </Text>
+          <Text style={styles.type}>{type}</Text>
+
+          <View style={styles.locationRow}>
+            <Text style={styles.location} numberOfLines={1}>
+              {location}
+            </Text>
+            <Text style={styles.dot}>•</Text>
+            <Text style={styles.distance}>{distanceText}</Text>
+          </View>
+
+          {/* Travel Time (only shown if calculated) */}
+          {travelTimeText && (
+            <View style={styles.travelTimeContainer}>
+              <MaterialIcons name="directions-car" size={14} color="#666" />
+              <Text style={styles.travelTimeText}>{travelTimeText}</Text>
             </View>
-            <Text style={styles.rewardText}>{rewardText}</Text>
-          </View>
-        )}
+          )}
+
+          {/* Reward Text */}
+          {rewardText && (
+            <View style={styles.rewardContainer}>
+              <View style={styles.rewardIconContainer}>
+                <Text style={{ color: "white", fontSize: 10 }}>
+                  <Text>💰</Text>
+                </Text>
+              </View>
+              <Text style={styles.rewardText}>{rewardText}</Text>
+            </View>
+          )}
+        </View>
       </View>
-    </TouchableOpacity>
+    </Link>
   );
 };
 

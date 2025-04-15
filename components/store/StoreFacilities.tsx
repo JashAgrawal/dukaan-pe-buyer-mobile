@@ -20,33 +20,9 @@ const StoreFacilities: React.FC<StoreFacilitiesProps> = ({ facilities }) => {
   const displayedFacilities = expanded ? facilities : facilities.slice(0, 6);
   const hasMoreFacilities = facilities.length > 6;
 
-  // Map of facility names to icons
-  const facilityIcons: Record<string, string> = {
-    "Takeaway available": "takeout-dining",
-    "Indoor seating": "chair",
-    "LGBTQIA Friendly": "diversity-3",
-    "Smoking area": "smoking-rooms",
-    Wifi: "wifi",
-    "Romantic Dining": "favorite",
-    Parking: "local-parking",
-    "Air Conditioning": "ac-unit",
-    "Home Delivery": "delivery-dining",
-    "Outdoor seating": "deck",
-    "Wheelchair accessible": "accessible",
-    "Pet friendly": "pets",
-    Restroom: "wc",
-    "Vegan options": "eco",
-    "Vegetarian friendly": "grass",
-    "Live music": "music-note",
-    "Happy hour": "local-bar",
-    "Family friendly": "family-restroom",
-    "Contactless payment": "contactless",
-    Reservations: "event-available",
-  };
-
   // Get icon for a facility, default to "check-circle" if not found
   const getIconForFacility = (facility: string) => {
-    return facilityIcons[facility] || "check-circle";
+    return "check-circle";
   };
 
   return (
@@ -57,11 +33,7 @@ const StoreFacilities: React.FC<StoreFacilitiesProps> = ({ facilities }) => {
         {displayedFacilities.map((facility, index) => (
           <View key={index} style={styles.facilityItem}>
             <View style={styles.iconContainer}>
-              <MaterialIcons
-                name={getIconForFacility(facility)}
-                size={20}
-                color="#FFFFFF"
-              />
+              <MaterialIcons name={"check-circle"} size={20} color="#FFFFFF" />
             </View>
             <Body1 style={styles.facilityText}>{facility}</Body1>
           </View>
@@ -89,13 +61,14 @@ const StoreFacilities: React.FC<StoreFacilitiesProps> = ({ facilities }) => {
 
 const styles = StyleSheet.create({
   container: {
-    width: "100%",
+    // width: "100%",
     backgroundColor: "#FFFFFF",
     borderRadius: 10,
     borderWidth: 1,
     borderColor: "#F0F0F0",
     padding: 14,
     marginBottom: 12,
+    marginHorizontal: 6,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.04,
@@ -103,8 +76,8 @@ const styles = StyleSheet.create({
     elevation: 0.5,
   },
   title: {
-    fontSize: 16,
-    fontFamily: "Jost-SemiBold",
+    fontSize: 18,
+    // fontFamily: "Jost-SemiBold",
     marginBottom: 12,
     color: "#000",
   },

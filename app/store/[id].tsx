@@ -1,4 +1,5 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
+import { Animated } from "react-native";
 import {
   View,
   StyleSheet,
@@ -6,16 +7,15 @@ import {
   ScrollView,
   ActivityIndicator,
   Share,
-  Linking,
 } from "react-native";
 import { StatusBar } from "expo-status-bar";
 import { router, useLocalSearchParams } from "expo-router";
-import { MaterialIcons, Ionicons } from "@expo/vector-icons";
-import { Typography, Body1 } from "@/components/ui/Typography";
+import { MaterialIcons } from "@expo/vector-icons";
+import { Typography } from "@/components/ui/Typography";
 import ShortAppHeader from "@/components/ui/ShortAppHeader";
 import { useSearchStore, SearchItem } from "@/stores/useSearchStore";
 import { getStoreById } from "@/lib/api/services/searchService";
-import StoreHero2 from "@/components/store/StoreHero2";
+import StoreHero from "@/components/store/StoreHero";
 import StoreGallery from "@/components/store/StoreGallery";
 import StoreFacilities from "@/components/store/StoreFacilities";
 import StoreReviews from "@/components/store/StoreReviews";
@@ -23,15 +23,30 @@ import StoreRecommendations from "@/components/store/StoreRecommendations";
 // StoreFooter is no longer used as we've implemented custom terms & conditions
 import { generateStoreDeepLink } from "@/lib/utils/deepLinking";
 import { ProductCategory } from "@/types/store";
+import StoreAboutCard from "@/components/store/StoreAboutCard";
+import StoreHoursCard from "@/components/store/StoreHoursCard";
+import StoreContactCard from "@/components/store/StoreContactCard";
+import StoreTermsCard from "@/components/store/StoreTermsCard";
+import StoreReportCard from "@/components/store/StoreReportCard";
 
 export default function StoreDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const [store, setStore] = useState<any | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
+  // Animation for the sticky button
+  const buttonAnimation = useRef(new Animated.Value(0)).current;
   // No need for auth or wishlist hooks here as they're handled in the StoreHero component
 
   useEffect(() => {
+    // Animate the button sliding up when the component mounts
+    Animated.timing(buttonAnimation, {
+      toValue: 1,
+      duration: 500,
+      delay: 300,
+      useNativeDriver: true,
+    }).start();
+
     const fetchStoreDetails = async () => {
       try {
         setLoading(true);
@@ -110,7 +125,7 @@ export default function StoreDetailScreen() {
       <StatusBar style="light" />
 
       <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
-        <StoreHero2
+        <StoreHero
           id={store._id}
           name={store.name}
           imageUrl={store.mainImage || store.coverImage}
@@ -147,131 +162,13 @@ export default function StoreDetailScreen() {
 
         <View style={styles.storeInfo}>
           {/* About & Address Card */}
-          <View style={styles.card}>
-            <View style={styles.cardSection}>
-              <Typography style={styles.cardTitle}>About this store</Typography>
-              <Body1 style={styles.cardContent}>
-                {store.description ||
-                  `${store.name} is one of the leading businesses in the Fast Food Delivery Services lorem ipsum`}
-              </Body1>
-            </View>
+          <StoreAboutCard store={store} />
 
-            <View style={styles.dividerLine} />
+          {/* Hours Card */}
+          <StoreHoursCard store={store} />
 
-            <View style={styles.cardSection}>
-              <Typography style={styles.cardTitle}>Address</Typography>
-              <Body1 style={styles.cardContent}>
-                {store.full_address
-                  ? store.full_address
-                  : store.address?.street
-                  ? `${store.address.street || ""}, ${
-                      store.address.city || ""
-                    }, ${store.address.state || ""} ${
-                      store.address.pincode || ""
-                    }`
-                  : store.city
-                  ? `${store.city}, ${store.state || ""} ${store.country || ""}`
-                  : "2 Floor, Khan House, Hill Rd, above McDonald's, Bandra West, Mumbai, Maharashtra 400050"}
-              </Body1>
-
-              <View style={styles.buttonContainer}>
-                <TouchableOpacity
-                  style={styles.actionButton}
-                  onPress={() => {
-                    // Get the address for directions
-                    const address =
-                      store.full_address ||
-                      (store.address?.street
-                        ? `${store.address.street || ""}, ${
-                            store.address.city || ""
-                          }, ${store.address.state || ""} ${
-                            store.address.pincode || ""
-                          }`
-                        : store.city
-                        ? `${store.city}, ${store.state || ""} ${
-                            store.country || ""
-                          }`
-                        : "2 Floor, Khan House, Hill Rd, above McDonald's, Bandra West, Mumbai, Maharashtra 400050");
-
-                    // Open in maps app
-                    const encodedAddress = encodeURIComponent(address);
-                    const mapsUrl = `https://maps.google.com/maps?q=${encodedAddress}`;
-                    Linking.openURL(mapsUrl);
-                  }}
-                >
-                  <Ionicons name="location-outline" size={16} color="#8A3FFC" />
-                  <Typography style={styles.actionButtonText}>
-                    Get directions
-                  </Typography>
-                </TouchableOpacity>
-
-                <TouchableOpacity
-                  style={styles.actionButton}
-                  onPress={() => {
-                    // Get the phone number
-                    const phoneNumber =
-                      store.business_phone_number ||
-                      store.contactPhone ||
-                      "+1 (123) 456-7890";
-
-                    // Open phone app
-                    Linking.openURL(`tel:${phoneNumber}`);
-                  }}
-                >
-                  <Ionicons name="call-outline" size={16} color="#8A3FFC" />
-                  <Typography style={styles.actionButtonText}>
-                    Call us
-                  </Typography>
-                </TouchableOpacity>
-              </View>
-            </View>
-          </View>
-
-          {/* Hours & Contact Card */}
-          <View style={styles.card}>
-            <View style={styles.cardSection}>
-              <View style={styles.cardTitleContainer}>
-                <Typography style={styles.cardTitle}>Hours</Typography>
-                {store.isOpen !== undefined && (
-                  <View
-                    style={[
-                      styles.statusBadge,
-                      { backgroundColor: store.isOpen ? "#4CD964" : "#FF3B30" },
-                    ]}
-                  >
-                    <Typography style={styles.statusText}>
-                      {store.isOpen ? "Open Now" : "Closed"}
-                    </Typography>
-                  </View>
-                )}
-              </View>
-              <Body1 style={styles.cardContent}>
-                {store.is_24_7
-                  ? "Open 24/7"
-                  : store.opensAt && store.closesAt
-                  ? `Open: ${store.opensAt} - ${store.closesAt}`
-                  : `Monday - Friday: 9:00 AM - 9:00 PM\nSaturday - Sunday: 10:00 AM - 8:00 PM`}
-              </Body1>
-            </View>
-
-            <View style={styles.dividerLine} />
-
-            <View style={styles.cardSection}>
-              <Typography style={styles.cardTitle}>Contact</Typography>
-              <Body1 style={styles.cardContent}>
-                <Typography style={styles.contactLabel}>Phone: </Typography>
-                {store.business_phone_number ||
-                  store.contactPhone ||
-                  "+1 (123) 456-7890"}
-              </Body1>
-              <Body1 style={styles.cardContent}>
-                <Typography style={styles.contactLabel}>Email: </Typography>
-                {store.business_email ||
-                  store.contactEmail ||
-                  `info@${store.name.toLowerCase().replace(/\s+/g, "")}.com`}
-              </Body1>
-            </View>
-          </View>
+          {/* Contact Card */}
+          <StoreContactCard store={store} />
 
           {/* Facilities Section */}
           <StoreFacilities
@@ -315,42 +212,10 @@ export default function StoreDetailScreen() {
           )}
 
           {/* Terms & Conditions and Return Policy Card */}
-          <View style={styles.card}>
-            <View style={styles.cardSection}>
-              <Typography style={styles.cardTitle}>
-                Terms & Conditions
-              </Typography>
-              <Body1 style={styles.cardContent}>
-                {store.termsAndConditions ||
-                  "No terms and conditions available."}
-              </Body1>
-            </View>
-
-            {store.returnPolicy && (
-              <>
-                <View style={styles.dividerLine} />
-                <View style={styles.cardSection}>
-                  <Typography style={styles.cardTitle}>
-                    Return Policy
-                  </Typography>
-                  <Body1 style={styles.cardContent}>{store.returnPolicy}</Body1>
-                </View>
-              </>
-            )}
-          </View>
+          <StoreTermsCard store={store} />
 
           {/* Report Business Card */}
-          <View style={styles.card}>
-            <TouchableOpacity
-              style={styles.reportButton}
-              onPress={() => console.log(`Report ${store.name}`)}
-            >
-              <Ionicons name="flag-outline" size={16} color="#FF3B30" />
-              <Typography style={styles.reportButtonText}>
-                Report this business
-              </Typography>
-            </TouchableOpacity>
-          </View>
+          <StoreReportCard store={store} />
 
           {/* Share button */}
           <TouchableOpacity
@@ -366,8 +231,47 @@ export default function StoreDetailScreen() {
             <MaterialIcons name="share" size={20} color="#8A3FFC" />
             <Typography style={styles.shareButtonText}>Share Store</Typography>
           </TouchableOpacity>
+
+          {/* Add extra space at the bottom for the sticky button */}
+          <View style={{ height: 80 }} />
         </View>
       </ScrollView>
+
+      {/* Sticky Open Store Button */}
+      <Animated.View
+        style={[
+          styles.stickyButtonContainer,
+          {
+            transform: [
+              {
+                translateY: buttonAnimation.interpolate({
+                  inputRange: [0, 1],
+                  outputRange: [100, 0], // Start from below the screen and slide up
+                }),
+              },
+            ],
+            opacity: buttonAnimation,
+          },
+        ]}
+      >
+        <TouchableOpacity
+          style={styles.openStoreButton}
+          activeOpacity={0.8}
+          onPress={() => {
+            console.log(`Opening store: ${store.name}`);
+            // Navigate to store's products or menu page
+            // router.push(`/store/${store._id}/products`);
+          }}
+        >
+          <MaterialIcons
+            name="storefront"
+            size={20}
+            color="#FFFFFF"
+            style={styles.buttonIcon}
+          />
+          <Typography style={styles.openStoreButtonText}>Open Store</Typography>
+        </TouchableOpacity>
+      </Animated.View>
     </View>
   );
 }
@@ -419,6 +323,7 @@ const styles = StyleSheet.create({
   // Card styles
   card: {
     marginBottom: 12,
+    marginHorizontal: 6,
     borderRadius: 10,
     backgroundColor: "#FFFFFF",
     shadowColor: "#000",
@@ -501,6 +406,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     padding: 12,
     marginVertical: 12,
+    marginHorizontal: 6,
     borderRadius: 8,
     backgroundColor: "#FFFFFF",
     shadowColor: "#000",
@@ -528,5 +434,42 @@ const styles = StyleSheet.create({
     color: "#FF3B30",
     fontFamily: "Jost-Medium",
     fontSize: 13,
+  },
+  stickyButtonContainer: {
+    position: "absolute",
+    bottom: 0,
+    left: 0,
+    right: 0,
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    backgroundColor: "rgba(255, 255, 255, 0.95)",
+    borderTopWidth: 1,
+    borderTopColor: "#F0F0F0",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: -2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 3,
+    elevation: 5,
+  },
+  openStoreButton: {
+    backgroundColor: "#8A3FFC",
+    borderRadius: 8,
+    paddingVertical: 14,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    shadowColor: "#8A3FFC",
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.3,
+    shadowRadius: 5,
+    elevation: 5,
+  },
+  buttonIcon: {
+    marginRight: 8,
+  },
+  openStoreButtonText: {
+    color: "#FFFFFF",
+    fontFamily: "Jost-SemiBold",
+    fontSize: 16,
   },
 });
