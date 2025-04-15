@@ -5,6 +5,7 @@ import {
   Image,
   TouchableOpacity,
   Dimensions,
+  Alert,
 } from "react-native";
 import { MaterialIcons, Ionicons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
@@ -192,14 +193,40 @@ const StoreHero: React.FC<StoreHeroProps> = ({
 
         {/* Action Buttons */}
         <View style={styles.actionButtonsContainer}>
-          <TouchableOpacity style={styles.actionButton}>
+          <TouchableOpacity
+            style={styles.actionButton}
+            onPress={() => {
+              // Handle call action
+              // In a real app, this would use Linking to open the phone app
+              Alert.alert("Call Business", `Would you like to call ${name}?`, [
+                { text: "Cancel", style: "cancel" },
+                { text: "Call", onPress: () => console.log("Call pressed") },
+              ]);
+            }}
+          >
             <Ionicons name="call-outline" size={24} color="#333" />
             <Typography style={styles.actionButtonText}>Call</Typography>
           </TouchableOpacity>
 
           <View style={styles.actionButtonDivider} />
 
-          <TouchableOpacity style={styles.actionButton}>
+          <TouchableOpacity
+            style={styles.actionButton}
+            onPress={() => {
+              // Handle loyalty check-in
+              Alert.alert(
+                "Loyalty Check-in",
+                "Check in to earn loyalty points",
+                [
+                  { text: "Cancel", style: "cancel" },
+                  {
+                    text: "Check In",
+                    onPress: () => console.log("Loyalty check-in pressed"),
+                  },
+                ]
+              );
+            }}
+          >
             <Ionicons name="flash-outline" size={24} color="#333" />
             <Typography style={styles.actionButtonText}>
               Loyalty check-in
@@ -208,7 +235,14 @@ const StoreHero: React.FC<StoreHeroProps> = ({
 
           <View style={styles.actionButtonDivider} />
 
-          <TouchableOpacity style={styles.actionButton}>
+          <TouchableOpacity
+            style={styles.actionButton}
+            onPress={() => {
+              // Handle scan action
+              // In a real app, this would open the camera for scanning
+              router.push("/scanner");
+            }}
+          >
             <Ionicons name="scan-outline" size={24} color="#333" />
             <Typography style={styles.actionButtonText}>Scan</Typography>
           </TouchableOpacity>
@@ -288,11 +322,10 @@ const styles = StyleSheet.create({
     fontFamily: "Jost-SemiBold",
   },
   ratingContainer: {
-    backgroundColor: "#4CAF50",
+    backgroundColor: "#F5A623",
     paddingHorizontal: 12,
     paddingVertical: 4,
     borderRadius: 16,
-    backgroundColor: "#4CAF50",
   },
   ratingText: {
     color: "white",
