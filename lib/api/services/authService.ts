@@ -22,7 +22,7 @@ export const requestOtp = async (
     "/auth/request-otp",
     data
   );
-  console.log(response.data);
+  console.log(`OTP request response:`, response.data);
   return response.data.data;
 };
 

@@ -5,32 +5,26 @@ import {
   TouchableOpacity,
   ScrollView,
   ActivityIndicator,
-  Alert,
   Share,
   Linking,
 } from "react-native";
 import { StatusBar } from "expo-status-bar";
 import { router, useLocalSearchParams } from "expo-router";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { MaterialIcons, Ionicons } from "@expo/vector-icons";
 import { Typography, Body1 } from "@/components/ui/Typography";
 import ShortAppHeader from "@/components/ui/ShortAppHeader";
 import { useSearchStore, SearchItem } from "@/stores/useSearchStore";
 import { getStoreById } from "@/lib/api/services/searchService";
-import StoreHero from "@/components/store/StoreHero";
-import { useFavRoutesStore } from "@/stores/favRoutesStore";
-import { useAuth } from "@/hooks/useAuth";
-import { generateStoreDeepLink } from "@/lib/utils/deepLinking";
 import StoreHero2 from "@/components/store/StoreHero2";
+import StoreGallery from "@/components/store/StoreGallery";
+import { generateStoreDeepLink } from "@/lib/utils/deepLinking";
+import { ProductCategory } from "@/types/store";
 
 export default function StoreDetailScreen() {
-  const insets = useSafeAreaInsets();
   const { id } = useLocalSearchParams<{ id: string }>();
   const [store, setStore] = useState<any | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
-  const { isAuthenticated } = useAuth();
-  const { addFavRoute, isFavRoute } = useFavRoutesStore();
   // No need for auth or wishlist hooks here as they're handled in the StoreHero component
 
   useEffect(() => {
@@ -118,12 +112,20 @@ export default function StoreDetailScreen() {
           imageUrl={store.mainImage || store.coverImage}
           logoUrl={store.logo}
           categories={
-            store.categories || [store.category?.name].filter(Boolean)
+            store.categories ||
+            (store.category?.name ? [store.category.name] : []) ||
+            (store.productCategories?.length
+              ? store.productCategories.map((cat: ProductCategory) => cat.name)
+              : [])
           }
           rating={store.averageRating}
           location={
-            store.address?.city
+            store.city
+              ? `${store.city}, ${store.state || ""}`
+              : store.address?.city
               ? `${store.address.city}, ${store.address.state || ""}`
+              : store.full_address
+              ? store.full_address.split(",")[0]
               : "JVPD Scheme, Juhu"
           }
           costForOne={store.costForOne || 250}
@@ -159,12 +161,16 @@ export default function StoreDetailScreen() {
             <View style={styles.addressSection}>
               <Typography style={styles.addressTitle}>Address</Typography>
               <Body1 style={styles.addressContent}>
-                {store.full_address || store.address?.street
-                  ? `${store.full_address || store.address?.street || ""}, ${
-                      store.address?.city || ""
-                    }, ${store.address?.state || ""} ${
-                      store.address?.pincode || ""
+                {store.full_address
+                  ? store.full_address
+                  : store.address?.street
+                  ? `${store.address.street || ""}, ${
+                      store.address.city || ""
+                    }, ${store.address.state || ""} ${
+                      store.address.pincode || ""
                     }`
+                  : store.city
+                  ? `${store.city}, ${store.state || ""} ${store.country || ""}`
                   : "2 Floor, Khan House, Hill Rd, above McDonald's, Bandra West, Mumbai, Maharashtra 400050"}
               </Body1>
 
@@ -175,12 +181,17 @@ export default function StoreDetailScreen() {
                     // Get the address for directions
                     const address =
                       store.full_address ||
-                      `${store.address?.street || ""}, ${
-                        store.address?.city || ""
-                      }, ${store.address?.state || ""} ${
-                        store.address?.pincode || ""
-                      }` ||
-                      "2 Floor, Khan House, Hill Rd, above McDonald's, Bandra West, Mumbai, Maharashtra 400050";
+                      (store.address?.street
+                        ? `${store.address.street || ""}, ${
+                            store.address.city || ""
+                          }, ${store.address.state || ""} ${
+                            store.address.pincode || ""
+                          }`
+                        : store.city
+                        ? `${store.city}, ${store.state || ""} ${
+                            store.country || ""
+                          }`
+                        : "2 Floor, Khan House, Hill Rd, above McDonald's, Bandra West, Mumbai, Maharashtra 400050");
 
                     // Open in maps app
                     const encodedAddress = encodeURIComponent(address);
@@ -199,7 +210,9 @@ export default function StoreDetailScreen() {
                   onPress={() => {
                     // Get the phone number
                     const phoneNumber =
-                      store.business_phone_number || "+1 (123) 456-7890";
+                      store.business_phone_number ||
+                      store.contactPhone ||
+                      "+1 (123) 456-7890";
 
                     // Open phone app
                     Linking.openURL(`tel:${phoneNumber}`);
@@ -240,13 +253,32 @@ export default function StoreDetailScreen() {
           <View style={styles.section}>
             <Typography style={styles.sectionTitle}>Contact</Typography>
             <Body1 style={styles.sectionContent}>
-              Phone: {store.business_phone_number || "+1 (123) 456-7890"}
+              Phone:{" "}
+              {store.business_phone_number ||
+                store.contactPhone ||
+                "+1 (123) 456-7890"}
               {"\n"}
               Email:{" "}
               {store.business_email ||
+                store.contactEmail ||
                 `info@${store.name.toLowerCase().replace(/\s+/g, "")}.com`}
             </Body1>
           </View>
+
+          {/* Gallery Section */}
+          {(store.allImages?.length > 0 ||
+            store.mainImage ||
+            store.coverImage) && (
+            <StoreGallery
+              storeId={store._id}
+              images={[
+                ...(store.mainImage ? [store.mainImage] : []),
+                ...(store.coverImage ? [store.coverImage] : []),
+                ...(store.allImages || []),
+              ]}
+              onSeeAllPress={() => router.push(`/store/${store._id}/gallery`)}
+            />
+          )}
         </View>
 
         {/* Share button */}

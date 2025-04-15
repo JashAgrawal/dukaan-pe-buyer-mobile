@@ -48,9 +48,19 @@ const StoreScroller: React.FC<StoreScrollerProps> = ({
             id={item._id}
             imageUrl={getImageUrl(imageUrl)}
             name={item.name}
-            type={item.categories?.[0] || "Store"}
+            type={
+              item.categories?.[0] ||
+              (item.category?.name ? item.category.name : "") ||
+              (item.productCategories?.length
+                ? item.productCategories[0].name
+                : "Store")
+            }
             rating={item.averageRating}
             loyaltyBenefit={item.isVerified ? "10% Off" : undefined}
+            distance={
+              item.distance ? `${item.distance.toFixed(1)} km` : undefined
+            }
+            coordinates={item.location?.coordinates}
           />
         );
       }
@@ -61,12 +71,24 @@ const StoreScroller: React.FC<StoreScrollerProps> = ({
             id={item._id}
             imageUrl={getImageUrl(imageUrl)}
             name={item.name}
-            type={item.categories?.[0] || "Store"}
+            type={
+              item.categories?.[0] ||
+              (item.category?.name ? item.category.name : "") ||
+              (item.productCategories?.length
+                ? item.productCategories[0].name
+                : "Store")
+            }
             location={
-              item.address?.city && item.address?.state
+              item.city && item.state
+                ? `${item.city}, ${item.state}`
+                : item.address?.city && item.address?.state
                 ? `${item.address.city}, ${item.address.state}`
+                : item.full_address
+                ? item.full_address.split(",")[0]
                 : item.address?.city ||
                   item.address?.state ||
+                  item.city ||
+                  item.state ||
                   "Location not available"
             }
             distance={
@@ -79,6 +101,7 @@ const StoreScroller: React.FC<StoreScrollerProps> = ({
             rewardText={
               item.isVerified ? "Get 20 for every recommendation" : undefined
             }
+            coordinates={item.location?.coordinates}
           />
         </View>
       );

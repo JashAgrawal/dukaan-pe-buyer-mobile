@@ -1,7 +1,6 @@
 import React from "react";
 import {
   View,
-  Text,
   Image,
   StyleSheet,
   TouchableOpacity,
@@ -11,11 +10,13 @@ import {
   Alert,
   Linking,
 } from "react-native";
-import { Ionicons, FontAwesome, MaterialIcons } from "@expo/vector-icons";
+import { Ionicons, MaterialIcons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import { getImageUrl } from "@/lib/helpers";
 import { useStoreWishlistStatus } from "@/lib/api/hooks/useWishlist";
 import useWishlistToggle from "@/hooks/useWishlistToggle";
+import { Typography, H3, Body1, Body2 } from "@/components/ui/Typography";
+import { Colors } from "@/lib/constants/Colors";
 
 interface StoreHeroProps {
   id: string;
@@ -73,17 +74,6 @@ const StoreHero2: React.FC<StoreHeroProps> = ({
     ]);
   };
 
-  // Handle loyalty check-in button press
-  const handleLoyaltyCheckIn = () => {
-    Alert.alert("Loyalty Check-in", "Check in to earn loyalty points", [
-      { text: "Cancel", style: "cancel" },
-      {
-        text: "Check In",
-        onPress: () => console.log("Loyalty check-in pressed"),
-      },
-    ]);
-  };
-
   // Handle scan button press
   const handleScanPress = () => {
     router.push("/scanner");
@@ -131,52 +121,58 @@ const StoreHero2: React.FC<StoreHeroProps> = ({
         {/* Restaurant Details */}
         <View style={styles.detailsContainer}>
           <View style={styles.nameRatingContainer}>
-            <Text style={styles.restaurantName}>{name}</Text>
+            <H3>{name}</H3>
             {rating !== undefined && (
               <View style={styles.ratingBadge}>
-                <Text style={styles.ratingText}>{rating} ★</Text>
+                <Typography color="white" weight="bold">
+                  {rating} ★
+                </Typography>
               </View>
             )}
           </View>
 
           {categories.length > 0 && (
-            <Text style={styles.cuisineText}>{categories.join(", ")}</Text>
+            <Body1 style={styles.cuisineText}>{categories.join(", ")}</Body1>
           )}
 
           {location && (
             <View style={styles.locationContainer}>
-              <Text style={styles.locationText}>{location}</Text>
+              <Body1 color="#666">{location}</Body1>
               <MaterialIcons
                 name="keyboard-arrow-down"
                 size={20}
-                color="#6366f1"
+                color={Colors.light.tint}
               />
               <View style={styles.spacer} />
               <TouchableOpacity style={styles.mapButton}>
-                <MaterialIcons name="directions" size={24} color="#6366f1" />
+                <MaterialIcons
+                  name="directions"
+                  size={24}
+                  color={Colors.light.tint}
+                />
               </TouchableOpacity>
             </View>
           )}
 
           {costForOne && (
-            <Text style={styles.costText}>Cost for one ₹{costForOne}</Text>
+            <Body1 color="#666" style={styles.costText}>
+              Cost for one ₹{costForOne}
+            </Body1>
           )}
 
           {openingHours && (
             <View style={styles.timingContainer}>
-              <Text
-                style={[
-                  styles.openNowText,
-                  { color: isOpen ? "#4CAF50" : "#FF3B30" },
-                ]}
+              <Typography
+                weight="medium"
+                color={isOpen ? "#4CAF50" : "#FF3B30"}
               >
                 {isOpen ? "Open now" : "Closed"}
-              </Text>
-              <Text style={styles.timingText}> - {openingHours}</Text>
+              </Typography>
+              <Body1 color="#666"> - {openingHours}</Body1>
               <MaterialIcons
                 name="keyboard-arrow-down"
                 size={20}
-                color="#6366f1"
+                color={Colors.light.tint}
               />
             </View>
           )}
@@ -189,10 +185,10 @@ const StoreHero2: React.FC<StoreHeroProps> = ({
                 }}
                 style={styles.userImage}
               />
-              <Text style={styles.recommendationText}>
-                <Text style={styles.boldText}>{recommendedBy}</Text> &{" "}
+              <Body2 style={styles.recommendationText}>
+                <Typography weight="bold">{recommendedBy}</Typography> &{" "}
                 {recommendationCount} others highly recommend this business
-              </Text>
+              </Body2>
             </View>
           )}
 
@@ -204,8 +200,17 @@ const StoreHero2: React.FC<StoreHeroProps> = ({
               style={styles.actionButton}
               onPress={handleCallPress}
             >
-              <Ionicons name="call-outline" size={24} color="#6366f1" />
-              <Text style={styles.actionButtonText}>Call</Text>
+              <Ionicons
+                name="call-outline"
+                size={24}
+                color={Colors.light.tint}
+              />
+              <Typography
+                color={Colors.light.tint}
+                style={styles.actionButtonText}
+              >
+                Call
+              </Typography>
             </TouchableOpacity>
 
             <View style={styles.buttonDivider} />
@@ -216,8 +221,17 @@ const StoreHero2: React.FC<StoreHeroProps> = ({
               style={styles.actionButton}
               onPress={handleScanPress}
             >
-              <MaterialIcons name="qr-code-scanner" size={24} color="#6366f1" />
-              <Text style={styles.actionButtonText}>Scan</Text>
+              <MaterialIcons
+                name="qr-code-scanner"
+                size={24}
+                color={Colors.light.tint}
+              />
+              <Typography
+                color={Colors.light.tint}
+                style={styles.actionButtonText}
+              >
+                Scan
+              </Typography>
             </TouchableOpacity>
           </View>
         </View>
@@ -293,21 +307,22 @@ const styles = StyleSheet.create({
     zIndex: 10,
     paddingHorizontal: 20,
     paddingTop: 50,
+    paddingBottom: 16,
     marginHorizontal: 12,
     borderBottomLeftRadius: 20,
     borderBottomRightRadius: 20,
     backgroundColor: "#fff",
+    elevation: 2,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
   },
   nameRatingContainer: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    marginBottom: 5,
-  },
-  restaurantName: {
-    fontSize: 28,
-    fontWeight: "bold",
-    color: "#111",
+    marginBottom: 8,
   },
   ratingBadge: {
     backgroundColor: "#F5A623",
@@ -317,23 +332,14 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
-  ratingText: {
-    color: "#fff",
-    fontWeight: "bold",
-  },
   cuisineText: {
-    fontSize: 16,
     color: "#333",
-    marginBottom: 8,
+    marginBottom: 12,
   },
   locationContainer: {
     flexDirection: "row",
     alignItems: "center",
-    marginBottom: 8,
-  },
-  locationText: {
-    fontSize: 16,
-    color: "#666",
+    marginBottom: 12,
   },
   spacer: {
     flex: 1,
@@ -346,28 +352,20 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   costText: {
-    fontSize: 16,
-    color: "#666",
-    marginBottom: 8,
+    marginBottom: 12,
   },
   timingContainer: {
     flexDirection: "row",
     alignItems: "center",
     marginBottom: 24,
   },
-  openNowText: {
-    fontSize: 16,
-    color: "#4CAF50",
-    fontWeight: "500",
-  },
-  timingText: {
-    fontSize: 16,
-    color: "#666",
-  },
   recommendationContainer: {
     flexDirection: "row",
     alignItems: "center",
     marginBottom: 24,
+    backgroundColor: "#F8F8F8",
+    padding: 12,
+    borderRadius: 8,
   },
   userImage: {
     width: 36,
@@ -376,12 +374,8 @@ const styles = StyleSheet.create({
     marginRight: 10,
   },
   recommendationText: {
-    fontSize: 15,
-    color: "#333",
     flex: 1,
-  },
-  boldText: {
-    fontWeight: "bold",
+    color: "#333",
   },
   divider: {
     height: 1,
@@ -392,17 +386,16 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-around",
     alignItems: "center",
+    marginTop: 8,
   },
   actionButton: {
     flex: 1,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
-    paddingVertical: 8,
+    paddingVertical: 12,
   },
   actionButtonText: {
-    fontSize: 16,
-    color: "#6366f1",
     marginLeft: 8,
   },
   buttonDivider: {
