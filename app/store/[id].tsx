@@ -21,13 +21,17 @@ import StoreFacilities from "@/components/store/StoreFacilities";
 import StoreReviews from "@/components/store/StoreReviews";
 import StoreRecommendations from "@/components/store/StoreRecommendations";
 // StoreFooter is no longer used as we've implemented custom terms & conditions
-import { generateStoreDeepLink } from "@/lib/utils/deepLinking";
+import {
+  generateStoreDeepLink,
+  generateStoreHomeDeepLink,
+} from "@/lib/utils/deepLinking";
 import { ProductCategory } from "@/types/store";
 import StoreAboutCard from "@/components/store/StoreAboutCard";
 import StoreHoursCard from "@/components/store/StoreHoursCard";
 import StoreContactCard from "@/components/store/StoreContactCard";
 import StoreTermsCard from "@/components/store/StoreTermsCard";
 import StoreReportCard from "@/components/store/StoreReportCard";
+import { useActiveStoreStore } from "@/stores/activeStoreStore";
 
 export default function StoreDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -218,19 +222,36 @@ export default function StoreDetailScreen() {
           <StoreReportCard store={store} />
 
           {/* Share button */}
-          <TouchableOpacity
-            style={styles.shareButton}
-            onPress={() => {
-              const deepLink = generateStoreDeepLink(store._id);
-              Share.share({
-                message: `Check out ${store.name} on DUNE! ${deepLink}`,
-                url: deepLink,
-              });
-            }}
-          >
-            <MaterialIcons name="share" size={20} color="#8A3FFC" />
-            <Typography style={styles.shareButtonText}>Share Store</Typography>
-          </TouchableOpacity>
+          <View style={styles.buttonRow}>
+            <TouchableOpacity
+              style={styles.shareButton}
+              onPress={() => {
+                const deepLink = generateStoreDeepLink(store._id);
+                Share.share({
+                  message: `Check out ${store.name} on DUNE! ${deepLink}`,
+                  url: deepLink,
+                });
+              }}
+            >
+              <MaterialIcons name="share" size={20} color="#8A3FFC" />
+              <Typography style={styles.shareButtonText}>
+                Share Store
+              </Typography>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={styles.visitButton}
+              onPress={() => {
+                // Set active store and navigate to store-home
+                useActiveStoreStore.getState().visitStore(store._id);
+              }}
+            >
+              <MaterialIcons name="storefront" size={20} color="#8A3FFC" />
+              <Typography style={styles.shareButtonText}>
+                Visit Store
+              </Typography>
+            </TouchableOpacity>
+          </View>
 
           {/* Add extra space at the bottom for the sticky button */}
           <View style={{ height: 80 }} />
@@ -258,9 +279,9 @@ export default function StoreDetailScreen() {
           style={styles.openStoreButton}
           activeOpacity={0.8}
           onPress={() => {
-            console.log(`Opening store: ${store.name}`);
-            // Navigate to store's products or menu page
-            // router.push(`/store/${store._id}/products`);
+            console.log(`Visiting store: ${store.name}`);
+            // Set active store and navigate to store-home
+            useActiveStoreStore.getState().visitStore(store._id);
           }}
         >
           <MaterialIcons
@@ -269,7 +290,9 @@ export default function StoreDetailScreen() {
             color="#FFFFFF"
             style={styles.buttonIcon}
           />
-          <Typography style={styles.openStoreButtonText}>Open Store</Typography>
+          <Typography style={styles.openStoreButtonText}>
+            Visit Store
+          </Typography>
         </TouchableOpacity>
       </Animated.View>
     </View>
@@ -400,13 +423,36 @@ const styles = StyleSheet.create({
     fontFamily: "Jost-Medium",
     fontSize: 13,
   },
+  buttonRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginVertical: 12,
+    marginHorizontal: 6,
+  },
   shareButton: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
     padding: 12,
-    marginVertical: 12,
-    marginHorizontal: 6,
+    flex: 1,
+    marginRight: 6,
+    borderRadius: 8,
+    backgroundColor: "#FFFFFF",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.04,
+    shadowRadius: 2,
+    elevation: 1,
+    borderWidth: 1,
+    borderColor: "#E0E0E0",
+  },
+  visitButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    padding: 12,
+    flex: 1,
+    marginLeft: 6,
     borderRadius: 8,
     backgroundColor: "#FFFFFF",
     shadowColor: "#000",

@@ -12,6 +12,7 @@ import ShortAppHeader from "@/components/ui/ShortAppHeader";
 import { MaterialIcons } from "@expo/vector-icons";
 import { Camera, CameraView, BarcodeScanningResult } from "expo-camera";
 import { router } from "expo-router";
+import { useActiveStoreStore } from "@/stores/activeStoreStore";
 
 export default function ScannerScreen() {
   const [hasPermission, setHasPermission] = useState<boolean | null>(null);
@@ -40,6 +41,17 @@ export default function ScannerScreen() {
         if (storeId) {
           // Navigate to the store profile page
           router.push(`/store/${storeId}`);
+          return;
+        }
+      }
+
+      // Check if the QR code contains a store-home ID
+      if (data.includes("store-home/")) {
+        // Extract the store ID from the QR code data
+        const storeId = data.split("store-home/")[1];
+        if (storeId) {
+          // Set active store and navigate to store-home
+          useActiveStoreStore.getState().visitStore(storeId);
           return;
         }
       }
@@ -138,7 +150,7 @@ export default function ScannerScreen() {
           <MaterialIcons name="qr-code-scanner" size={100} color="#8A3FFC" />
           <H1 style={{ marginTop: 16 }}>QR Code Scanner</H1>
           <Body1 style={styles.description}>
-            Scan QR codes to quickly access store profiles and products.
+            Scan QR codes to quickly access store profiles or visit store apps.
           </Body1>
           <TouchableOpacity style={styles.scanButton} onPress={startScanning}>
             <Typography style={styles.scanButtonText}>

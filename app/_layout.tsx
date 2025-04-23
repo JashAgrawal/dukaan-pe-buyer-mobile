@@ -20,6 +20,7 @@ import { setupDeepLinking } from "@/lib/utils/deepLinking";
 import "@/stores/authStore";
 import "@/stores/locationStore";
 import "@/stores/useSearchStore";
+import "@/stores/activeStoreStore";
 
 // Import components
 import LocationDetector from "@/components/location/LocationDetector";
@@ -85,6 +86,7 @@ export default function RootLayout() {
               <Stack.Screen name="location" />
               <Stack.Screen name="search" />
               <Stack.Screen name="store" />
+              <Stack.Screen name="store-home" />
               <Stack.Screen name="+not-found" />
             </Stack>
             <LocationDetector />
