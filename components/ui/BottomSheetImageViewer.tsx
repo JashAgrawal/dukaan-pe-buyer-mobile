@@ -7,13 +7,11 @@ import {
   TouchableOpacity,
   FlatList,
   ActivityIndicator,
-  Text,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { Typography } from "@/components/ui/Typography";
 import { getImageUrl } from "@/lib/helpers";
 import BottomSheet, { BottomSheetBackdrop } from "@gorhom/bottom-sheet";
-import { GestureHandlerRootView } from "react-native-gesture-handler";
 
 const { width, height } = Dimensions.get("window");
 
@@ -147,7 +145,7 @@ const BottomSheetImageViewer: React.FC<BottomSheetImageViewerProps> = ({
   };
 
   return (
-    <GestureHandlerRootView style={styles.container}>
+    <View style={styles.container}>
       <BottomSheet
         ref={bottomSheetRef}
         index={-1}
@@ -217,7 +215,7 @@ const BottomSheetImageViewer: React.FC<BottomSheetImageViewerProps> = ({
           </View>
         </View>
       </BottomSheet>
-    </GestureHandlerRootView>
+    </View>
   );
 };
 
@@ -229,7 +227,7 @@ const styles = StyleSheet.create({
     top: 0,
     bottom: 0,
     zIndex: 1000,
-    // pointerEvents: "box-none",
+    pointerEvents: "box-none",
   },
   sheetBackground: {
     backgroundColor: "#000000",
@@ -285,7 +283,7 @@ const styles = StyleSheet.create({
     right: 0,
     bottom: 0,
     justifyContent: "center",
-    // pointerEvents: "box-none",
+    pointerEvents: "box-none",
   },
   navButton: {
     position: "absolute",

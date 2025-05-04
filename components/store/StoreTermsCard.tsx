@@ -128,7 +128,7 @@ const styles = StyleSheet.create({
   },
   rowText: {
     fontSize: 16,
-    fontFamily: "Jost-Medium",
+    fontFamily: "Jost-Regular",
     color: "#000",
   },
   dividerLine: {

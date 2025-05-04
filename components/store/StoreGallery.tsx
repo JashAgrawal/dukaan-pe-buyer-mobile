@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import {
   View,
   StyleSheet,
@@ -6,11 +6,16 @@ import {
   TouchableOpacity,
   ActivityIndicator,
   ScrollView,
+  Modal,
+  SafeAreaView,
+  StatusBar,
+  Dimensions,
+  FlatList,
 } from "react-native";
 import { router } from "expo-router";
 import { Typography } from "@/components/ui/Typography";
 import { getImageUrl } from "@/lib/helpers";
-import ImageViewer from "@/components/ui/ImageViewer";
+import { Ionicons } from "@expo/vector-icons";
 
 interface StoreGalleryProps {
   storeId: string;
@@ -26,6 +31,7 @@ const StoreGallery: React.FC<StoreGalleryProps> = ({
   const [selectedImageIndex, setSelectedImageIndex] = useState<number | null>(
     null
   );
+  const [showImageViewer, setShowImageViewer] = useState<boolean>(false);
   const [imageLoadingStates, setImageLoadingStates] = useState<{
     [key: number]: boolean;
   }>({});
@@ -45,9 +51,12 @@ const StoreGallery: React.FC<StoreGalleryProps> = ({
 
   const handleImagePress = (index: number) => {
     setSelectedImageIndex(index);
+    setCurrentIndex(index);
+    setShowImageViewer(true);
   };
 
   const handleCloseViewer = () => {
+    setShowImageViewer(false);
     setSelectedImageIndex(null);
   };
 
@@ -65,6 +74,70 @@ const StoreGallery: React.FC<StoreGalleryProps> = ({
     } else {
       // Navigate to the gallery page
       router.push(`/store/${storeId}/gallery`);
+    }
+  };
+
+  const { width, height } = Dimensions.get("window");
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const flatListRef = useRef<FlatList>(null);
+
+  // Render each image item in the modal
+  const renderItem = ({ item, index }: { item: string; index: number }) => {
+    // Process the image URL - handle both full URLs and relative paths
+    let imageUrl = item;
+
+    // If it's not already a full URL, use the helper to get the full URL
+    if (!item.startsWith("http")) {
+      imageUrl = getImageUrl(item);
+    }
+
+    return (
+      <View style={{ width, height: height * 0.8, justifyContent: "center", alignItems: "center" }}>
+        <Image
+          source={{ uri: imageUrl }}
+          style={{ width, height: height * 0.7 }}
+          resizeMode="contain"
+          onLoadStart={() => handleImageLoadStart(index)}
+          onLoadEnd={() => handleImageLoadEnd(index)}
+        />
+        {imageLoadingStates[index] && (
+          <View style={styles.loaderContainer}>
+            <ActivityIndicator size="large" color="#FFFFFF" />
+          </View>
+        )}
+      </View>
+    );
+  };
+
+  // Handle scroll end to update current index
+  const handleScrollEnd = (e: any) => {
+    const newIndex = Math.round(e.nativeEvent.contentOffset.x / width);
+    if (newIndex >= 0 && newIndex < validImages.length) {
+      setCurrentIndex(newIndex);
+    }
+  };
+
+  // Navigate to previous image
+  const goToPrevious = () => {
+    if (currentIndex > 0) {
+      const newIndex = currentIndex - 1;
+      flatListRef.current?.scrollToIndex({
+        index: newIndex,
+        animated: true,
+      });
+      setCurrentIndex(newIndex);
+    }
+  };
+
+  // Navigate to next image
+  const goToNext = () => {
+    if (currentIndex < validImages.length - 1) {
+      const newIndex = currentIndex + 1;
+      flatListRef.current?.scrollToIndex({
+        index: newIndex,
+        animated: true,
+      });
+      setCurrentIndex(newIndex);
     }
   };
 
@@ -124,15 +197,118 @@ const StoreGallery: React.FC<StoreGalleryProps> = ({
       </View>
 
       {/* Image Viewer Modal */}
-      {selectedImageIndex !== null && (
-        <View style={styles.viewerContainer}>
-          <ImageViewer
-            images={validImages}
-            initialIndex={selectedImageIndex}
-            onClose={handleCloseViewer}
+      <Modal
+        animationType="slide"
+        transparent={true}
+        visible={showImageViewer}
+        onRequestClose={handleCloseViewer}
+      >
+        <SafeAreaView style={{ flex: 1, backgroundColor: "#000000" }}>
+          <StatusBar barStyle="light-content" backgroundColor="#000000" />
+
+          {/* Header */}
+          <View style={{
+            flexDirection: "row",
+            justifyContent: "space-between",
+            alignItems: "center",
+            paddingHorizontal: 16,
+            paddingVertical: 12
+          }}>
+            <TouchableOpacity
+              style={{
+                width: 40,
+                height: 40,
+                borderRadius: 20,
+                backgroundColor: "rgba(50, 50, 50, 0.5)",
+                justifyContent: "center",
+                alignItems: "center"
+              }}
+              onPress={handleCloseViewer}
+            >
+              <Ionicons name="close" size={24} color="#FFFFFF" />
+            </TouchableOpacity>
+            <Typography style={{ color: "#FFFFFF", fontSize: 16, fontFamily: "Jost-Medium" }}>
+              {currentIndex + 1} / {validImages.length}
+            </Typography>
+            <View style={{ width: 40 }} />
+          </View>
+
+          {/* Image Gallery */}
+          <FlatList
+            ref={flatListRef}
+            data={validImages}
+            renderItem={renderItem}
+            keyExtractor={(_, index) => `image-${index}`}
+            horizontal
+            pagingEnabled
+            showsHorizontalScrollIndicator={false}
+            initialScrollIndex={selectedImageIndex !== null ? selectedImageIndex : 0}
+            getItemLayout={(_, index) => ({
+              length: width,
+              offset: width * index,
+              index,
+            })}
+            onMomentumScrollEnd={handleScrollEnd}
+            onScrollToIndexFailed={(info) => {
+              // Handle scroll to index failure
+              const wait = new Promise((resolve) => setTimeout(resolve, 500));
+              wait.then(() => {
+                flatListRef.current?.scrollToIndex({
+                  index: info.index,
+                  animated: false,
+                });
+              });
+            }}
           />
-        </View>
-      )}
+
+          {/* Navigation Buttons */}
+          <View style={{
+            position: "absolute",
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            justifyContent: "center",
+            pointerEvents: "box-none"
+          }}>
+            {currentIndex > 0 && (
+              <TouchableOpacity
+                style={{
+                  position: "absolute",
+                  left: 16,
+                  width: 50,
+                  height: 50,
+                  borderRadius: 25,
+                  backgroundColor: "rgba(50, 50, 50, 0.5)",
+                  justifyContent: "center",
+                  alignItems: "center"
+                }}
+                onPress={goToPrevious}
+              >
+                <Ionicons name="chevron-back" size={28} color="#FFFFFF" />
+              </TouchableOpacity>
+            )}
+
+            {currentIndex < validImages.length - 1 && (
+              <TouchableOpacity
+                style={{
+                  position: "absolute",
+                  right: 16,
+                  width: 50,
+                  height: 50,
+                  borderRadius: 25,
+                  backgroundColor: "rgba(50, 50, 50, 0.5)",
+                  justifyContent: "center",
+                  alignItems: "center"
+                }}
+                onPress={goToNext}
+              >
+                <Ionicons name="chevron-forward" size={28} color="#FFFFFF" />
+              </TouchableOpacity>
+            )}
+          </View>
+        </SafeAreaView>
+      </Modal>
     </>
   );
 };
@@ -197,10 +373,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontFamily: "Jost-Medium",
   },
-  viewerContainer: {
-    ...StyleSheet.absoluteFillObject,
-    zIndex: 1000,
-  },
+
 });
 
 export default StoreGallery;

@@ -1,5 +1,5 @@
 import React from "react";
-import { View, StyleSheet, ScrollView, Image } from "react-native";
+import { View, StyleSheet, ScrollView } from "react-native";
 import { Typography } from "@/components/ui/Typography";
 
 interface StoreRecommendationsProps {
