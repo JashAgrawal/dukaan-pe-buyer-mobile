@@ -37,7 +37,7 @@ export default function PhoneScreen() {
       });
 
       // Navigate to OTP screen with necessary data
-      router.push({
+      router.navigate({
         pathname: "/auth/otp",
         params: {
           phoneNumber: formattedNumber,

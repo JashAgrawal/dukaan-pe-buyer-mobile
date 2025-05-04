@@ -166,7 +166,7 @@ export default function LocationBottomSheet({
   // Handle search location
   const handleSearchLocation = () => {
     onClose();
-    router.push("/location/search" as any);
+    router.navigate("/location/search" as any);
   };
 
   const isLoading =

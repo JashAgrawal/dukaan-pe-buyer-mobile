@@ -58,18 +58,35 @@ export const useActiveStoreStore = create<ActiveStoreState>()((set) => ({
   visitStore: async (storeId) => {
     try {
       set({ isLoading: true, error: null });
+      console.log("Visiting store with ID:", storeId);
 
       // Fetch store data from API
       const storeData = await storeService.getStoreById(storeId);
+      console.log("Fetched store data:", JSON.stringify(storeData, null, 2));
 
       if (storeData) {
-        set({ activeStore: storeData, isLoading: false });
+        // Ensure we have a valid store object with required fields
+        const validStore: Store = {
+          _id: storeData._id || storeId,
+          name: storeData.name || "Unknown Store",
+          description: storeData.description || "",
+          logo: storeData.logo || "",
+          coverImage: storeData.coverImage || "",
+          createdAt: storeData.createdAt || new Date().toISOString(),
+          updatedAt: storeData.updatedAt || new Date().toISOString(),
+          ...storeData // Include all other fields from the API response
+        };
+
+        console.log("Setting active store:", validStore.name);
+        set({ activeStore: validStore, isLoading: false });
 
         // Navigate to store-home page
-        router.push(`/store-home/${storeId}`);
+        console.log("Navigating to store home page");
+        router.navigate(`/store-home/${storeId}`);
         return;
       }
 
+      console.error("Store data not found for ID:", storeId);
       set({ error: "Store not found", isLoading: false });
     } catch (error) {
       console.error("Error visiting store:", error);

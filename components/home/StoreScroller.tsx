@@ -35,7 +35,11 @@ const StoreScroller: React.FC<StoreScrollerProps> = ({
   // No need for auth state in this component
 
   const handleStorePress = (storeId: string) => {
-    router.push(`/store/${storeId}`);
+    router.navigate({
+      pathname: "/store/[id]",
+      params: { id: storeId }
+    });
+    console.log("Navigating to store:", storeId);
   };
 
   const renderStore = useCallback(
@@ -108,6 +112,8 @@ const StoreScroller: React.FC<StoreScrollerProps> = ({
     },
     [variant]
   );
+
+  if(stores.length === 0 && !isLoading) return null;
 
   return (
     <InfiniteScroller

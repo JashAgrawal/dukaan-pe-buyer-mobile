@@ -75,7 +75,7 @@ export default function LocationSearchScreen() {
       });
 
       // Navigate to confirmation screen
-      router.push({
+      router.navigate({
         pathname: "/location/confirm",
         params: {
           pincode: addressInfo.pincode,
@@ -100,7 +100,7 @@ export default function LocationSearchScreen() {
       const placeDetails = await getPlaceDetailsMutation.mutateAsync(placeId);
 
       // Navigate to confirmation screen
-      router.push({
+      router.navigate({
         pathname: "/location/confirm",
         params: {
           pincode: placeDetails.pincode,
@@ -124,7 +124,7 @@ export default function LocationSearchScreen() {
   // Handle saved address selection
   const handleAddressSelection = (address: Address) => {
     // Navigate to confirmation screen
-    router.push({
+    router.navigate({
       pathname: "/location/confirm",
       params: {
         pincode: address.pincode,

@@ -8,7 +8,7 @@ import {
   ResendOtpRequest,
 } from "@/types/auth";
 import * as SecureStore from "expo-secure-store";
-import { useAuth } from "@/hooks/useAuth";
+import { useAuthStore } from "@/stores/authStore";
 
 // Constants for secure storage
 const TOKEN_KEY = "auth_token";
@@ -37,7 +37,7 @@ export const verifyOtp = async (
   // Use auth store for login instead of directly storing in SecureStore
   if (response.data.token) {
     // Get the login function from the auth store
-    const login = useAuth.getState().login;
+    const login = useAuthStore.getState().login;
     // Call login with token and user data
     await login(response.data.token, response.data.data.user);
   }

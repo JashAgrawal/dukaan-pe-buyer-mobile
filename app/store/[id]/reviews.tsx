@@ -57,7 +57,7 @@ export default function StoreReviewsScreen() {
           { text: "Cancel", style: "cancel" },
           {
             text: "Sign In",
-            onPress: () => router.push("/auth/phone"),
+            onPress: () => router.navigate("/auth/phone"),
           },
         ]
       );
@@ -199,13 +199,13 @@ export default function StoreReviewsScreen() {
               "Please sign in to leave a review",
               [
                 { text: "Cancel", style: "cancel" },
-                { text: "Sign In", onPress: () => router.push("/auth/phone") },
+                { text: "Sign In", onPress: () => router.navigate("/auth/phone") },
               ]
             );
             return;
           }
           // Navigate to add review page
-          router.push(`/store/${id}/add-review`);
+          router.navigate(`/store/${id}/add-review`);
         }}
       >
         <Typography style={styles.addReviewText}>Add review</Typography>

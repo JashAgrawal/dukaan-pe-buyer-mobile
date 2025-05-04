@@ -19,7 +19,7 @@ import {
   flattenStoreImageCollections,
 } from "@/lib/api/hooks/useStoreImages";
 import { getStoreById } from "@/lib/api/services/searchService";
-import ImageViewer from "@/components/ui/ImageViewer";
+import BottomSheetImageViewer from "@/components/ui/BottomSheetImageViewer";
 
 export default function GalleryScreen() {
   const { id, initialIndex = "0" } = useLocalSearchParams<{
@@ -30,9 +30,8 @@ export default function GalleryScreen() {
   const [storeName, setStoreName] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
-  const [selectedImageIndex, setSelectedImageIndex] = useState<number | null>(
-    null
-  );
+  const [selectedImageIndex, setSelectedImageIndex] = useState<number>(0);
+  const [showImageViewer, setShowImageViewer] = useState<boolean>(false);
   const [allImages, setAllImages] = useState<string[]>([]);
   const [tabImages, setTabImages] = useState<{ [key: string]: string[] }>({});
   const [currentImages, setCurrentImages] = useState<string[]>([]);
@@ -137,11 +136,12 @@ export default function GalleryScreen() {
   // Handle image press to view in full screen
   const handleImagePress = (index: number) => {
     setSelectedImageIndex(index);
+    setShowImageViewer(true);
   };
 
   // Handle close image viewer
   const handleCloseViewer = () => {
-    setSelectedImageIndex(null);
+    setShowImageViewer(false);
   };
 
   // Handle image load states
@@ -159,6 +159,7 @@ export default function GalleryScreen() {
       const index = parseInt(initialIndex);
       if (index >= 0 && index < currentImages.length) {
         setSelectedImageIndex(index);
+        setShowImageViewer(true);
       }
     }
   }, [initialIndex, loading, currentImages]);
@@ -289,16 +290,13 @@ export default function GalleryScreen() {
         showsVerticalScrollIndicator={false}
       />
 
-      {/* Full Screen Image Viewer */}
-      {selectedImageIndex !== null && (
-        <View style={styles.viewerContainer}>
-          <ImageViewer
-            images={currentImages}
-            initialIndex={selectedImageIndex}
-            onClose={handleCloseViewer}
-          />
-        </View>
-      )}
+      {/* Bottom Sheet Image Viewer */}
+      <BottomSheetImageViewer
+        images={currentImages}
+        initialIndex={selectedImageIndex}
+        isVisible={showImageViewer}
+        onClose={handleCloseViewer}
+      />
     </SafeAreaView>
   );
 }
@@ -398,9 +396,5 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     backgroundColor: "rgba(245, 245, 245, 0.7)",
-  },
-  viewerContainer: {
-    ...StyleSheet.absoluteFillObject,
-    zIndex: 1000,
   },
 });

@@ -36,7 +36,7 @@ const StoreReviews: React.FC<StoreReviewsProps> = ({ storeId }) => {
         <Typography style={styles.title}>Customer Reviews</Typography>
         <TouchableOpacity
           style={styles.seeAllButton}
-          onPress={() => router.push(`/store/${storeId}/reviews`)}
+          onPress={() => router.navigate(`/store/${storeId}/reviews`)}
         >
           <Typography style={styles.seeAllText}>See all reviews</Typography>
         </TouchableOpacity>
@@ -49,7 +49,7 @@ const StoreReviews: React.FC<StoreReviewsProps> = ({ storeId }) => {
       {totalReviews > 2 && (
         <TouchableOpacity
           style={styles.moreReviewsButton}
-          onPress={() => router.push(`/store/${storeId}/reviews`)}
+          onPress={() => router.navigate(`/store/${storeId}/reviews`)}
         >
           <Typography style={styles.moreReviewsText}>
             View all {totalReviews} reviews

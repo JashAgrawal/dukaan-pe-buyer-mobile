@@ -24,8 +24,8 @@ export default function ShortAppHeader({
 
   // Default handlers if not provided
   const handleBackPress = onBackPress || (() => router.back());
-  const handleSearchPress = onSearchPress || (() => router.push("/search"));
-  const handleProfilePress = onProfilePress || (() => router.push("/profile"));
+  const handleSearchPress = onSearchPress || (() => router.navigate("/search"));
+  const handleProfilePress = onProfilePress || (() => router.navigate("/profile"));
 
   return (
     <View style={[styles.container, { paddingTop: insets.top }]}>

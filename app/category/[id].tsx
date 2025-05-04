@@ -128,7 +128,7 @@ export default function CategoryDetailScreen() {
 
   // Handle store press
   const handleStorePress = (storeId: string) => {
-    router.push(`/store/${storeId}`);
+    router.navigate(`/store/${storeId}`);
   };
 
   // Handle back button press
@@ -217,7 +217,7 @@ export default function CategoryDetailScreen() {
       <ShortAppHeader
         title={category?.name || "Category"}
         onBackPress={handleBackPress}
-        onSearchPress={() => router.push("/search")}
+        onSearchPress={() => router.navigate("/search")}
       />
 
       {/* Filter Button - Floating */}

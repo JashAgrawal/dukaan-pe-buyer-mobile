@@ -26,10 +26,10 @@ export default function AppHeader({
 
   // Default handlers if not provided
   const handleLocationPress =
-    onLocationPress || (() => router.push("/location/search" as any));
+    onLocationPress || (() => router.navigate("/location/search" as any));
   const handleNotificationPress = onNotificationPress || (() => {});
-  const handleProfilePress = onProfilePress || (() => router.push("/profile"));
-  const handleSearchPress = onSearchPress || (() => router.push("/search"));
+  const handleProfilePress = onProfilePress || (() => router.navigate("/profile"));
+  const handleSearchPress = onSearchPress || (() => router.navigate("/search"));
 
   return (
     <View style={[styles.container, { paddingTop: insets.top }]}>

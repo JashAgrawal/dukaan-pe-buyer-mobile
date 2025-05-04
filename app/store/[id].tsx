@@ -211,7 +211,7 @@ export default function StoreDetailScreen() {
                 ...(store.coverImage ? [store.coverImage] : []),
                 ...(store.allImages || []),
               ]}
-              onSeeAllPress={() => router.push(`/store/${store._id}/gallery`)}
+              onSeeAllPress={() => router.navigate(`/store/${store._id}/gallery`)}
             />
           )}
 
@@ -342,6 +342,7 @@ const styles = StyleSheet.create({
   },
   storeInfo: {
     padding: 12,
+    overflow: "visible", // Allow content to overflow for horizontal scrolling
   },
   // Card styles
   card: {

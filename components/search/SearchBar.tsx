@@ -16,7 +16,7 @@ export default function SearchBar({
     if (onPress) {
       onPress();
     } else {
-      router.push("/search");
+      router.navigate("/search");
     }
   };
 

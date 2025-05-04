@@ -32,8 +32,12 @@ const BrandScroller: React.FC<BrandScrollerProps> = ({
   const brandItemWidth = Math.min(140, screenWidth * 0.3);
 
   const handleBrandPress = (brandId: string) => {
-    // Navigate to brand detail screen
-    router.push(`/store/${brandId}`);
+    // Navigate to brand detail screen using the object-based navigation
+    router.navigate({
+      pathname: "/store/[id]",
+      params: { id: brandId }
+    });
+    console.log("Navigating to brand:", brandId);
   };
 
   // Handle loading more brands when reaching the end
@@ -51,6 +55,9 @@ const BrandScroller: React.FC<BrandScrollerProps> = ({
           { width: brandItemWidth, height: brandItemWidth },
         ]}
         onPress={() => handleBrandPress(item._id)}
+        activeOpacity={0.7}
+        accessibilityRole="button"
+        accessibilityLabel={`View ${item.name} store details`}
       >
         <Image
           source={{ uri: getImageUrl(item.logo || item.coverImage) }}
@@ -96,6 +103,13 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     padding: 16,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 2,
+    borderWidth: 1,
+    borderColor: "#E0E0E0",
   },
   brandLogo: {
     width: "80%",

@@ -52,7 +52,7 @@ export const handleDeepLink = (url: string): boolean => {
         useActiveStoreStore.getState().visitStore(storeId);
       } else {
         // For regular store links, navigate to the store profile page
-        router.push(`/store/${storeId}`);
+        router.navigate(`/store/${storeId}`);
       }
       return true;
     }

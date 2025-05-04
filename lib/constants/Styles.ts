@@ -310,7 +310,7 @@ export const CARD_STYLES = StyleSheet.create({
     overflow: "hidden",
     marginBottom: SPACING.MD,
     maxWidth: 300,
-    ...SHADOWS.MEDIUM,
+    ...SHADOWS.LIGHT,
   },
   
   // Small store card
@@ -321,7 +321,7 @@ export const CARD_STYLES = StyleSheet.create({
     overflow: "hidden",
     maxWidth: 140,
     marginBottom: SPACING.MD,
-    ...SHADOWS.MEDIUM,
+    ...SHADOWS.LIGHT,
   },
   
   // Info card

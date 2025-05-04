@@ -72,19 +72,7 @@ const SmallStoreCard: React.FC<SmallStoreCardProps> = ({
         <View style={styles.imageContainer}>
           <Image source={{ uri: imageUrl }} style={styles.image} />
 
-          {/* Favorite Button */}
-          {/* <TouchableOpacity
-          style={styles.favoriteButton}
-          onPress={handleToggleFavorite}
-        >
-          <View style={styles.favoriteButtonInner}>
-            <MaterialIcons
-              name={isFavorite ? "favorite" : "favorite-border"}
-              size={18}
-              color={isFavorite ? "#FF3B30" : "#FFFFFF"}
-            />
-          </View>
-        </TouchableOpacity> */}
+          
 
           {/* Loyalty Badge */}
           {loyaltyBenefit && (
@@ -95,8 +83,10 @@ const SmallStoreCard: React.FC<SmallStoreCardProps> = ({
                 end={{ x: 1, y: 0 }}
                 style={styles.loyaltyBadge}
               >
-                <MaterialIcons name="bolt" size={12} color="white" />
-                <Text style={styles.loyaltyText}>{loyaltyBenefit}</Text>
+                <View style={{ flexDirection: "row", alignItems: "center" }}>
+                  <MaterialIcons name="bolt" size={12} color="white" />
+                  <Text style={styles.loyaltyText}>{loyaltyBenefit}</Text>
+                </View>
               </LinearGradient>
             </View>
           )}
@@ -108,7 +98,7 @@ const SmallStoreCard: React.FC<SmallStoreCardProps> = ({
             <Text style={styles.name} numberOfLines={1}>
               {name}
             </Text>
-            {rating && (
+            {rating !== undefined && (
               <View style={styles.ratingContainer}>
                 <Text style={styles.ratingText}>{rating}</Text>
                 <MaterialIcons name="star" size={10} color="white" />
@@ -178,8 +168,6 @@ const styles = StyleSheet.create({
     left: 8,
   },
   loyaltyBadge: {
-    flexDirection: "row",
-    alignItems: "center",
     paddingHorizontal: 6,
     paddingVertical: 3,
     borderRadius: 4,

@@ -76,7 +76,7 @@ const StoreHero: React.FC<StoreHeroProps> = ({
 
   // Handle scan button press
   const handleScanPress = () => {
-    router.push("/scanner");
+    router.navigate("/scanner");
   };
 
   return (

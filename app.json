@@ -4,7 +4,7 @@
     "slug": "dukaan-pe-buyer",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/images/icon.png",
+    "icon": "./assets/images/logo-only-image.png",
     "scheme": "dune",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
@@ -27,14 +27,17 @@
       [
         "expo-splash-screen",
         {
-          "image": "./assets/images/splash-icon.png",
+          "image": "./assets/images/logo.png",
           "imageWidth": 200,
           "resizeMode": "contain",
-          "backgroundColor": "#ffffff"
+          "backgroundColor": "#ffffff00"
         }
       ],
-      "expo-barcode-scanner",
-      "expo-image-picker"
+      "expo-camera",
+      "expo-image-picker",
+      "expo-font",
+      "expo-secure-store",
+      "expo-web-browser"
     ],
     "experiments": {
       "typedRoutes": true

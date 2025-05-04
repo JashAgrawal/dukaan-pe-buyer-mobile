@@ -28,7 +28,11 @@ export default function StoreHomePage() {
   // Fetch store data if not already in active store
   useEffect(() => {
     const fetchStoreData = async () => {
+      console.log("Store home page - ID from params:", id);
+      console.log("Current active store:", JSON.stringify(activeStore, null, 2));
+
       if (!id) {
+        console.error("Store ID is missing in params");
         setError("Store ID is missing");
         setLoading(false);
         return;
@@ -36,6 +40,7 @@ export default function StoreHomePage() {
 
       // Skip if we've already loaded this store ID
       if (loadedStoreIdRef.current === id) {
+        console.log("Already loaded this store ID, skipping fetch");
         setLoading(false);
         return;
       }
@@ -43,14 +48,31 @@ export default function StoreHomePage() {
       try {
         // If active store is already set and matches the ID, use it
         if (activeStore && activeStore._id === id) {
+          console.log("Using existing active store:", activeStore.name);
           setLoading(false);
           loadedStoreIdRef.current = id as string;
           return;
         }
 
         // Otherwise fetch the store data
+        console.log("Fetching store data for ID:", id);
         const storeData = await storeService.getStoreById(id as string);
-        setActiveStore(storeData);
+        console.log("Fetched store data:", JSON.stringify(storeData, null, 2));
+
+        // Ensure we have a valid store object with required fields
+        const validStore = {
+          _id: storeData._id || id as string,
+          name: storeData.name || "Unknown Store",
+          description: storeData.description || "",
+          logo: storeData.logo || "",
+          coverImage: storeData.coverImage || "",
+          createdAt: storeData.createdAt || new Date().toISOString(),
+          updatedAt: storeData.updatedAt || new Date().toISOString(),
+          ...storeData // Include all other fields from the API response
+        };
+
+        console.log("Setting active store with valid data:", validStore.name);
+        setActiveStore(validStore);
         loadedStoreIdRef.current = id as string;
         setLoading(false);
       } catch (error) {
@@ -98,11 +120,34 @@ export default function StoreHomePage() {
     );
   }
 
+  // Ensure we have all the store data we need
+  const storeName = activeStore?.name || "Store";
+  const storeId = activeStore?._id || id as string;
+  const storeType = activeStore?.type ||
+    (activeStore?.categories && activeStore.categories.length > 0 ? activeStore.categories[0] : "Store");
+
+  // Get additional store details with fallbacks
+  const storeDescription = activeStore?.description || "No description available";
+  const storeAddress = activeStore?.full_address ||
+    (activeStore?.address ? `${activeStore.address.street}, ${activeStore.address.city}` : "Address not available");
+  const storePhone = activeStore?.contactPhone || activeStore?.business_phone_number || "Phone not available";
+  const storeEmail = activeStore?.contactEmail || activeStore?.business_email || "Email not available";
+
+  console.log("Rendering store home with data:", {
+    id: storeId,
+    name: storeName,
+    type: storeType,
+    description: storeDescription,
+    address: storeAddress,
+    phone: storePhone,
+    email: storeEmail
+  });
+
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar style="dark" />
 
-      {/* Temporary header */}
+      {/* Store header */}
       <View style={styles.header}>
         <TouchableOpacity
           style={styles.backButtonSmall}
@@ -110,17 +155,30 @@ export default function StoreHomePage() {
         >
           <MaterialIcons name="arrow-back" size={24} color="#000" />
         </TouchableOpacity>
-        <Typography style={styles.headerTitle}>{activeStore.name}</Typography>
+        <Typography style={styles.headerTitle}>{storeName}</Typography>
         <View style={styles.headerRight} />
       </View>
 
       <View style={styles.content}>
         <H1 style={styles.title}>Store Home</H1>
-        <Body1 style={styles.storeInfo}>Store ID: {activeStore._id}</Body1>
-        <Body1 style={styles.storeInfo}>Store Name: {activeStore.name}</Body1>
-        <Body1 style={styles.storeInfo}>
-          Store Type: {activeStore.type || "Not specified"}
-        </Body1>
+
+        {/* Store Information */}
+        <View style={styles.infoCard}>
+          <Typography style={styles.infoCardTitle}>Store Information</Typography>
+          <Body1 style={styles.storeInfo}>Store ID: {storeId}</Body1>
+          <Body1 style={styles.storeInfo}>Store Name: {storeName}</Body1>
+          <Body1 style={styles.storeInfo}>Store Type: {storeType}</Body1>
+          <Body1 style={styles.storeInfo}>Address: {storeAddress}</Body1>
+          <Body1 style={styles.storeInfo}>Phone: {storePhone}</Body1>
+          <Body1 style={styles.storeInfo}>Email: {storeEmail}</Body1>
+
+          {storeDescription !== "No description available" && (
+            <View style={styles.descriptionContainer}>
+              <Typography style={styles.descriptionTitle}>Description</Typography>
+              <Body1 style={styles.description}>{storeDescription}</Body1>
+            </View>
+          )}
+        </View>
 
         <View style={styles.messageContainer}>
           <MaterialIcons name="info-outline" size={24} color="#8A3FFC" />
@@ -128,6 +186,20 @@ export default function StoreHomePage() {
             This is a placeholder for the store home page. The actual UI will be
             customized based on the store type.
           </Typography>
+        </View>
+
+        {/* Debug Information */}
+        <View style={styles.debugCard}>
+          <Typography style={styles.debugTitle}>Debug Information</Typography>
+          <Body1 style={styles.debugText}>
+            Active Store Set: {activeStore ? "Yes" : "No"}
+          </Body1>
+          <Body1 style={styles.debugText}>
+            Store ID from Params: {id as string}
+          </Body1>
+          <Body1 style={styles.debugText}>
+            Store ID from Context: {activeStore?._id || "Not set"}
+          </Body1>
         </View>
       </View>
     </SafeAreaView>
@@ -164,10 +236,42 @@ const styles = StyleSheet.create({
     fontSize: 24,
     marginBottom: 20,
   },
+  infoCard: {
+    backgroundColor: "#F9F9F9",
+    borderRadius: 8,
+    padding: 16,
+    marginBottom: 20,
+    borderWidth: 1,
+    borderColor: "#EEEEEE",
+  },
+  infoCardTitle: {
+    fontFamily: "Jost-SemiBold",
+    fontSize: 18,
+    marginBottom: 12,
+    color: "#333",
+  },
   storeInfo: {
     fontFamily: "Jost-Regular",
     fontSize: 16,
     marginBottom: 10,
+  },
+  descriptionContainer: {
+    marginTop: 16,
+    borderTopWidth: 1,
+    borderTopColor: "#EEEEEE",
+    paddingTop: 16,
+  },
+  descriptionTitle: {
+    fontFamily: "Jost-SemiBold",
+    fontSize: 16,
+    marginBottom: 8,
+    color: "#333",
+  },
+  description: {
+    fontFamily: "Jost-Regular",
+    fontSize: 14,
+    lineHeight: 20,
+    color: "#555",
   },
   messageContainer: {
     flexDirection: "row",
@@ -176,6 +280,7 @@ const styles = StyleSheet.create({
     padding: 16,
     borderRadius: 8,
     marginTop: 20,
+    marginBottom: 20,
   },
   message: {
     fontFamily: "Jost-Regular",
@@ -183,6 +288,26 @@ const styles = StyleSheet.create({
     color: "#333333",
     marginLeft: 10,
     flex: 1,
+  },
+  debugCard: {
+    backgroundColor: "#FFF8E1",
+    borderRadius: 8,
+    padding: 16,
+    marginBottom: 20,
+    borderWidth: 1,
+    borderColor: "#FFE082",
+  },
+  debugTitle: {
+    fontFamily: "Jost-SemiBold",
+    fontSize: 16,
+    marginBottom: 12,
+    color: "#F57C00",
+  },
+  debugText: {
+    fontFamily: "Jost-Regular",
+    fontSize: 14,
+    marginBottom: 8,
+    color: "#333",
   },
   loadingContainer: {
     flex: 1,

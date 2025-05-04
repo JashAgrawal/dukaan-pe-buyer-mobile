@@ -4,7 +4,6 @@ import {
   Text,
   Image,
   StyleSheet,
-  TouchableOpacity,
   Pressable,
 } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
@@ -19,7 +18,7 @@ import {
   BADGE_STYLES,
 } from "@/lib/constants/Styles";
 import { LinearGradient } from "expo-linear-gradient";
-import { Link, useRouter } from "expo-router";
+import { useRouter } from "expo-router";
 import { getStoreDistanceAndTime } from "@/lib/helpers";
 
 interface StoreCardProps {
@@ -29,8 +28,8 @@ interface StoreCardProps {
   type: string;
   location: string;
   distance?: string;
-  coordinates?: [number, number]; // [longitude, latitude]
-  userCoordinates?: [number, number]; // [longitude, latitude]
+  coordinates?: [number, number];
+  userCoordinates?: [number, number];
   rating?: number;
   loyaltyBenefit?: string;
   rewardText?: string;
@@ -51,8 +50,7 @@ const StoreCard: React.FC<StoreCardProps> = ({
 }) => {
   const router = useRouter();
 
-  // Calculate distance and travel time if coordinates are provided
-  let distanceText = distance;
+  let distanceText: string = distance ?? "";
   let travelTimeText = "";
 
   if (coordinates && userCoordinates) {
@@ -65,26 +63,16 @@ const StoreCard: React.FC<StoreCardProps> = ({
     travelTimeText = formattedTravelTime;
   }
 
+  const handleClick = () => {
+    router.push(`/store/${id}`);
+  };
+
   return (
-    <Pressable onPress={() => router.push(`/store/${id}`)}>
+    <Pressable onPress={handleClick}>
       <View style={styles.container}>
         {/* Store Image */}
         <View style={styles.imageContainer}>
           <Image source={{ uri: imageUrl }} style={styles.image} />
-
-          {/* Favorite Button */}
-          {/* <View style={styles.favoriteButton}>
-          <TouchableOpacity
-            style={styles.favoriteButtonInner}
-            onPress={handleToggleFavorite}
-          >
-            <MaterialIcons
-              name={isFavorite ? "favorite" : "favorite-border"}
-              size={24}
-              color={isFavorite ? "#FF3B30" : "#FFFFFF"}
-            />
-          </TouchableOpacity>
-        </View> */}
 
           {/* Loyalty Badge */}
           {loyaltyBenefit && (
@@ -95,9 +83,7 @@ const StoreCard: React.FC<StoreCardProps> = ({
                 end={{ x: 1, y: 0 }}
                 style={styles.loyaltyBadge}
               >
-                <Text style={styles.loyaltyText}>
-                  <Text>🎁</Text> Loyalty Benefits
-                </Text>
+                <Text style={styles.loyaltyText}>🎁 Loyalty Benefits</Text>
               </LinearGradient>
             </View>
           )}
@@ -109,7 +95,7 @@ const StoreCard: React.FC<StoreCardProps> = ({
             <Text style={styles.name} numberOfLines={1}>
               {name}
             </Text>
-            {rating && (
+            {typeof rating === "number" && (
               <View style={styles.ratingContainer}>
                 <Text style={styles.ratingText}>{rating}</Text>
                 <MaterialIcons name="star" size={12} color="white" />
@@ -124,24 +110,22 @@ const StoreCard: React.FC<StoreCardProps> = ({
               {location}
             </Text>
             <Text style={styles.dot}>•</Text>
-            <Text style={styles.distance}>{distanceText}</Text>
+            <Text style={styles.distance}>
+              {distanceText || "Near you"}
+            </Text>
           </View>
 
-          {/* Travel Time (only shown if calculated) */}
-          {travelTimeText && (
+          {travelTimeText ? (
             <View style={styles.travelTimeContainer}>
               <MaterialIcons name="directions-car" size={14} color="#666" />
               <Text style={styles.travelTimeText}>{travelTimeText}</Text>
             </View>
-          )}
+          ) : null}
 
-          {/* Reward Text */}
           {rewardText && (
             <View style={styles.rewardContainer}>
               <View style={styles.rewardIconContainer}>
-                <Text style={{ color: "white", fontSize: 10 }}>
-                  <Text>💰</Text>
-                </Text>
+                <Text style={{ color: "white", fontSize: 10 }}>💰</Text>
               </View>
               <Text style={styles.rewardText}>{rewardText}</Text>
             </View>
@@ -161,12 +145,6 @@ const styles = StyleSheet.create({
   },
   image: {
     ...CARD_STYLES.image,
-  },
-  favoriteButton: {
-    ...BUTTON_STYLES.favoriteButton,
-  },
-  favoriteButtonInner: {
-    ...BUTTON_STYLES.favoriteButtonInner,
   },
   loyaltyBadgeContainer: {
     position: "absolute",

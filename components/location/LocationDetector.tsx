@@ -88,7 +88,7 @@ export default function LocationDetector() {
           setShowBottomSheet(false);
           // If location is still not set, navigate to search screen
           if (!isLocationSet) {
-            router.push("/location/search" as any);
+            router.navigate("/location/search" as any);
           }
         }}
       />

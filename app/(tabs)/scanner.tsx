@@ -40,7 +40,7 @@ export default function ScannerScreen() {
         const storeId = data.split("store/")[1];
         if (storeId) {
           // Navigate to the store profile page
-          router.push(`/store/${storeId}`);
+          router.navigate(`/store/${storeId}`);
           return;
         }
       }

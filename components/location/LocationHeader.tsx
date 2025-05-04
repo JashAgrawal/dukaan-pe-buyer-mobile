@@ -8,7 +8,7 @@ export default function LocationHeader() {
   const { isLocationSet, city, pincode, fullAddress } = useLocation();
   
   const handlePress = () => {
-    router.push('/location/search');
+    router.navigate('/location/search');
   };
   
   return (

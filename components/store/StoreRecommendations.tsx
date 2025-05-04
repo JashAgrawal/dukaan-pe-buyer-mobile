@@ -65,7 +65,7 @@ const StoreRecommendations: React.FC<StoreRecommendationsProps> = ({
 const styles = StyleSheet.create({
   container: {
     width: "100%",
-    borderWidth: 1,
+    // borderWidth: 1,
     borderColor: "#F0F0F0",
     padding: 8,
     marginBottom: 12,

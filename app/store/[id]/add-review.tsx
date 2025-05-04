@@ -76,7 +76,7 @@ export default function AddReviewScreen() {
         "Please sign in to leave a review",
         [
           { text: "Cancel", style: "cancel", onPress: () => router.back() },
-          { text: "Sign In", onPress: () => router.push("/auth/phone") },
+          { text: "Sign In", onPress: () => router.navigate("/auth/phone") },
         ]
       );
     }
@@ -103,7 +103,7 @@ export default function AddReviewScreen() {
         "Please sign in to leave a review",
         [
           { text: "Cancel", style: "cancel" },
-          { text: "Sign In", onPress: () => router.push("/auth/phone") },
+          { text: "Sign In", onPress: () => router.navigate("/auth/phone") },
         ]
       );
       return;

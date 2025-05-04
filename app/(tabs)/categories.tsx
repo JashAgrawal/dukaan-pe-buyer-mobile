@@ -26,7 +26,7 @@ export default function CategoriesScreen() {
 
   // Handle category press
   const handleCategoryPress = (category: Category) => {
-    router.push({
+    router.navigate({
       pathname: "/category/[id]",
       params: { id: category._id },
     });

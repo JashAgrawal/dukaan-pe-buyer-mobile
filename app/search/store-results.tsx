@@ -75,7 +75,7 @@ export default function StoreResultsScreen() {
 
   // Handle store press
   const handleStorePress = (storeId: string) => {
-    router.push(`/store/${storeId}`);
+    router.navigate(`/store/${storeId}`);
   };
 
   // No tab change handler needed anymore

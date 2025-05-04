@@ -17,7 +17,7 @@ export const useWishlistToggle = () => {
     (storeId: string, isCurrentlyWishlisted: boolean) => {
       if (!isAuthenticated) {
         // Redirect to login if not authenticated
-        router.push("/auth/phone");
+        router.navigate("/auth/phone");
         return;
       }
 

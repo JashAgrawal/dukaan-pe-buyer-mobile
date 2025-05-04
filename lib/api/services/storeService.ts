@@ -37,6 +37,19 @@ export const storeService = {
    */
   getStoreById: async (id: string) => {
     const response = await apiClient.get(`/stores/${id}`);
+    console.log("API Response for getStoreById:", response.data);
+
+    // Check if the response has a data property containing the store
+    if (response.data && response.data.data && response.data.data.store) {
+      return response.data.data.store;
+    }
+
+    // If the response structure is different, try to find the store data
+    if (response.data && response.data.store) {
+      return response.data.store;
+    }
+
+    // If we can't find the store in the expected structure, return the raw data
     return response.data;
   },
 

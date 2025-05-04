@@ -31,7 +31,7 @@ export default function FavRoutesScreen() {
   );
 
   const handleStorePress = (storeId: string) => {
-    router.push(`/store/${storeId}`);
+    router.navigate(`/store/${storeId}`);
   };
 
   const handleRemoveFavRoute = (id: string) => {

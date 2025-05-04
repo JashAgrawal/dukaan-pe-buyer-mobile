@@ -35,7 +35,7 @@ export default function TabLayout() {
       !isLocationLoading &&
       !isLocationSet
     ) {
-      router.push("/location/search" as any);
+      router.navigate("/location/search" as any);
     }
   }, [isAuthLoading, isAuthenticated, isLocationLoading, isLocationSet]);
 
@@ -169,7 +169,7 @@ export default function TabLayout() {
           title: "",
           tabBarIcon: ({ color }) => (
             <TouchableOpacity
-              onPress={() => router.push("/scanner")}
+              onPress={() => router.navigate("/scanner")}
               style={{
                 padding: 16,
                 paddingHorizontal: 12,

@@ -219,7 +219,7 @@ const styles = StyleSheet.create({
     right: 0,
     bottom: 0,
     justifyContent: "center",
-    pointerEvents: "box-none",
+    // pointerEvents: "box-none",
   },
   navButton: {
     position: "absolute",

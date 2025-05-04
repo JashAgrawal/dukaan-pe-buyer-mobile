@@ -46,7 +46,7 @@ export default function SearchScreen() {
       setSearchQuery(inputValue);
 
       // Always navigate to store results
-      router.push({
+      router.navigate({
         pathname: "/search/store-results",
         params: { query: inputValue },
       });
@@ -58,7 +58,7 @@ export default function SearchScreen() {
     useSearchStore.getState().addToRecentSearches(item);
 
     // Navigate to store/product detail
-    router.push(`/store/${item.id}`);
+    router.navigate(`/store/${item.id}`);
   };
 
   // No tab change handler needed anymore

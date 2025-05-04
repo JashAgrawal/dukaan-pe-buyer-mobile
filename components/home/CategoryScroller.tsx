@@ -65,7 +65,7 @@ export default function CategoryScroller({
       onCategoryPress(category);
     } else {
       // Navigate to category page
-      router.push({
+      router.navigate({
         pathname: "/category/[id]",
         params: { id: category._id },
       });
