@@ -1,15 +1,20 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   View,
   StyleSheet,
   Image,
   TouchableOpacity,
   Dimensions,
+  ActivityIndicator,
 } from "react-native";
 import { router } from "expo-router";
 import { Typography } from "@/components/ui/Typography";
 import { getImageUrl } from "@/lib/helpers";
 import { Ionicons } from "@expo/vector-icons";
+import { useAddToCart, useUpdateCartItem, useRemoveCartItem } from "@/lib/api/hooks/useCart";
+import { useAuth } from "@/hooks/useAuth";
+import useIsProductInCart from "@/hooks/useIsProductInCart";
+import { useActiveStoreStore } from "@/stores/activeStoreStore";
 
 interface SlimProductCardProps {
   id: string;
@@ -42,6 +47,14 @@ export default function SlimProductCard({
   reviewCount,
   onPress,
 }: SlimProductCardProps) {
+  const [isAddingToCart, setIsAddingToCart] = useState(false);
+  const addToCart = useAddToCart();
+  const updateCartItem = useUpdateCartItem();
+  const removeCartItem = useRemoveCartItem();
+  const { isAuthenticated } = useAuth();
+  const {activeStore} = useActiveStoreStore()
+  const { isInCart, quantity, cartItemId } = useIsProductInCart(id);
+
   const handlePress = () => {
     if (onPress) {
       onPress();
@@ -51,14 +64,109 @@ export default function SlimProductCard({
     }
   };
 
+  const handleAddToCart = (e: React.TouchEvent<HTMLElement> | React.MouseEvent<HTMLElement, MouseEvent>) => {
+    e.stopPropagation();
+
+    if (!isAuthenticated) {
+      router.push("/auth/phone");
+      return;
+    }
+
+    setIsAddingToCart(true);
+
+    // If product is already in cart, increment quantity
+    if (isInCart && cartItemId) {
+      // Use the cart item ID
+      updateCartItem.mutate(
+        {
+          itemId: id,
+          quantity: quantity + 1,
+        },
+        {
+          onSuccess: () => {
+            setIsAddingToCart(false);
+          },
+          onError: (error) => {
+            console.error("Error updating cart item:", error);
+            setIsAddingToCart(false);
+          },
+        }
+      );
+    } else {
+      // Add new item to cart
+      addToCart.mutate(
+        {
+          product: id,
+          store: activeStore?._id || "",
+          quantity: 1,
+        },
+        {
+          onSuccess: () => {
+            setIsAddingToCart(false);
+          },
+          onError: (error) => {
+            console.error("Error adding to cart:", error);
+            setIsAddingToCart(false);
+          },
+        }
+      );
+    }
+  };
+
+  const handleUpdateQuantity = (newQuantity: number) => {
+    if (!isAuthenticated) {
+      router.push("/auth/phone");
+      return;
+    }
+
+    setIsAddingToCart(true);
+
+    if (newQuantity === 0 && cartItemId) {
+      // Remove item from cart
+      removeCartItem.mutate(
+        {
+          itemId: id,
+        },
+        {
+          onSuccess: () => {
+            setIsAddingToCart(false);
+          },
+          onError: (error) => {
+            console.error("Error removing cart item:", error);
+            setIsAddingToCart(false);
+          },
+        }
+      );
+    } else {
+      // Update quantity
+      if (cartItemId) {
+        updateCartItem.mutate(
+          {
+            itemId: id,
+            quantity: newQuantity,
+          },
+        {
+          onSuccess: () => {
+            setIsAddingToCart(false);
+          },
+          onError: (error) => {
+            console.error("Error updating cart item:", error);
+            setIsAddingToCart(false);
+          },
+        }
+      );
+      }
+    }
+  };
+
   // Calculate discount percentage if originalPrice is provided
   const discountPercentage =
-    originalPrice && originalPrice > price
+    originalPrice && typeof originalPrice === 'number' && typeof price === 'number' && originalPrice > price
       ? Math.round(((originalPrice - price) / originalPrice) * 100)
       : 0;
 
   // Format review count for display (e.g., 5800 -> 5.8k)
-  const formattedReviewCount = reviewCount
+  const formattedReviewCount = reviewCount && typeof reviewCount === 'number'
     ? reviewCount >= 1000
       ? `${(reviewCount / 1000).toFixed(1)}k`
       : reviewCount.toString()
@@ -106,14 +214,14 @@ export default function SlimProductCard({
         </Typography>
 
         {/* Unit */}
-        <Typography style={styles.unit}>1 {unit}</Typography>
+        <Typography style={styles.unit}>1 {typeof unit === 'string' ? unit : 'pc'}</Typography>
 
         {/* Rating - only show if rating is provided */}
         {rating !== undefined && (
           <View style={styles.ratingContainer}>
             <View style={styles.starContainer}>
               <Ionicons name="star" size={8} color="#FFFFFF" />
-              <Typography style={styles.rating}>{rating.toFixed(1)}</Typography>
+              <Typography style={styles.rating}>{typeof rating === 'number' ? rating.toFixed(1) : '0.0'}</Typography>
             </View>
             {reviewCount !== undefined && reviewCount > 0 && (
               <Typography style={styles.reviewCount}>
@@ -125,8 +233,8 @@ export default function SlimProductCard({
 
         {/* Price */}
         <View style={styles.priceContainer}>
-          <Typography style={styles.price}>₹{price}</Typography>
-          {originalPrice && originalPrice > price && (
+          <Typography style={styles.price}>₹{typeof price === 'number' ? price : 0}</Typography>
+          {originalPrice && typeof originalPrice === 'number' && originalPrice > price && (
             <Typography style={styles.originalPrice}>
               ₹{originalPrice}
             </Typography>
@@ -134,10 +242,48 @@ export default function SlimProductCard({
         </View>
       </View>
 
-      {/* Add to cart button */}
-      <TouchableOpacity style={styles.addButton} onPress={handlePress}>
-        <Typography style={styles.addButtonText}>Add to Cart</Typography>
-      </TouchableOpacity>
+      {/* Add to cart button or quantity controls */}
+      {isInCart ? (
+        <View style={styles.quantityContainer}>
+          <TouchableOpacity
+            style={styles.quantityButton}
+            onPress={(e: any) => {
+              e.stopPropagation();
+              handleUpdateQuantity(quantity - 1);
+            }}
+            disabled={isAddingToCart}
+          >
+            <Typography style={styles.quantityButtonText}>-</Typography>
+          </TouchableOpacity>
+
+          <View style={styles.quantityValue}>
+            <Typography style={styles.quantityValueText}>{quantity}</Typography>
+          </View>
+
+          <TouchableOpacity
+            style={styles.quantityButton}
+            onPress={(e: any) => {
+              e.stopPropagation();
+              handleUpdateQuantity(quantity + 1);
+            }}
+            disabled={isAddingToCart}
+          >
+            <Typography style={styles.quantityButtonText}>+</Typography>
+          </TouchableOpacity>
+        </View>
+      ) : (
+        <TouchableOpacity
+          style={styles.addButton}
+          onPress={(e: any) => handleAddToCart(e)}
+          disabled={isAddingToCart}
+        >
+          {isAddingToCart ? (
+            <ActivityIndicator size="small" color="#E91E63" />
+          ) : (
+            <Typography style={styles.addButtonText}>Add to Cart</Typography>
+          )}
+        </TouchableOpacity>
+      )}
     </TouchableOpacity>
   );
 }
@@ -149,13 +295,44 @@ const styles = StyleSheet.create({
     backgroundColor: "#FFFFFF",
     borderRadius: 8,
     marginBottom: 4,
-    // marginRight: 4,
+    marginRight: 8,
     overflow: "hidden",
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.1,
     shadowRadius: 2,
     elevation: 1,
+  },
+  quantityContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    margin: 6,
+    marginTop: 2,
+  },
+  quantityButton: {
+    width: 24,
+    height: 24,
+    borderRadius: 12,
+    backgroundColor: "#E91E6310",
+    borderColor: "#E91E63",
+    borderWidth: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  quantityButtonText: {
+    color: "#E91E63",
+    fontSize: 16,
+    fontWeight: "bold",
+    lineHeight: 16,
+  },
+  quantityValue: {
+    paddingHorizontal: 8,
+  },
+  quantityValueText: {
+    fontSize: 14,
+    fontWeight: "500",
+    color: "#000",
   },
   imageContainer: {
     position: "relative",

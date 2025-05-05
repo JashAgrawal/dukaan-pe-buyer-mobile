@@ -35,7 +35,8 @@ export interface Cart {
 
 // Add item to cart request
 export interface AddToCartRequest {
-  productId: string;
+  store: string;
+  product: string;
   quantity: number;
   variant?: string;
   size?: string;
@@ -57,5 +58,17 @@ export interface ApplyCouponRequest {
   couponCode: string;
 }
 
+// Cart summary
+export interface CartSummary {
+  subtotal: number;
+  productDiscount: number;
+  couponDiscount: number;
+  offerDiscount: number;
+  total: number;
+}
+
 // Cart response
-export interface CartResponse extends ApiResponse<{ cart: Cart }> {}
+export interface CartResponse extends ApiResponse<{
+  cart: Cart;
+  summary: CartSummary;
+}> {}

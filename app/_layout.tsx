@@ -25,6 +25,7 @@ import "@/stores/activeStoreStore";
 // Import components
 import LocationDetector from "@/components/location/LocationDetector";
 import FontProvider from "@/components/providers/FontProvider";
+import CartProvider from "@/components/providers/CartProvider";
 import { TabBarProvider } from "@/components/ui/TabBarContext";
 
 // Import hooks
@@ -75,22 +76,25 @@ export default function RootLayout() {
       <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
         <TabBarProvider>
           <FontProvider>
-            <Stack
-              screenOptions={{
-                headerShown: false,
-                contentStyle: { backgroundColor: "white" },
-              }}
-            >
-              <Stack.Screen name="(tabs)" />
-              <Stack.Screen name="auth" />
-              <Stack.Screen name="location" />
-              <Stack.Screen name="search" />
-              <Stack.Screen name="store" />
-              <Stack.Screen name="store-home" />
-              <Stack.Screen name="+not-found" />
-            </Stack>
-            <LocationDetector />
-            <StatusBar style="auto" />
+            <CartProvider>
+              <Stack
+                screenOptions={{
+                  headerShown: false,
+                  contentStyle: { backgroundColor: "white" },
+                }}
+              >
+                <Stack.Screen name="(tabs)" />
+                <Stack.Screen name="auth" />
+                <Stack.Screen name="location" />
+                <Stack.Screen name="search" />
+                <Stack.Screen name="store" />
+                <Stack.Screen name="store-home" />
+                <Stack.Screen name="cart" />
+                <Stack.Screen name="+not-found" />
+              </Stack>
+              <LocationDetector />
+              <StatusBar style="auto" />
+            </CartProvider>
           </FontProvider>
         </TabBarProvider>
       </ThemeProvider>

@@ -11,7 +11,7 @@ export const useProductsByStore = (storeId: string, limit = 10, categoryId?: str
       // If categoryId is provided, use it to filter products
       if (categoryId) {
         return productService.searchProductsWithFilters({
-          storeId,
+          store_id: storeId,
           categoryIds: [categoryId],
           page: pageParam,
           limit,

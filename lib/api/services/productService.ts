@@ -12,7 +12,7 @@ export interface ProductFilterOptions {
   sortBy?: "popularity" | "price_low" | "price_high" | "newest" | "rating";
   page?: number;
   limit?: number;
-  storeId?: string; // Added for filtering by store
+  store_id?: string; // Added for filtering by store
 }
 
 /**
