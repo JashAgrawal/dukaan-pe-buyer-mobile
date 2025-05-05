@@ -88,6 +88,52 @@ export const searchProductsOverall = async (
 };
 
 /**
+ * Search for products in a specific store
+ * @param storeId Store ID
+ * @param query Search query
+ * @param page Page number (default: 1)
+ * @param limit Number of results per page (default: 10)
+ * @returns Promise with search results
+ */
+export const searchProductsInStore = async (
+  storeId: string,
+  query: string,
+  page: number = 1,
+  limit: number = 10
+): Promise<SearchItem[]> => {
+  try {
+    if (!query.trim() || !storeId) {
+      return [];
+    }
+
+    const response = await apiClient.get(`/products/search`, {
+      params: {
+        q: query,
+        page,
+        limit,
+        store_id: storeId,
+      },
+    });
+
+    // Map API response to SearchItem format
+    return response.data.data.products.map((product: any) => ({
+      id: product._id,
+      name: product.name,
+      category: product.category?.name || "",
+      imageUrl: product.mainImage || "",
+      price: product.sellingPrice,
+      rating: product.averageRating,
+      reviewCount: product.reviewCount,
+      storeId: storeId,
+      storeName: product.store?.name,
+    }));
+  } catch (error) {
+    console.error(`Error searching products in store ${storeId}:`, error);
+    return [];
+  }
+};
+
+/**
  * Search for both stores and products
  * @param query Search query
  * @returns Promise with combined search results

@@ -1,29 +1,47 @@
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState, useRef, useCallback } from "react";
 import {
   View,
   StyleSheet,
   ActivityIndicator,
   SafeAreaView,
   TouchableOpacity,
+  ScrollView,
 } from "react-native";
 import { StatusBar } from "expo-status-bar";
 import { router, useLocalSearchParams } from "expo-router";
 import { MaterialIcons } from "@expo/vector-icons";
 import { Typography, H1, Body1 } from "@/components/ui/Typography";
 import { useActiveStoreStore } from "@/stores/activeStoreStore";
+import { useSearchStore } from "@/stores/useSearchStore";
 import storeService from "@/lib/api/services/storeService";
+import productService from "@/lib/api/services/productService";
 import { Store } from "@/types/store";
+import StoreHomeHeader from "@/components/store-home/StoreHomeHeader";
+import SearchBar from "@/components/ui/SearchBar";
+import SlimProductGrid from "@/components/product/SlimProductGrid";
+import ProductCategoryScroller from "@/components/store-home/ProductCategoryScroller";
+import { useProductsByStore, flattenProducts } from "@/lib/api/hooks/useProducts";
 
 export default function StoreHomePage() {
   const { id } = useLocalSearchParams();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [tableNumber, setTableNumber] = useState<number | null>(3); // Hardcoded for now, would come from QR code or params
+  const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(null);
 
   // Get active store from store
   const { activeStore, setActiveStore } = useActiveStoreStore();
 
+  // Get search store for product search
+  const { searchProductsInActiveStore, productResults, isSearching } = useSearchStore();
+
   // Use a ref to track if we've already loaded this store
   const loadedStoreIdRef = useRef<string | null>(null);
+
+  // Fetch products for this store
+  const productsQuery = useProductsByStore(id as string, 20, selectedCategoryId);
+  const products = searchQuery.length > 2 ? productResults : flattenProducts(productsQuery.data);
 
   // Fetch store data if not already in active store
   useEffect(() => {
@@ -90,6 +108,39 @@ export default function StoreHomePage() {
     router.back();
   };
 
+  // Handle search query change
+  const handleSearchChange = (text: string) => {
+    setSearchQuery(text);
+
+    // If search query is more than 2 characters, search products in active store
+    if (text.length > 2 && activeStore) {
+      searchProductsInActiveStore(activeStore._id, text);
+    }
+  };
+
+  // Handle search submit
+  const handleSearchSubmit = () => {
+    if (searchQuery.trim() && activeStore) {
+      searchProductsInActiveStore(activeStore._id, searchQuery);
+    }
+  };
+
+  // Handle category selection
+  const handleCategorySelect = (categoryId: string | null) => {
+    setSelectedCategoryId(categoryId);
+    // Clear search when changing categories
+    setSearchQuery("");
+  };
+
+  // Handle load more products
+  const handleLoadMore = useCallback(() => {
+    if (productsQuery.hasNextPage && !productsQuery.isFetchingNextPage) {
+      productsQuery.fetchNextPage();
+    }
+  }, [productsQuery]);
+
+  // Products are already filtered by the search store or by category in the query
+
   if (loading) {
     return (
       <SafeAreaView style={styles.container}>
@@ -123,86 +174,68 @@ export default function StoreHomePage() {
   // Ensure we have all the store data we need
   const storeName = activeStore?.name || "Store";
   const storeId = activeStore?._id || id as string;
-  const storeType = activeStore?.type ||
-    (activeStore?.categories && activeStore.categories.length > 0 ? activeStore.categories[0] : "Store");
 
-  // Get additional store details with fallbacks
-  const storeDescription = activeStore?.description || "No description available";
-  const storeAddress = activeStore?.full_address ||
-    (activeStore?.address ? `${activeStore.address.street}, ${activeStore.address.city}` : "Address not available");
-  const storePhone = activeStore?.contactPhone || activeStore?.business_phone_number || "Phone not available";
-  const storeEmail = activeStore?.contactEmail || activeStore?.business_email || "Email not available";
-
-  console.log("Rendering store home with data:", {
-    id: storeId,
-    name: storeName,
-    type: storeType,
-    description: storeDescription,
-    address: storeAddress,
-    phone: storePhone,
-    email: storeEmail
-  });
+  // Get store location with fallbacks
+  const storeLocation =
+    activeStore?.city ?
+      `${activeStore.city}${activeStore.state ? `, ${activeStore.state}` : ''}` :
+    activeStore?.address?.city ?
+      `${activeStore.address.city}${activeStore.address.state ? `, ${activeStore.address.state}` : ''}` :
+    activeStore?.full_address ?
+      activeStore.full_address.split(',')[0] :
+    "Location not available";
 
   return (
-    <SafeAreaView style={styles.container}>
+    <View style={styles.container}>
       <StatusBar style="dark" />
 
-      {/* Store header */}
-      <View style={styles.header}>
-        <TouchableOpacity
-          style={styles.backButtonSmall}
-          onPress={handleBackPress}
-        >
-          <MaterialIcons name="arrow-back" size={24} color="#000" />
-        </TouchableOpacity>
-        <Typography style={styles.headerTitle}>{storeName}</Typography>
-        <View style={styles.headerRight} />
-      </View>
+      {/* Store Header with Search Bar */}
+      <StoreHomeHeader
+        storeName={storeName}
+        storeLocation={storeLocation}
+        logoUrl={activeStore.logo}
+        tableNumber={tableNumber}
+        storeId={storeId}
+        onBackPress={handleBackPress}
+        onSearchPress={() => router.push(`/store-home/${storeId}/search`)}
+      />
 
-      <View style={styles.content}>
-        <H1 style={styles.title}>Store Home</H1>
+      {/* Product Categories */}
+      <ProductCategoryScroller
+        storeId={storeId}
+        selectedCategoryId={selectedCategoryId}
+        onCategorySelect={handleCategorySelect}
+      />
 
-        {/* Store Information */}
-        <View style={styles.infoCard}>
-          <Typography style={styles.infoCardTitle}>Store Information</Typography>
-          <Body1 style={styles.storeInfo}>Store ID: {storeId}</Body1>
-          <Body1 style={styles.storeInfo}>Store Name: {storeName}</Body1>
-          <Body1 style={styles.storeInfo}>Store Type: {storeType}</Body1>
-          <Body1 style={styles.storeInfo}>Address: {storeAddress}</Body1>
-          <Body1 style={styles.storeInfo}>Phone: {storePhone}</Body1>
-          <Body1 style={styles.storeInfo}>Email: {storeEmail}</Body1>
-
-          {storeDescription !== "No description available" && (
-            <View style={styles.descriptionContainer}>
-              <Typography style={styles.descriptionTitle}>Description</Typography>
-              <Body1 style={styles.description}>{storeDescription}</Body1>
+      {/* Products Grid */}
+      <View style={styles.productsContainer}>
+        <SlimProductGrid
+          products={products}
+          loading={searchQuery.length > 2 ? isSearching : (productsQuery.isLoading || productsQuery.isFetchingNextPage)}
+          error={productsQuery.error as Error}
+          onEndReached={handleLoadMore}
+          ListEmptyComponent={
+            <View style={styles.emptyContainer}>
+              {searchQuery ? (
+                <>
+                  <MaterialIcons name="search-off" size={48} color="#8E8E93" />
+                  <Typography style={styles.emptyText}>
+                    No products found for "{searchQuery}"
+                  </Typography>
+                </>
+              ) : (
+                <>
+                  <MaterialIcons name="inventory" size={48} color="#8E8E93" />
+                  <Typography style={styles.emptyText}>
+                    No products available in this store
+                  </Typography>
+                </>
+              )}
             </View>
-          )}
-        </View>
-
-        <View style={styles.messageContainer}>
-          <MaterialIcons name="info-outline" size={24} color="#8A3FFC" />
-          <Typography style={styles.message}>
-            This is a placeholder for the store home page. The actual UI will be
-            customized based on the store type.
-          </Typography>
-        </View>
-
-        {/* Debug Information */}
-        <View style={styles.debugCard}>
-          <Typography style={styles.debugTitle}>Debug Information</Typography>
-          <Body1 style={styles.debugText}>
-            Active Store Set: {activeStore ? "Yes" : "No"}
-          </Body1>
-          <Body1 style={styles.debugText}>
-            Store ID from Params: {id as string}
-          </Body1>
-          <Body1 style={styles.debugText}>
-            Store ID from Context: {activeStore?._id || "Not set"}
-          </Body1>
-        </View>
+          }
+        />
       </View>
-    </SafeAreaView>
+    </View>
   );
 }
 
@@ -211,113 +244,16 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: "#FFFFFF",
   },
-  header: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    borderBottomWidth: 1,
-    borderBottomColor: "#F0F0F0",
-  },
-  headerTitle: {
-    fontFamily: "Jost-SemiBold",
-    fontSize: 18,
-  },
-  headerRight: {
-    width: 24, // For balance with back button
-  },
-  content: {
-    flex: 1,
-    padding: 20,
-  },
-  title: {
-    fontFamily: "Jost-Bold",
-    fontSize: 24,
-    marginBottom: 20,
-  },
-  infoCard: {
-    backgroundColor: "#F9F9F9",
-    borderRadius: 8,
-    padding: 16,
-    marginBottom: 20,
-    borderWidth: 1,
-    borderColor: "#EEEEEE",
-  },
-  infoCardTitle: {
-    fontFamily: "Jost-SemiBold",
-    fontSize: 18,
-    marginBottom: 12,
-    color: "#333",
-  },
-  storeInfo: {
-    fontFamily: "Jost-Regular",
-    fontSize: 16,
-    marginBottom: 10,
-  },
-  descriptionContainer: {
-    marginTop: 16,
-    borderTopWidth: 1,
-    borderTopColor: "#EEEEEE",
-    paddingTop: 16,
-  },
-  descriptionTitle: {
-    fontFamily: "Jost-SemiBold",
-    fontSize: 16,
-    marginBottom: 8,
-    color: "#333",
-  },
-  description: {
-    fontFamily: "Jost-Regular",
-    fontSize: 14,
-    lineHeight: 20,
-    color: "#555",
-  },
-  messageContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    backgroundColor: "#F5F0FF",
-    padding: 16,
-    borderRadius: 8,
-    marginTop: 20,
-    marginBottom: 20,
-  },
-  message: {
-    fontFamily: "Jost-Regular",
-    fontSize: 14,
-    color: "#333333",
-    marginLeft: 10,
-    flex: 1,
-  },
-  debugCard: {
-    backgroundColor: "#FFF8E1",
-    borderRadius: 8,
-    padding: 16,
-    marginBottom: 20,
-    borderWidth: 1,
-    borderColor: "#FFE082",
-  },
-  debugTitle: {
-    fontFamily: "Jost-SemiBold",
-    fontSize: 16,
-    marginBottom: 12,
-    color: "#F57C00",
-  },
-  debugText: {
-    fontFamily: "Jost-Regular",
-    fontSize: 14,
-    marginBottom: 8,
-    color: "#333",
-  },
   loadingContainer: {
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
+    padding: 20,
   },
   loadingText: {
-    fontFamily: "Jost-Regular",
+    marginTop: 10,
     fontSize: 16,
-    marginTop: 16,
+    color: "#8A3FFC",
   },
   errorContainer: {
     flex: 1,
@@ -326,29 +262,43 @@ const styles = StyleSheet.create({
     padding: 20,
   },
   errorTitle: {
-    fontFamily: "Jost-Bold",
-    fontSize: 24,
     marginTop: 16,
+    fontSize: 24,
+    fontWeight: "bold",
+    color: "#FF3B30",
   },
   errorMessage: {
-    fontFamily: "Jost-Regular",
+    marginTop: 8,
     fontSize: 16,
     textAlign: "center",
-    marginTop: 8,
+    color: "#8E8E93",
   },
   backButton: {
-    backgroundColor: "#8A3FFC",
-    paddingHorizontal: 24,
-    paddingVertical: 12,
-    borderRadius: 8,
     marginTop: 24,
+    paddingVertical: 12,
+    paddingHorizontal: 24,
+    backgroundColor: "#8A3FFC",
+    borderRadius: 8,
   },
   backButtonText: {
-    fontFamily: "Jost-Medium",
-    fontSize: 16,
     color: "#FFFFFF",
+    fontSize: 16,
+    fontWeight: "bold",
   },
-  backButtonSmall: {
-    padding: 4,
+
+  productsContainer: {
+    flex: 1,
+  },
+  emptyContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    padding: 40,
+  },
+  emptyText: {
+    marginTop: 16,
+    fontSize: 16,
+    textAlign: "center",
+    color: "#8E8E93",
   },
 });

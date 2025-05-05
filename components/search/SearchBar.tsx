@@ -1,5 +1,5 @@
 import React from "react";
-import { View, StyleSheet, TouchableOpacity, Text } from "react-native";
+import { StyleSheet, TouchableOpacity, Text } from "react-native";
 import { router } from "expo-router";
 import { MaterialIcons } from "@expo/vector-icons";
 
@@ -27,7 +27,9 @@ export default function SearchBar({
       activeOpacity={0.7}
     >
       <MaterialIcons name="search" size={18} color="#999" style={styles.icon} />
-      <Text style={styles.placeholder}>{placeholder}</Text>
+      <Text style={styles.placeholder} numberOfLines={1} ellipsizeMode="tail">
+        {placeholder}
+      </Text>
     </TouchableOpacity>
   );
 }
@@ -47,7 +49,8 @@ const styles = StyleSheet.create({
   },
   placeholder: {
     color: "#999",
-    fontSize: 16,
+    fontSize: 14,
     fontFamily: "Jost-Regular",
+    flex: 1, // This ensures the text takes available space
   },
 });

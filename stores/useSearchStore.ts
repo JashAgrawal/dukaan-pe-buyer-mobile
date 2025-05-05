@@ -2,6 +2,7 @@ import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
 import {
   searchStores,
+  searchProductsInStore,
   getPopularStores,
 } from "@/lib/api/services/searchService";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -25,6 +26,7 @@ interface SearchState {
   isSearching: boolean;
   searchResults: SearchItem[];
   storeResults: SearchItem[];
+  productResults: SearchItem[];
 
   // Actions
   setSearchQuery: (query: string) => void;
@@ -36,6 +38,7 @@ interface SearchState {
 
   // API search functions
   performSearch: (query: string) => void;
+  searchProductsInActiveStore: (storeId: string, query: string) => void;
   loadPopularStores: () => void;
 }
 
@@ -50,6 +53,7 @@ export const useSearchStore = create<SearchState>()(
       isSearching: false,
       searchResults: [],
       storeResults: [],
+      productResults: [],
 
       setSearchQuery: (query) => set({ searchQuery: query }),
 
@@ -94,6 +98,26 @@ export const useSearchStore = create<SearchState>()(
           set({
             searchResults: [],
             storeResults: [],
+            isSearching: false,
+          });
+        }
+      },
+
+      searchProductsInActiveStore: async (storeId, query) => {
+        set({ isSearching: true });
+
+        try {
+          // Call search service for products in the active store
+          const products = await searchProductsInStore(storeId, query);
+
+          set({
+            productResults: products,
+            isSearching: false,
+          });
+        } catch (error) {
+          console.error(`Error searching products in store ${storeId}:`, error);
+          set({
+            productResults: [],
             isSearching: false,
           });
         }
