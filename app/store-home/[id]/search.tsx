@@ -165,9 +165,10 @@ export default function StoreProductSearchScreen() {
           data={productResults}
           renderItem={renderProductItem}
           keyExtractor={(item) => item.id}
-          numColumns={2}
+          numColumns={3}
           contentContainerStyle={styles.listContent}
           ListEmptyComponent={renderEmptyState}
+          
         />
       ) : (
         // Search Suggestions
@@ -216,7 +217,7 @@ const styles = StyleSheet.create({
   productCardContainer: {
     flex: 1,
     marginBottom: 16,
-    marginHorizontal: 4,
+    // marginHorizontal: 4,
   },
   emptyContainer: {
     flex: 1,

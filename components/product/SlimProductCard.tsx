@@ -26,23 +26,21 @@ interface SlimProductCardProps {
 
 const { width } = Dimensions.get("window");
 // Make card width such that 2.5 cards fit in a row
-const cardWidth = (width - 40) / 2.5;
+const cardWidth = (width - 40) / 3;
 // Set image height proportional to width but slightly shorter
 const imageHeight = cardWidth * 0.9;
 
 export default function SlimProductCard({
   id,
+  name,
   imageUrl,
+  price,
+  originalPrice,
+  unit = "pc",
+  deliveryTime = "7 Mins",
+  rating,
+  reviewCount,
   onPress,
-  // The following props are not used in this demo version
-  // but kept for compatibility with the component interface
-  name: _name,
-  price: _price,
-  originalPrice: _originalPrice,
-  unit: _unit = "pc",
-  deliveryTime: _deliveryTime = "7 Mins",
-  rating: _rating,
-  reviewCount: _reviewCount,
 }: SlimProductCardProps) {
   const handlePress = () => {
     if (onPress) {
@@ -52,6 +50,19 @@ export default function SlimProductCard({
       router.push(`/product/${id}`);
     }
   };
+
+  // Calculate discount percentage if originalPrice is provided
+  const discountPercentage =
+    originalPrice && originalPrice > price
+      ? Math.round(((originalPrice - price) / originalPrice) * 100)
+      : 0;
+
+  // Format review count for display (e.g., 5800 -> 5.8k)
+  const formattedReviewCount = reviewCount
+    ? reviewCount >= 1000
+      ? `${(reviewCount / 1000).toFixed(1)}k`
+      : reviewCount.toString()
+    : "0";
 
   return (
     <TouchableOpacity
@@ -72,47 +83,54 @@ export default function SlimProductCard({
           style={styles.image}
           resizeMode="cover"
         />
-        {/* Discount badge - always show for demo */}
-        <View style={styles.discountBadge}>
-          <Typography style={styles.discountText}>63%</Typography>
-          <Typography style={[styles.discountText, { marginTop: -2,fontSize: 8 }]}>Off</Typography>
-        </View>
+        {/* Discount badge - only show if there's a discount */}
+        {discountPercentage > 0 && (
+          <View style={styles.discountBadge}>
+            <Typography style={styles.discountText}>{discountPercentage}%</Typography>
+            <Typography style={[styles.discountText, { marginTop: -2, fontSize: 8 }]}>Off</Typography>
+          </View>
+        )}
       </View>
 
       {/* Delivery time */}
       <View style={styles.deliveryTimeContainer}>
         <Ionicons name="time-outline" size={12} color="#666" />
-        <Typography style={styles.deliveryTimeText}>7 Mins</Typography>
+        <Typography style={styles.deliveryTimeText}>{deliveryTime}</Typography>
       </View>
 
       {/* Product details */}
       <View style={styles.detailsContainer}>
         {/* Product name */}
-        <Typography style={styles.name}>
-          Bottle Gourd
+        <Typography style={styles.name} numberOfLines={2}>
+          {name}
         </Typography>
 
         {/* Unit */}
-        <Typography style={styles.unit}>1 pc</Typography>
+        <Typography style={styles.unit}>1 {unit}</Typography>
 
-        {/* Rating */}
-        <View style={styles.ratingContainer}>
-          <View style={styles.starContainer}>
-            <Ionicons name="star" size={8} color="#FFFFFF" />
-            <Typography style={styles.rating}>4.5</Typography>
+        {/* Rating - only show if rating is provided */}
+        {rating !== undefined && (
+          <View style={styles.ratingContainer}>
+            <View style={styles.starContainer}>
+              <Ionicons name="star" size={8} color="#FFFFFF" />
+              <Typography style={styles.rating}>{rating.toFixed(1)}</Typography>
+            </View>
+            {reviewCount !== undefined && reviewCount > 0 && (
+              <Typography style={styles.reviewCount}>
+                ({formattedReviewCount})
+              </Typography>
+            )}
           </View>
-          <Typography style={styles.reviewCount}>
-            (5.8k)
-          </Typography>
-        </View>
+        )}
 
         {/* Price */}
         <View style={styles.priceContainer}>
-        <Typography style={styles.price}>₹22</Typography>
-          <Typography style={styles.originalPrice}>
-            ₹60
-          </Typography>
-          
+          <Typography style={styles.price}>₹{price}</Typography>
+          {originalPrice && originalPrice > price && (
+            <Typography style={styles.originalPrice}>
+              ₹{originalPrice}
+            </Typography>
+          )}
         </View>
       </View>
 
@@ -126,10 +144,12 @@ export default function SlimProductCard({
 
 const styles = StyleSheet.create({
   container: {
+    flex: 1,
     // width: cardWidth,
     backgroundColor: "#FFFFFF",
     borderRadius: 8,
-    marginBottom: 0,
+    marginBottom: 4,
+    // marginRight: 4,
     overflow: "hidden",
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 1 },
@@ -186,11 +206,16 @@ const styles = StyleSheet.create({
     fontWeight: "500",
   },
   detailsContainer: {
+    flex: 1,
     paddingHorizontal: 8,
     paddingVertical: 2,
     paddingTop: 4,
   },
   name: {
+    maxWidth: cardWidth,
+    flex: 1,
+    textOverflow: "ellipsis",
+    lineHeight: 20,
     // borderWidth: 1,
     fontSize: 14,
     // fontWeight: "600",

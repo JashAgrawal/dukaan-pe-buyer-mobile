@@ -90,11 +90,14 @@ export const productService = {
   /**
    * Search products within a specific store
    */
-  searchProductsInStore: async (storeId: string, filters: ProductFilterOptions) => {
+  searchProductsInStore: async (
+    storeId: string,
+    filters: ProductFilterOptions
+  ) => {
     const response = await apiClient.get(`/products/search`, {
       params: {
         ...filters,
-        store_id:storeId, // Include storeId in the params
+        store_id: storeId, // Include storeId in the params
       },
     });
     return response.data;
@@ -103,10 +106,43 @@ export const productService = {
   /**
    * Get product categories for a specific store
    */
-  getProductCategoriesByStore: async (storeId: string, page = 1, limit = 20) => {
-    const response = await apiClient.get(`/product-categories/store/${storeId}`, {
-      params: { page, limit },
+  getProductCategoriesByStore: async (
+    storeId: string,
+    page = 1,
+    limit = 20
+  ) => {
+    const response = await apiClient.get(
+      `/product-categories/store/${storeId}`,
+      {
+        params: { page, limit },
+      }
+    );
+    return response.data;
+  },
+  getProductsByCategory: async (
+    categoryId: string,
+    storeId: string,
+    page = 1,
+    limit = 10
+  ) => {
+    const response = await apiClient.get(`/products/category/${categoryId}`, {
+      params: { store_id: storeId, page, limit },
     });
+    console.log("Products by category response:", response.data);
+    return response.data;
+  },
+  getProductSubCategoryByCategory: async (
+    categoryId: string,
+    page = 1,
+    limit = 10
+  ) => {
+    const response = await apiClient.get(`/product-categories/sub`, {
+      params: { page, limit, parentCategoryId: categoryId },
+    });
+    return response.data;
+  },
+  getProductCategoryById: async (categoryId: string) => {
+    const response = await apiClient.get(`/product-categories/${categoryId}`);
     return response.data;
   },
 };

@@ -5,21 +5,21 @@ import {
   ActivityIndicator,
   SafeAreaView,
   TouchableOpacity,
-  ScrollView,
 } from "react-native";
 import { StatusBar } from "expo-status-bar";
 import { router, useLocalSearchParams } from "expo-router";
 import { MaterialIcons } from "@expo/vector-icons";
 import { Typography, H1, Body1 } from "@/components/ui/Typography";
+import Animated, { FadeInRight } from "react-native-reanimated";
 import { useActiveStoreStore } from "@/stores/activeStoreStore";
 import { useSearchStore } from "@/stores/useSearchStore";
 import storeService from "@/lib/api/services/storeService";
-import productService from "@/lib/api/services/productService";
-import { Store } from "@/types/store";
 import StoreHomeHeader from "@/components/store-home/StoreHomeHeader";
-import SearchBar from "@/components/ui/SearchBar";
-import SlimProductGrid from "@/components/product/SlimProductGrid";
-import ProductCategoryScroller from "@/components/store-home/ProductCategoryScroller";
+import ScrollAwareWrapper from "@/components/ui/ScrollAwareWrapper";
+import BannerCarousel from "@/components/home/BannerCarousel";
+import StoreCategoryScroller from "@/components/store-home/StoreCategoryScroller";
+import ProductScroller from "@/components/store-home/ProductScroller";
+import ProductsByCategory from "@/components/store-home/ProductsByCategory";
 import { useProductsByStore, flattenProducts } from "@/lib/api/hooks/useProducts";
 
 export default function StoreHomePage() {
@@ -27,14 +27,14 @@ export default function StoreHomePage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
-  const [tableNumber, setTableNumber] = useState<number | null>(3); // Hardcoded for now, would come from QR code or params
+  const tableNumber = 3; // Hardcoded for now, would come from QR code or params
   const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(null);
 
   // Get active store from store
   const { activeStore, setActiveStore } = useActiveStoreStore();
 
   // Get search store for product search
-  const { searchProductsInActiveStore, productResults, isSearching } = useSearchStore();
+  const { productResults } = useSearchStore();
 
   // Use a ref to track if we've already loaded this store
   const loadedStoreIdRef = useRef<string | null>(null);
@@ -108,22 +108,7 @@ export default function StoreHomePage() {
     router.back();
   };
 
-  // Handle search query change
-  const handleSearchChange = (text: string) => {
-    setSearchQuery(text);
-
-    // If search query is more than 2 characters, search products in active store
-    if (text.length > 2 && activeStore) {
-      searchProductsInActiveStore(activeStore._id, text);
-    }
-  };
-
-  // Handle search submit
-  const handleSearchSubmit = () => {
-    if (searchQuery.trim() && activeStore) {
-      searchProductsInActiveStore(activeStore._id, searchQuery);
-    }
-  };
+  // Search functionality is now handled in the search screen
 
   // Handle category selection
   const handleCategorySelect = (categoryId: string | null) => {
@@ -189,52 +174,114 @@ export default function StoreHomePage() {
     <View style={styles.container}>
       <StatusBar style="dark" />
 
-      {/* Store Header with Search Bar */}
-      <StoreHomeHeader
-        storeName={storeName}
-        storeLocation={storeLocation}
-        logoUrl={activeStore.logo}
-        tableNumber={tableNumber}
-        storeId={storeId}
-        onBackPress={handleBackPress}
-        onSearchPress={() => router.push(`/store-home/${storeId}/search`)}
-      />
+      <ScrollAwareWrapper
+        headerComponent={
+          <StoreHomeHeader
+            storeName={storeName}
+            storeLocation={storeLocation}
+            logoUrl={activeStore.logo}
+            tableNumber={tableNumber}
+            storeId={storeId}
+            onBackPress={handleBackPress}
+            onSearchPress={() => router.push(`/store-home/${storeId}/search`)}
+          />
+        }
+      >
+        {/* Promo Banner Carousel */}
+        <View style={styles.heroSection}>
+          <BannerCarousel />
+        </View>
 
-      {/* Product Categories */}
-      <ProductCategoryScroller
-        storeId={storeId}
-        selectedCategoryId={selectedCategoryId}
-        onCategorySelect={handleCategorySelect}
-      />
+        {/* Categories Section */}
+        <View style={styles.sectionContainer}>
+          <Animated.View entering={FadeInRight.duration(600).springify()}>
+            <StoreCategoryScroller
+              storeId={storeId}
+              selectedCategoryId={selectedCategoryId}
+              onCategorySelect={handleCategorySelect}
+            />
+          </Animated.View>
+        </View>
 
-      {/* Products Grid */}
-      <View style={styles.productsContainer}>
-        <SlimProductGrid
-          products={products}
-          loading={searchQuery.length > 2 ? isSearching : (productsQuery.isLoading || productsQuery.isFetchingNextPage)}
-          error={productsQuery.error as Error}
-          onEndReached={handleLoadMore}
-          ListEmptyComponent={
-            <View style={styles.emptyContainer}>
-              {searchQuery ? (
-                <>
-                  <MaterialIcons name="search-off" size={48} color="#8E8E93" />
-                  <Typography style={styles.emptyText}>
-                    No products found for "{searchQuery}"
-                  </Typography>
-                </>
-              ) : (
-                <>
-                  <MaterialIcons name="inventory" size={48} color="#8E8E93" />
-                  <Typography style={styles.emptyText}>
-                    No products available in this store
-                  </Typography>
-                </>
-              )}
-            </View>
-          }
-        />
-      </View>
+        {/* Featured Products Section */}
+        <View style={styles.sectionContainer}>
+          <Animated.View
+            entering={FadeInRight.duration(600).springify().delay(150)}
+          >
+            <ProductScroller
+              title="Featured Products"
+              subtitle="Handpicked for you"
+              products={products.slice(0, 10)}
+              isLoading={productsQuery.isLoading}
+              error={productsQuery.error?.message}
+              onSeeAllPress={() => console.log("See all featured products pressed")}
+              onEndReached={handleLoadMore}
+              hasNextPage={productsQuery.hasNextPage}
+              isFetchingNextPage={productsQuery.isFetchingNextPage}
+            />
+          </Animated.View>
+        </View>        
+
+        {/* New Arrivals Section */}
+        <View style={styles.sectionContainer}>
+          <Animated.View
+            entering={FadeInRight.duration(600).springify().delay(300)}
+          >
+            <ProductScroller
+              title="New Arrivals"
+              subtitle="Fresh in store"
+              products={products.slice(5, 15)}
+              isLoading={productsQuery.isLoading}
+              error={productsQuery.error?.message}
+              onSeeAllPress={() => console.log("See all new arrivals pressed")}
+              onEndReached={handleLoadMore}
+              hasNextPage={productsQuery.hasNextPage}
+              isFetchingNextPage={productsQuery.isFetchingNextPage}
+            />
+          </Animated.View>
+        </View>
+
+        {/* Best Sellers Section */}
+        <View style={styles.sectionContainer}>
+          <Animated.View
+            entering={FadeInRight.duration(600).springify().delay(400)}
+          >
+            <ProductScroller
+              title="Best Sellers"
+              subtitle="Most popular items"
+              products={products.slice(3, 13)}
+              isLoading={productsQuery.isLoading}
+              error={productsQuery.error?.message}
+              onSeeAllPress={() => console.log("See all best sellers pressed")}
+              onEndReached={handleLoadMore}
+              hasNextPage={productsQuery.hasNextPage}
+              isFetchingNextPage={productsQuery.isFetchingNextPage}
+            />
+          </Animated.View>
+        </View>
+
+        {/* Discounted Products Section */}
+        <View style={styles.sectionContainer}>
+          <Animated.View
+            entering={FadeInRight.duration(600).springify().delay(500)}
+          >
+            <ProductScroller
+              title="On Sale"
+              subtitle="Great deals for you"
+              products={products.slice(7, 17)}
+              isLoading={productsQuery.isLoading}
+              error={productsQuery.error?.message}
+              onSeeAllPress={() => console.log("See all discounted products pressed")}
+              onEndReached={handleLoadMore}
+              hasNextPage={productsQuery.hasNextPage}
+              isFetchingNextPage={productsQuery.isFetchingNextPage}
+            />
+          </Animated.View>
+        </View>
+
+        {/* Spacing at the bottom for tab bar */}
+        <View style={styles.bottomSpacing} />
+      </ScrollAwareWrapper>
     </View>
   );
 }
@@ -285,7 +332,17 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: "bold",
   },
-
+  heroSection: {
+    paddingHorizontal: 12,
+    paddingTop: 12,
+    paddingBottom: 0,
+  },
+  sectionContainer: {
+    marginTop: 12,
+  },
+  bottomSpacing: {
+    height: 100,
+  },
   productsContainer: {
     flex: 1,
   },
