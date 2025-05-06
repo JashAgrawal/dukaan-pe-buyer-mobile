@@ -8,25 +8,32 @@ import {
   TextInput,
   KeyboardAvoidingView,
   Platform,
+  ActivityIndicator,
+  Alert,
 } from "react-native";
 import { Typography } from "@/components/ui/Typography";
 import { COLORS, SPACING, BORDER_RADIUS } from "@/lib/constants/Styles";
 import { MaterialIcons } from "@expo/vector-icons";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useApplyCoupon, useRemoveCoupon } from "@/lib/api/hooks/useCart";
+import { useAvailableCoupons } from "@/lib/api/hooks/useCoupon";
+import couponService from "@/lib/api/services/couponService";
+import { Coupon } from "@/types/coupon";
+import { CartCoupon } from "@/types/cart";
+import { useActiveStoreStore } from "@/stores/activeStoreStore";
 
-interface Coupon {
-  id: string;
-  code: string;
-  description: string;
-  discount: string;
+interface CouponItem extends Coupon {
   isApplied?: boolean;
+  formattedDiscount?: string;
+  description?: string;
+  validUntil?: string;
+  minOrderValue?: number;
 }
 
 interface CouponModalProps {
   visible: boolean;
   onClose: () => void;
-  appliedCouponId?: string;
+  appliedCouponId?: string | null | CartCoupon;
 }
 
 export default function CouponModal({
@@ -36,35 +43,61 @@ export default function CouponModal({
 }: CouponModalProps) {
   const insets = useSafeAreaInsets();
   const [couponCode, setCouponCode] = useState("");
+  const [isValidating, setIsValidating] = useState(false);
   const applyCoupon = useApplyCoupon();
   const removeCoupon = useRemoveCoupon();
+  const { activeStore } = useActiveStoreStore();
 
-  // Mock coupons data
-  const coupons: Coupon[] = [
-    {
-      id: "coupon1",
-      code: "WELCOME50",
-      description: "50% off on your first order",
-      discount: "Up to ₹100",
-      isApplied: appliedCouponId === "coupon1",
-    },
-    {
-      id: "coupon2",
-      code: "SUMMER25",
-      description: "25% off on all summer items",
-      discount: "Up to ₹200",
-      isApplied: appliedCouponId === "coupon2",
-    },
-    {
-      id: "coupon3",
-      code: "FREESHIP",
-      description: "Free shipping on orders above ₹500",
-      discount: "Free Delivery",
-      isApplied: appliedCouponId === "coupon3",
-    },
-  ];
+  // Check if appliedCouponId is a CartCoupon object
+  const isCartCoupon = appliedCouponId && typeof appliedCouponId === 'object';
+  const appliedCoupon = isCartCoupon ? appliedCouponId as CartCoupon : null;
 
-  const handleApplyCoupon = (couponId: string, code: string) => {
+  // Fetch available coupons
+  const {
+    data: couponsData,
+    isLoading: isLoadingCoupons,
+    error: couponsError
+  } = useAvailableCoupons(activeStore?._id || "");
+
+  // Format coupons data for display
+  const formatCoupons = (): CouponItem[] => {
+    if (!couponsData?.data?.coupons) return [];
+
+    return couponsData.data.coupons.map(coupon => {
+      // Format the discount text based on discount type
+      let formattedDiscount = "";
+      if (coupon.type === "percentage") {
+        formattedDiscount = `${coupon.discountPercentage}% off`;
+        if (coupon.maxDiscount) {
+          formattedDiscount += ` up to ₹${coupon.maxDiscount}`;
+        }
+      } else {
+        formattedDiscount = `₹${coupon.discountAmt} off`;
+      }
+
+      // Check if this coupon is applied
+      let isApplied = false;
+      if (isCartCoupon && appliedCoupon) {
+        isApplied = appliedCoupon._id === coupon.id || appliedCoupon.code === coupon.code;
+      } else if (typeof appliedCouponId === 'string') {
+        isApplied = appliedCouponId === coupon.id;
+      }
+
+      // Add additional fields for display
+      return {
+        ...coupon,
+        isApplied,
+        formattedDiscount,
+        description: `Discount on all products`, // Example description
+        validUntil: new Date().toISOString(), // Example date
+        minOrderValue: 0 // Example min order value
+      };
+    });
+  };
+
+  const coupons = formatCoupons();
+
+  const handleApplyCoupon = (_couponId: string, code: string) => {
     applyCoupon.mutate(
       { couponCode: code },
       {
@@ -73,6 +106,7 @@ export default function CouponModal({
         },
         onError: (error) => {
           console.error("Error applying coupon:", error);
+          Alert.alert("Error", "Failed to apply coupon. Please try again.");
         },
       }
     );
@@ -85,43 +119,72 @@ export default function CouponModal({
       },
       onError: (error) => {
         console.error("Error removing coupon:", error);
+        Alert.alert("Error", "Failed to remove coupon. Please try again.");
       },
     });
   };
 
-  const handleApplyCouponCode = () => {
+  const handleApplyCouponCode = async () => {
     if (couponCode.trim()) {
-      applyCoupon.mutate(
-        { couponCode: couponCode.trim() },
-        {
-          onSuccess: () => {
-            setCouponCode("");
-            onClose();
-          },
-          onError: (error) => {
-            console.error("Error applying coupon:", error);
-          },
+      setIsValidating(true);
+      try {
+        // First validate the coupon code
+        const validationResponse = await couponService.validateCouponCode(couponCode.trim(), activeStore?._id || "");
+
+        if (validationResponse.data?.valid && validationResponse.data?.coupon) {
+          // If valid, apply the coupon
+          applyCoupon.mutate(
+            { couponCode: couponCode.trim() },
+            {
+              onSuccess: () => {
+                setCouponCode("");
+                onClose();
+              },
+              onError: (error) => {
+                console.error("Error applying coupon:", error);
+                Alert.alert("Error", "Failed to apply coupon. Please try again.");
+              },
+            }
+          );
+        } else {
+          // If invalid, show error
+          Alert.alert("Invalid Coupon", "The coupon code you entered is invalid or has expired.");
         }
-      );
+      } catch (error) {
+        console.error("Error validating coupon:", error);
+        Alert.alert("Error", "Failed to validate coupon. Please try again.");
+      } finally {
+        setIsValidating(false);
+      }
     }
   };
 
-  const renderCouponItem = ({ item }: { item: Coupon }) => (
+  const renderCouponItem = ({ item }: { item: CouponItem }) => (
     <View style={styles.couponItem}>
       <View style={styles.couponLeft}>
         <Typography style={styles.couponCode}>{item.code}</Typography>
         <Typography style={styles.couponDescription}>{item.description}</Typography>
-        <Typography style={styles.couponDiscount}>{item.discount}</Typography>
+        <Typography style={styles.couponDiscount}>{item.formattedDiscount}</Typography>
+        {item.minOrderValue && item.minOrderValue > 0 && (
+          <Typography style={styles.couponMinOrder}>
+            Min. order: ₹{item.minOrderValue}
+          </Typography>
+        )}
+        {item.validUntil && (
+          <Typography style={styles.couponValidity}>
+            Valid until: {new Date(item.validUntil).toLocaleDateString()}
+          </Typography>
+        )}
       </View>
-      
+
       <TouchableOpacity
         style={[
           styles.couponButton,
           item.isApplied && styles.couponButtonApplied,
         ]}
-        onPress={() => 
-          item.isApplied 
-            ? handleRemoveCoupon() 
+        onPress={() =>
+          item.isApplied
+            ? handleRemoveCoupon()
             : handleApplyCoupon(item.id, item.code)
         }
       >
@@ -175,31 +238,57 @@ export default function CouponModal({
             <TouchableOpacity
               style={[
                 styles.applyButton,
-                !couponCode.trim() && styles.applyButtonDisabled,
+                (!couponCode.trim() || isValidating) && styles.applyButtonDisabled,
               ]}
               onPress={handleApplyCouponCode}
-              disabled={!couponCode.trim()}
+              disabled={!couponCode.trim() || isValidating}
             >
-              <Typography
-                style={[
-                  styles.applyButtonText,
-                  !couponCode.trim() && styles.applyButtonTextDisabled,
-                ]}
-              >
-                APPLY
-              </Typography>
+              {isValidating ? (
+                <ActivityIndicator size="small" color={COLORS.WHITE} />
+              ) : (
+                <Typography
+                  style={[
+                    styles.applyButtonText,
+                    !couponCode.trim() && styles.applyButtonTextDisabled,
+                  ]}
+                >
+                  APPLY
+                </Typography>
+              )}
             </TouchableOpacity>
           </View>
 
           {/* Available Coupons */}
           <Typography style={styles.sectionTitle}>Available Coupons</Typography>
-          <FlatList
-            data={coupons}
-            renderItem={renderCouponItem}
-            keyExtractor={(item) => item.id}
-            contentContainerStyle={styles.couponsList}
-            showsVerticalScrollIndicator={false}
-          />
+
+          {isLoadingCoupons ? (
+            <View style={styles.loadingContainer}>
+              <ActivityIndicator size="large" color={COLORS.PRIMARY} />
+              <Typography style={styles.loadingText}>Loading coupons...</Typography>
+            </View>
+          ) : couponsError ? (
+            <View style={styles.errorContainer}>
+              <MaterialIcons name="error-outline" size={24} color={COLORS.ERROR} />
+              <Typography style={styles.errorText}>
+                Failed to load coupons. Please try again.
+              </Typography>
+            </View>
+          ) : coupons.length === 0 ? (
+            <View style={styles.emptyContainer}>
+              <MaterialIcons name="local-offer" size={24} color={COLORS.GRAY_MEDIUM} />
+              <Typography style={styles.emptyText}>
+                No coupons available at the moment.
+              </Typography>
+            </View>
+          ) : (
+            <FlatList
+              data={coupons}
+              renderItem={renderCouponItem}
+              keyExtractor={(item) => item.id}
+              contentContainerStyle={styles.couponsList}
+              showsVerticalScrollIndicator={false}
+            />
+          )}
         </View>
       </KeyboardAvoidingView>
     </Modal>
@@ -218,6 +307,34 @@ const styles = StyleSheet.create({
     borderTopRightRadius: 16,
     paddingTop: 16,
     maxHeight: "80%",
+  },
+  loadingContainer: {
+    padding: SPACING.LG,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  loadingText: {
+    marginTop: SPACING.SM,
+    color: COLORS.TEXT_MEDIUM,
+  },
+  errorContainer: {
+    padding: SPACING.LG,
+    alignItems: "center",
+    justifyContent: "center",
+    flexDirection: "row",
+  },
+  errorText: {
+    marginLeft: SPACING.SM,
+    color: COLORS.ERROR,
+  },
+  emptyContainer: {
+    padding: SPACING.LG,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  emptyText: {
+    marginTop: SPACING.SM,
+    color: COLORS.TEXT_MEDIUM,
   },
   header: {
     flexDirection: "row",
@@ -320,6 +437,16 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: COLORS.SUCCESS,
     fontWeight: "500",
+  },
+  couponMinOrder: {
+    fontSize: 11,
+    color: COLORS.TEXT_LIGHT,
+    marginTop: 2,
+  },
+  couponValidity: {
+    fontSize: 11,
+    color: COLORS.TEXT_LIGHT,
+    marginTop: 2,
   },
   couponButton: {
     paddingHorizontal: 16,

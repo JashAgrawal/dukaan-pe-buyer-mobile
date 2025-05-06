@@ -1,8 +1,9 @@
 import React from "react";
-import { View, StyleSheet, TouchableOpacity } from "react-native";
+import { View, StyleSheet, TouchableOpacity, Alert, ActivityIndicator } from "react-native";
 import { Typography } from "@/components/ui/Typography";
 import { COLORS, SPACING, BORDER_RADIUS } from "@/lib/constants/Styles";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 
 interface PaymentOptionsProps {
   totalAmount: number;
@@ -10,6 +11,10 @@ interface PaymentOptionsProps {
   savings?: number;
   onPayOnline: () => void;
   onPayCash: () => void;
+  isAddressSelected?: boolean;
+  onAddressPress?: () => void;
+  isPickup?: boolean;
+  isLoading?: boolean;
 }
 
 export default function PaymentOptions({
@@ -18,11 +23,62 @@ export default function PaymentOptions({
   savings,
   onPayOnline,
   onPayCash,
+  isAddressSelected = false,
+  onAddressPress,
+  isPickup = false,
+  isLoading = false,
 }: PaymentOptionsProps) {
   const insets = useSafeAreaInsets();
 
+  // Handle payment with address validation
+  const handlePayment = (paymentMethod: 'online' | 'cash') => {
+    // Don't allow payment if already processing
+    if (isLoading) {
+      return;
+    }
+
+    if (!isAddressSelected) {
+      Alert.alert(
+        "Address Required",
+        isPickup
+          ? "Please select a delivery method before proceeding with payment."
+          : "Please select a delivery address before proceeding with payment.",
+        [
+          {
+            text: isPickup ? "OK" : "Select Address",
+            onPress: !isPickup ? onAddressPress : undefined,
+          },
+          {
+            text: "Cancel",
+            style: "cancel",
+          },
+        ]
+      );
+      return;
+    }
+
+    // If address is selected, proceed with payment
+    if (paymentMethod === 'online') {
+      onPayOnline();
+    } else {
+      onPayCash();
+    }
+  };
+
   return (
     <View style={[styles.container, { paddingBottom: insets.bottom > 0 ? insets.bottom : 16 }]}>
+      {!isAddressSelected && (
+        <View style={styles.addressWarning}>
+          <MaterialIcons name="error-outline" size={16} color={COLORS.ERROR} />
+          <Typography style={styles.addressWarningText}>
+            {isPickup
+              ? "Please select a delivery method to proceed"
+              : "Please select a delivery address to proceed"
+            }
+          </Typography>
+        </View>
+      )}
+
       <View style={styles.amountContainer}>
         <Typography style={styles.toPayLabel}>To Pay</Typography>
         <View style={styles.amountRow}>
@@ -37,15 +93,43 @@ export default function PaymentOptions({
       </View>
 
       <View style={styles.buttonsContainer}>
-        <TouchableOpacity style={styles.onlineButton} onPress={onPayOnline} activeOpacity={0.8}>
-          <Typography style={styles.onlineButtonText}>Pay Online</Typography>
+        <TouchableOpacity
+          style={[
+            styles.onlineButton,
+            (!isAddressSelected || isLoading) && styles.disabledButton
+          ]}
+          onPress={() => handlePayment('online')}
+          activeOpacity={0.8}
+          disabled={isLoading}
+        >
+          {isLoading ? (
+            <ActivityIndicator size="small" color={COLORS.PRIMARY_DARK} />
+          ) : (
+            <Typography style={[styles.onlineButtonText, !isAddressSelected && styles.disabledButtonText]}>
+              Pay Online
+            </Typography>
+          )}
         </TouchableOpacity>
 
-        <TouchableOpacity style={styles.cashButton} onPress={onPayCash} activeOpacity={0.8}>
-          <Typography style={styles.cashButtonText}>
-            Pay Cash/UPI
-            <Typography style={styles.cashSubtext}> (on delivery)</Typography>
-          </Typography>
+        <TouchableOpacity
+          style={[
+            styles.cashButton,
+            (!isAddressSelected || isLoading) && styles.disabledCashButton
+          ]}
+          onPress={() => handlePayment('cash')}
+          activeOpacity={0.8}
+          disabled={isLoading}
+        >
+          {isLoading ? (
+            <ActivityIndicator size="small" color={COLORS.WHITE} />
+          ) : (
+            <Typography style={styles.cashButtonText}>
+              Pay Cash/UPI
+              <Typography style={styles.cashSubtext}>
+                {isPickup ? "(on pickup)" : "(on delivery)"}
+              </Typography>
+            </Typography>
+          )}
         </TouchableOpacity>
       </View>
     </View>
@@ -59,6 +143,20 @@ const styles = StyleSheet.create({
     borderTopColor: COLORS.GRAY_LIGHTER,
     paddingTop: SPACING.MD,
     paddingHorizontal: SPACING.LG,
+  },
+  addressWarning: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#FFEBEE",
+    padding: SPACING.SM,
+    borderRadius: BORDER_RADIUS.SM,
+    marginBottom: SPACING.SM,
+  },
+  addressWarningText: {
+    fontSize: 12,
+    color: COLORS.ERROR,
+    marginLeft: SPACING.XS,
+    flex: 1,
   },
   amountContainer: {
     marginBottom: SPACING.MD,
@@ -109,10 +207,17 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     marginRight: SPACING.SM,
   },
+  disabledButton: {
+    borderColor: COLORS.GRAY_LIGHT,
+    backgroundColor: COLORS.GRAY_LIGHTEST,
+  },
   onlineButtonText: {
     fontSize: 16,
     fontWeight: "500",
     color: COLORS.PRIMARY_DARK,
+  },
+  disabledButtonText: {
+    color: COLORS.GRAY_MEDIUM,
   },
   cashButton: {
     flex: 1,
@@ -122,6 +227,9 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     marginLeft: SPACING.SM,
+  },
+  disabledCashButton: {
+    backgroundColor: COLORS.GRAY_LIGHT,
   },
   cashButtonText: {
     fontSize: 12,

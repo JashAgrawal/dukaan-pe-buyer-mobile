@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "Dukaan Pe",
-    "slug": "Dukaan Pe",
+    "slug": "dukaan-pe",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/logo-only-image.png",
@@ -9,13 +9,19 @@
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.anonymous.DukaanPe"
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
-      }
+      },
+      "permissions": [
+        "android.permission.CAMERA",
+        "android.permission.RECORD_AUDIO"
+      ],
+      "package": "com.anonymous.DukaanPe"
     },
     "web": {
       "bundler": "metro",
@@ -41,6 +47,13 @@
     ],
     "experiments": {
       "typedRoutes": true
-    }
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "e5b703d1-4efd-4bf5-900d-78da75842c67"
+      }
+    },
+    "owner": "jashagrawal"
   }
 }

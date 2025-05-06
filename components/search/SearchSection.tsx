@@ -9,13 +9,17 @@ interface SearchSectionProps {
   items: SearchItem[];
   onItemPress: (item: SearchItem) => void;
   onClearPress?: () => void;
+  onRemoveItem?: (id: string) => void;
+  isPastSearch?: boolean;
 }
 
-export default function SearchSection({ 
-  title, 
-  items, 
-  onItemPress, 
-  onClearPress 
+export default function SearchSection({
+  title,
+  items,
+  onItemPress,
+  onClearPress,
+  onRemoveItem,
+  isPastSearch = false
 }: SearchSectionProps) {
   return (
     <View style={styles.container}>
@@ -27,11 +31,16 @@ export default function SearchSection({
           </TouchableOpacity>
         )}
       </View>
-      
+
       <FlatList
         data={items}
         renderItem={({ item }) => (
-          <SearchResultItem item={item} onPress={onItemPress} />
+          <SearchResultItem
+            item={item}
+            onPress={onItemPress}
+            onRemove={onRemoveItem}
+            isPastSearch={isPastSearch}
+          />
         )}
         keyExtractor={(item) => item.id}
         scrollEnabled={false}

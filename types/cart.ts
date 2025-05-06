@@ -16,6 +16,16 @@ export interface CartItem {
   total: number;
 }
 
+// Cart coupon
+export interface CartCoupon {
+  _id: string;
+  code: string;
+  discountAmt: number;
+  discountPercentage: number;
+  maxDiscount?: number;
+  type: 'amount' | 'percentage';
+}
+
 // Cart
 export interface Cart {
   _id: string;
@@ -25,7 +35,7 @@ export interface Cart {
   totalAmount: number;
   discountAmount: number;
   finalAmount: number;
-  coupon: string | null;
+  coupon: CartCoupon | null;
   offer: string | null;
   isActive: boolean;
   state: 'active' | 'checkout' | 'abandoned';

@@ -1,11 +1,12 @@
 import { Link } from "expo-router";
 import { openBrowserAsync } from "expo-web-browser";
 import { type ComponentProps } from "react";
-import { Platform, TouchableOpacity, Text } from "react-native";
+import { Platform, TouchableOpacity, Text, ViewStyle } from "react-native";
 
-type Props = Omit<ComponentProps<typeof Link>, "href"> & {
+type Props = Omit<ComponentProps<typeof Link>, "href" | "style"> & {
   href: string;
   children?: React.ReactNode;
+  style?: ViewStyle;
 };
 
 export function ExternalLink({ href, children, ...rest }: Props) {
@@ -28,10 +29,13 @@ export function ExternalLink({ href, children, ...rest }: Props) {
   }
 
   // On web, use Link with target="_blank"
+  // Remove style from rest to avoid type conflicts
+  const { style, ...restWithoutStyle } = rest;
+
   return (
     <Link
       target="_blank"
-      {...rest}
+      {...restWithoutStyle}
       href={href as any} // Type assertion to fix TypeScript error
       onPress={handlePress}
     >

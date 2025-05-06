@@ -362,6 +362,11 @@ const styles = StyleSheet.create({
     fontFamily: "Jost-Medium",
     fontSize: 14,
   },
+  ratingText: {
+    color: "#FFFFFF",
+    fontFamily: "Jost-Medium",
+    fontSize: 14,
+  },
   ratedCount: {
     fontFamily: "Jost-Regular",
     fontSize: 14,

@@ -32,13 +32,6 @@ export default function TipModal({
   currentTip = 0,
 }: TipModalProps) {
   const insets = useSafeAreaInsets();
-  const [selectedTip, setSelectedTip] = useState<number>(currentTip);
-  const [customTip, setCustomTip] = useState<string>(
-    currentTip > 0 && !tipOptions.some((option) => option.value === currentTip)
-      ? currentTip.toString()
-      : ""
-  );
-
   // Predefined tip options
   const tipOptions: TipOption[] = [
     { value: 10, label: "₹10" },
@@ -46,6 +39,13 @@ export default function TipModal({
     { value: 30, label: "₹30" },
     { value: 50, label: "₹50" },
   ];
+
+  const [selectedTip, setSelectedTip] = useState<number>(currentTip);
+  const [customTip, setCustomTip] = useState<string>(
+    currentTip > 0 && !tipOptions.some((option) => option.value === currentTip)
+      ? currentTip.toString()
+      : ""
+  );
 
   const handleTipSelect = (value: number) => {
     setSelectedTip(value);
@@ -56,7 +56,7 @@ export default function TipModal({
     // Allow only numbers
     const numericValue = text.replace(/[^0-9]/g, "");
     setCustomTip(numericValue);
-    
+
     if (numericValue) {
       setSelectedTip(parseInt(numericValue, 10));
     } else {

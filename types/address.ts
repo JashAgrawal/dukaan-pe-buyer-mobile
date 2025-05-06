@@ -32,6 +32,7 @@ export interface Address {
 // Address creation request
 export interface AddressCreateRequest {
   location: GeoLocation;
+  coordinates?: [number, number];
   country: string;
   state: string;
   city: string;

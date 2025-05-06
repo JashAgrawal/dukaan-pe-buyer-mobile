@@ -18,6 +18,7 @@ import { useReverseGeocode } from "@/lib/api/services/locationService";
 import { LocationSource } from "@/stores/locationStore";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import { Typography } from "@/components/ui/Typography";
+import { COLORS, SPACING, BORDER_RADIUS } from "@/lib/constants/Styles";
 
 export default function LocationConfirmScreen() {
   const params = useLocalSearchParams<{
@@ -157,6 +158,30 @@ export default function LocationConfirmScreen() {
     }
   };
 
+  // Handle add address
+  const handleAddAddress = async () => {
+    try {
+      await checkServiceability(currentPincode);
+
+      // Navigate to add address details screen
+      router.push({
+        pathname: "/address/add-details",
+        params: {
+          latitude: currentLatitude.toString(),
+          longitude: currentLongitude.toString(),
+          fullAddress: currentAddress,
+          city: currentCity,
+          state: currentState,
+          country: currentCountry,
+          pincode: currentPincode,
+        },
+      });
+    } catch (error) {
+      console.error("Error checking serviceability:", error);
+      alert("Failed to proceed. Please try again.");
+    }
+  };
+
   const isLoading =
     checkPincodeServiceabilityMutation.isPending ||
     reverseGeocodeMutation.isPending ||
@@ -251,17 +276,30 @@ export default function LocationConfirmScreen() {
           Drag the marker to adjust your exact location
         </Text>
 
-        {/* Confirm button */}
-        <TouchableOpacity
-          style={[
-            styles.confirmButton,
-            (!isServiceable || isLoading) && styles.disabledButton,
-          ]}
-          onPress={handleConfirmLocation}
-          disabled={!isServiceable || isLoading}
-        >
-          <Text style={styles.confirmButtonText}>Confirm location</Text>
-        </TouchableOpacity>
+        {/* Action buttons */}
+        <View style={styles.buttonContainer}>
+          <TouchableOpacity
+            style={[
+              styles.confirmButton,
+              (!isServiceable || isLoading) && styles.disabledButton,
+            ]}
+            onPress={handleConfirmLocation}
+            disabled={!isServiceable || isLoading}
+          >
+            <Text style={styles.confirmButtonText}>Confirm location</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={[
+              styles.addAddressButton,
+              (!isServiceable || isLoading) && styles.disabledButton,
+            ]}
+            onPress={handleAddAddress}
+            disabled={!isServiceable || isLoading}
+          >
+            <Text style={styles.addAddressButtonText}>Save as address</Text>
+          </TouchableOpacity>
+        </View>
       </View>
     </View>
   );
@@ -270,7 +308,7 @@ export default function LocationConfirmScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#FFFFFF",
+    backgroundColor: COLORS.WHITE,
   },
   map: {
     width: "100%",
@@ -279,7 +317,7 @@ const styles = StyleSheet.create({
   mapPlaceholder: {
     width: "100%",
     height: "75%",
-    backgroundColor: "#F5F5F5",
+    backgroundColor: COLORS.GRAY_LIGHTEST,
     justifyContent: "center",
     alignItems: "center",
   },
@@ -290,7 +328,7 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: "#FFFFFF",
+    backgroundColor: COLORS.WHITE,
     justifyContent: "center",
     alignItems: "center",
     shadowColor: "#000",
@@ -304,7 +342,7 @@ const styles = StyleSheet.create({
     bottom: 0,
     left: 0,
     right: 0,
-    backgroundColor: "#FFFFFF",
+    backgroundColor: COLORS.WHITE,
     borderTopLeftRadius: 32,
     borderTopRightRadius: 32,
     padding: 20,
@@ -334,7 +372,7 @@ const styles = StyleSheet.create({
   },
   locationAddress: {
     fontSize: 14,
-    color: "#666",
+    color: COLORS.TEXT_LIGHT,
     marginTop: 2,
   },
   changeButton: {
@@ -342,39 +380,56 @@ const styles = StyleSheet.create({
     paddingVertical: 6,
   },
   changeButtonText: {
-    color: "#8A3FFC",
+    color: COLORS.PRIMARY_DARK,
     fontWeight: "500",
   },
   serviceabilityMessage: {
     fontSize: 14,
-    color: "#4CAF50",
+    color: COLORS.SUCCESS,
     marginBottom: 8,
     textAlign: "center",
   },
   notServiceableMessage: {
-    color: "#F44336",
+    color: COLORS.ERROR,
   },
   loader: {
     marginBottom: 16,
   },
   dragInstructionText: {
     fontSize: 12,
-    color: "#666",
-    marginBottom: 8,
+    color: COLORS.TEXT_LIGHT,
+    marginBottom: 16,
     textAlign: "center",
     fontStyle: "italic",
   },
+  buttonContainer: {
+    gap: SPACING.MD,
+  },
   confirmButton: {
-    backgroundColor: "#8A3FFC",
-    borderRadius: 8,
+    backgroundColor: COLORS.PRIMARY_DARK,
+    borderRadius: BORDER_RADIUS.SM,
+    padding: 16,
+    alignItems: "center",
+  },
+  addAddressButton: {
+    backgroundColor: COLORS.WHITE,
+    borderWidth: 1,
+    borderColor: COLORS.PRIMARY_DARK,
+    borderRadius: BORDER_RADIUS.SM,
     padding: 16,
     alignItems: "center",
   },
   disabledButton: {
-    backgroundColor: "#CCCCCC",
+    backgroundColor: COLORS.GRAY_LIGHT,
+    borderColor: COLORS.GRAY_LIGHT,
   },
   confirmButtonText: {
-    color: "#FFFFFF",
+    color: COLORS.WHITE,
+    fontSize: 16,
+    fontWeight: "600",
+  },
+  addAddressButtonText: {
+    color: COLORS.PRIMARY_DARK,
     fontSize: 16,
     fontWeight: "600",
   },

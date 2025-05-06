@@ -24,6 +24,7 @@ export default function SearchScreen() {
     recentSearches,
     popularStores,
     clearRecentSearches,
+    removeFromRecentSearches: removeRecentSearch,
     loadPopularStores,
   } = useSearchStore();
 
@@ -95,6 +96,7 @@ export default function SearchScreen() {
           popularStores={popularStores}
           onItemPress={handleItemPress}
           onClearRecentSearches={clearRecentSearches}
+          onRemoveRecentSearch={removeRecentSearch}
           searchQuery={inputValue}
         />
       </View>

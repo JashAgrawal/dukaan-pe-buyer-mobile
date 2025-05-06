@@ -64,8 +64,8 @@ export default function StoreProductSearchScreen() {
     if (inputValue.trim().length > 0 && activeStore) {
       // Navigate to product results page with the query
       router.push({
-        pathname: `/store-home/${id}/product-results`,
-        params: { query: inputValue }
+        pathname: "/store-home/[id]/product-results" as any,
+        params: { id, query: inputValue }
       });
     }
   };
@@ -168,7 +168,7 @@ export default function StoreProductSearchScreen() {
           numColumns={3}
           contentContainerStyle={styles.listContent}
           ListEmptyComponent={renderEmptyState}
-          
+
         />
       ) : (
         // Search Suggestions

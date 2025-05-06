@@ -51,7 +51,7 @@ export default function BannerCarousel({
 
   // Auto play functionality
   React.useEffect(() => {
-    let interval: NodeJS.Timeout;
+    let interval: NodeJS.Timeout | number;
 
     if (autoPlay) {
       interval = setInterval(() => {
@@ -65,7 +65,7 @@ export default function BannerCarousel({
     }
 
     return () => {
-      if (interval) clearInterval(interval);
+      if (interval) clearInterval(interval as NodeJS.Timeout);
     };
   }, [activeIndex, autoPlay, autoPlayInterval, banners.length]);
 

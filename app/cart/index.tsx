@@ -1,10 +1,18 @@
-import React, { useState } from "react";
-import { View, StyleSheet, ScrollView, ActivityIndicator } from "react-native";
+import React, { useState, useEffect } from "react";
+import { View, StyleSheet, ScrollView, ActivityIndicator, Alert } from "react-native";
 import { StatusBar } from "expo-status-bar";
-import { router } from "expo-router";
+import { router, useLocalSearchParams } from "expo-router";
 import { COLORS, SPACING } from "@/lib/constants/Styles";
 import { Typography } from "@/components/ui/Typography";
 import { useCart, useRemoveCartItem } from "@/lib/api/hooks/useCart";
+import { useLocationStore } from "@/stores/locationStore";
+import { useGetUserAddresses } from "@/lib/api/services/addressService";
+import { Address } from "@/types/address";
+import { DeliveryType, PaymentType } from "@/types/order";
+import { useCreateOrder, useCreateRazorpayOrder, useVerifyPayment } from "@/lib/api/hooks/useOrder";
+import { RazorpaySuccessResponse, RazorpayErrorResponse } from "@/lib/utils/razorpay";
+import RazorpayCheckout from 'react-native-razorpay';
+import { useAuthStore } from "@/stores/authStore";
 
 // Import cart components
 import CartHeader from "@/components/cart/CartHeader";
@@ -17,6 +25,7 @@ import PriceDropAlert from "@/components/cart/PriceDropAlert";
 import RecommendedProducts from "@/components/cart/RecommendedProducts";
 import DeliveryAddressSection from "@/components/cart/DeliveryAddressSection";
 import DeliveryOptionsSection from "@/components/cart/DeliveryOptionsSection";
+import DeliveryMethodSection, { DeliveryMethod } from "@/components/cart/DeliveryMethodSection";
 import BillSummarySection from "@/components/cart/BillSummarySection";
 import PaymentOptions from "@/components/cart/PaymentOptions";
 
@@ -54,16 +63,68 @@ interface BillItemType {
 }
 
 export default function CartScreen() {
-  // Use mock address data for now
-  const address = "123 Main St";
-  const city = "Mumbai";
-  const pincode = "400001";
+  // Get params from URL (for retry payment)
+  const { retryOrderId } = useLocalSearchParams<{ retryOrderId: string }>();
 
-  const { data: cartData, isLoading, error } = useCart();
+  // Get user data from auth store
+  const { user } = useAuthStore();
+
+  // Get location data from the location store
+  const { selectedAddress, fullAddress, city, pincode } = useLocationStore();
+
+  // Fetch user addresses
+  const { data: userAddresses, isLoading: isLoadingAddresses } = useGetUserAddresses();
+
+  // State for selected delivery address
+  const [deliveryAddress, setDeliveryAddress] = useState<Address | null>(null);
+
+  const { data: cartData, isLoading: isLoadingCart, error } = useCart();
   const removeCartItem = useRemoveCartItem();
+
+  // Order and payment mutations
+  const createOrder = useCreateOrder();
+  const createRazorpayOrder = useCreateRazorpayOrder();
+  const verifyPayment = useVerifyPayment();
+
+  // State for loading indicators
+  const [isProcessingOrder, setIsProcessingOrder] = useState(false);
+
+  // Set delivery address when data is available
+  useEffect(() => {
+    if (selectedAddress) {
+      // If there's a selected address in the location store, use it
+      setDeliveryAddress(selectedAddress);
+    } else if (userAddresses && userAddresses.length > 0) {
+      // Otherwise, try to find a default address or use the first one
+      const defaultAddress = userAddresses.find(addr => addr.isDefault);
+      setDeliveryAddress(defaultAddress || userAddresses[0]);
+    }
+  }, [selectedAddress, userAddresses]);
+
+  // Handle retry payment if retryOrderId is provided
+  useEffect(() => {
+    if (retryOrderId) {
+      // Process payment for the existing order
+      const handleRetry = async () => {
+        try {
+          await processRazorpayPayment(retryOrderId);
+        } catch (error) {
+          console.error("Error retrying payment:", error);
+        }
+      };
+
+      handleRetry();
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [retryOrderId]);
 
   // State for UI interactions
   const [selectedDeliveryOption, setSelectedDeliveryOption] = useState("self");
+  const [selectedDeliveryMethod, setSelectedDeliveryMethod] = useState<DeliveryMethod>("delivery");
+
+  // Convert delivery method to API delivery type
+  const deliveryType: DeliveryType = selectedDeliveryMethod === "delivery" ? "home_delivery" : "pickup";
+  const isDelivery = selectedDeliveryMethod === "delivery";
 
   // State for modals
   const [isCouponModalVisible, setIsCouponModalVisible] = useState(false);
@@ -97,10 +158,9 @@ export default function CartScreen() {
     setIsCouponModalVisible(true);
   };
 
-  // Handle address press
+  // Handle address press - navigate to address selection
   const handleAddressPress = () => {
-    // In a real app, this would navigate to the address selection screen
-    console.log("Navigate to address selection");
+    router.push("/address");
   };
 
   // Handle add more items press
@@ -110,15 +170,153 @@ export default function CartScreen() {
 
   // This function is used directly in the JSX
 
-  // Handle payment options press
-  const handlePayOnline = () => {
-    // In a real app, this would navigate to a payment gateway
-    console.log("Pay online requested");
+  // Process payment with Razorpay
+  const processRazorpayPayment = async (orderId: string) => {
+    try {
+      setIsProcessingOrder(true);
+
+      // Create Razorpay order
+      const razorpayOrderResponse = await createRazorpayOrder.mutateAsync({ orderId });
+
+      if (!razorpayOrderResponse.data) {
+        throw new Error("Failed to create Razorpay order");
+      }
+
+      const { razorpayOrderId, amount, currency, keyId } = razorpayOrderResponse.data;
+
+      // Configure Razorpay options
+      const options = {
+        key: process.env.EXPO_PUBLIC_RAZORPAY_KEY_ID || keyId,
+        amount: amount.toString(),
+        currency: currency,
+        name: "Dukaan-Pe",
+        description: `Order #${orderId}`,
+        order_id: razorpayOrderId,
+        prefill: {
+          email: user?.email || "",
+          contact: user?.mobileNumber || "",
+          name: user?.name || "",
+        },
+        theme: {
+          color: "#FF3B7F",
+        },
+        notes: {
+          orderId: orderId,
+        },
+      };
+
+      // Open Razorpay checkout directly inside the component
+      const paymentData = await new Promise<RazorpaySuccessResponse>((resolve, reject) => {
+        RazorpayCheckout.open(options)
+          .then((data: RazorpaySuccessResponse) => {
+            // Handle success
+            resolve(data);
+          })
+          .catch((error: RazorpayErrorResponse) => {
+            // Handle failure
+            reject(error);
+          });
+      });
+
+      // Verify payment
+      await verifyPayment.mutateAsync({
+        orderId,
+        razorpayPaymentId: paymentData.razorpay_payment_id,
+        razorpayOrderId: paymentData.razorpay_order_id,
+        razorpaySignature: paymentData.razorpay_signature,
+      });
+
+      // Navigate to success page
+      router.replace(`/order/success?orderId=${orderId}`);
+    } catch (error: any) {
+      console.error("Payment processing error:", error);
+
+      // Navigate to failure page
+      router.replace({
+        pathname: "/order/failure",
+        params: {
+          orderId,
+          errorMessage: error.description || error.message || "Payment failed"
+        }
+      });
+    } finally {
+      setIsProcessingOrder(false);
+    }
   };
 
-  const handlePayCash = () => {
-    // In a real app, this would set the payment method to cash
-    console.log("Pay with cash requested");
+  // Handle payment options press
+  const handlePayOnline = async () => {
+    try {
+      setIsProcessingOrder(true);
+
+      // If we have a retry order ID, process payment directly
+      if (retryOrderId) {
+        await processRazorpayPayment(retryOrderId);
+        return;
+      }
+
+      // Create order first
+      const orderData = {
+        cartId: cart._id,
+        paymentType: 'card' as PaymentType,
+        deliveryAddressId: isDelivery ? deliveryAddress?._id : undefined,
+        isDelivery,
+        deliveryType,
+      };
+
+      const orderResponse = await createOrder.mutateAsync(orderData);
+      // Cast the response to any to access the nested order object
+      const responseData = orderResponse.data as any;
+
+      if (!responseData?.order?._id) {
+        throw new Error("Failed to create order");
+      }
+
+      // Process payment with Razorpay
+      await processRazorpayPayment(responseData.order._id);
+    } catch (error: any) {
+      console.error("Error in online payment flow:", error);
+      Alert.alert(
+        "Payment Error",
+        error.message || "There was an error processing your payment. Please try again."
+      );
+    } finally {
+      setIsProcessingOrder(false);
+    }
+  };
+
+  const handlePayCash = async () => {
+    try {
+      setIsProcessingOrder(true);
+
+      // Create order with COD payment type
+      const orderData = {
+        cartId: cart._id,
+        paymentType: 'cod' as PaymentType,
+        deliveryAddressId: isDelivery ? deliveryAddress?._id : undefined,
+        isDelivery,
+        deliveryType,
+      };
+
+      const orderResponse = await createOrder.mutateAsync(orderData);
+      // Cast the response to any to access the nested order object
+      const responseData = orderResponse.data as any;
+
+      if (!responseData?.order?._id) {
+        throw new Error("Failed to create order");
+      }
+
+      // Navigate to success page
+      router.replace(`/order/success?orderId=${responseData.order._id}`);
+    } catch (error: any) {
+      console.error("Error in COD payment flow:", error);
+      Alert.alert(
+        "Order Error",
+        error.message || "There was an error placing your order. Please try again."
+      );
+    } finally {
+      setIsProcessingOrder(false);
+    }
   };
 
   // Handle save tip
@@ -181,7 +379,7 @@ export default function CartScreen() {
   };
 
   // Render loading state
-  if (isLoading) {
+  if (isLoadingCart || isLoadingAddresses) {
     return (
       <View style={[styles.container, styles.loadingContainer]}>
         <StatusBar style="dark" />
@@ -217,8 +415,8 @@ export default function CartScreen() {
       </View>
     );
   }
-
   const cart = cartData.data.cart;
+  console.log(cart)
   const summary = cartData.data.summary;
   const savings = calculateSavings();
   const freeDeliveryAmount = 25; // Mocked value
@@ -249,7 +447,10 @@ export default function CartScreen() {
         )}
 
         {/* Coupon Section */}
-        <CouponSection onPress={handleCouponPress} />
+        <CouponSection
+          onPress={handleCouponPress}
+          appliedCouponId={cart.coupon}
+        />
 
         {/* Delivery Info Section */}
         {/* <DeliveryInfoSection estimatedTime="24 mins" /> */}
@@ -260,6 +461,8 @@ export default function CartScreen() {
             key={item._id}
             item={item}
             onRemove={handleRemoveItem}
+            coupon={cart.coupon}
+            offerDiscount={summary.offerDiscount > 0 ? summary.offerDiscount : 0}
           />
         ))}
 
@@ -279,6 +482,12 @@ export default function CartScreen() {
           onSeeAllPress={handleAddMorePress}
         />
 
+        {/* Delivery Method Section */}
+        <DeliveryMethodSection
+          selectedMethod={selectedDeliveryMethod}
+          onSelectMethod={setSelectedDeliveryMethod}
+        />
+
         {/* Delivery Options Section - Only showing "Ordering for myself" */}
         <DeliveryOptionsSection
           options={[deliveryOptions[0]]} // Only include the "self" option
@@ -296,12 +505,16 @@ export default function CartScreen() {
           onPress={() => setIsBillModalVisible(true)}
         />
 
-        {/* Delivery Address Section */}
-        <DeliveryAddressSection
-          address={address || `${city || ""} ${pincode || ""}`}
-          distance="12.7 Kms"
-          onPress={handleAddressPress}
-        />
+        {/* Delivery Address Section - Only show if delivery method is selected */}
+        {selectedDeliveryMethod === "delivery" && (
+          <DeliveryAddressSection
+            address={deliveryAddress || undefined}
+            fullAddress={fullAddress || `${city || ""} ${pincode ? `, ${pincode}` : ""}`}
+            addressType={deliveryAddress?.type || "Home"}
+            distance={deliveryAddress ? "12.7 Kms" : undefined}
+            onPress={handleAddressPress}
+          />
+        )}
 
 
       </ScrollView>
@@ -313,13 +526,20 @@ export default function CartScreen() {
         savings={savings}
         onPayOnline={handlePayOnline}
         onPayCash={handlePayCash}
+        isAddressSelected={
+          selectedDeliveryMethod === "pickup" ||
+          (!!deliveryAddress && !!deliveryAddress.houseDetails && !!deliveryAddress.streetAddress)
+        }
+        onAddressPress={handleAddressPress}
+        isPickup={selectedDeliveryMethod === "pickup"}
+        isLoading={isProcessingOrder}
       />
 
       {/* Modals */}
       <CouponModal
         visible={isCouponModalVisible}
         onClose={() => setIsCouponModalVisible(false)}
-        appliedCouponId={cart.coupon as string || ""}
+        appliedCouponId={cart.coupon}
       />
 
       <GiftModal

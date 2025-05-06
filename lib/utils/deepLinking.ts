@@ -17,7 +17,7 @@ export const parseDeepLink = (
     // Check if it's a store link
     if (hostname === "store" || path?.includes("store/")) {
       // Extract the store ID
-      const storeId = path?.split("store/")[1] || hostname.split("store/")[1];
+      const storeId = path?.split("store/")[1] || (hostname ? hostname.split("store/")[1] : null);
       return { storeId: storeId || null, isStoreHome: false };
     }
 
@@ -25,7 +25,7 @@ export const parseDeepLink = (
     if (hostname === "store-home" || path?.includes("store-home/")) {
       // Extract the store ID
       const storeId =
-        path?.split("store-home/")[1] || hostname.split("store-home/")[1];
+        path?.split("store-home/")[1] || (hostname ? hostname.split("store-home/")[1] : null);
       return { storeId: storeId || null, isStoreHome: true };
     }
 

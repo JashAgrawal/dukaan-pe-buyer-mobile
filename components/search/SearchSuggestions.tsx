@@ -10,6 +10,7 @@ interface SearchSuggestionsProps {
   popularStores: SearchItem[];
   onItemPress: (item: SearchItem) => void;
   onClearRecentSearches: () => void;
+  onRemoveRecentSearch: (id: string) => void;
   searchQuery: string;
 }
 
@@ -18,6 +19,7 @@ const SearchSuggestions: React.FC<SearchSuggestionsProps> = ({
   popularStores,
   onItemPress,
   onClearRecentSearches,
+  onRemoveRecentSearch,
   searchQuery,
 }) => {
   // Only filter if search query is more than 2 characters
@@ -55,6 +57,8 @@ const SearchSuggestions: React.FC<SearchSuggestionsProps> = ({
                 items={filteredRecentSearches}
                 onItemPress={onItemPress}
                 onClearPress={onClearRecentSearches}
+                onRemoveItem={onRemoveRecentSearch}
+                isPastSearch={true}
               />
             )}
 

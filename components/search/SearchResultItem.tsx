@@ -8,12 +8,24 @@ import { getImageUrl } from "@/lib/helpers";
 interface SearchResultItemProps {
   item: SearchItem;
   onPress: (item: SearchItem) => void;
+  onRemove?: (id: string) => void;
+  isPastSearch?: boolean;
 }
 
 export default function SearchResultItem({
   item,
   onPress,
+  onRemove,
+  isPastSearch = false,
 }: SearchResultItemProps) {
+  // Handle remove button press
+  const handleRemove = (e: React.TouchEvent) => {
+    e.stopPropagation();
+    if (onRemove) {
+      onRemove(item.id);
+    }
+  };
+
   return (
     <TouchableOpacity
       style={styles.container}
@@ -33,16 +45,29 @@ export default function SearchResultItem({
       <View style={styles.content}>
         <View style={styles.nameRow}>
           <Typography style={styles.name}>{item.name}</Typography>
-          {/* Badge to indicate if it's a product or store */}
-          {item.price ? (
-            <View style={[styles.badge, styles.productBadge]}>
-              <Typography style={styles.badgeText}>Product</Typography>
-            </View>
-          ) : (
-            <View style={[styles.badge, styles.storeBadge]}>
-              <Typography style={styles.badgeText}>Store</Typography>
-            </View>
-          )}
+          <View style={styles.rightContent}>
+            {/* Remove button for past searches */}
+            {isPastSearch && onRemove && (
+              <TouchableOpacity
+                style={styles.removeButton}
+                onPress={(e: any) => handleRemove(e)}
+                hitSlop={{ top: 10, right: 10, bottom: 10, left: 10 }}
+              >
+                <MaterialIcons name="close" size={16} color="#666" />
+              </TouchableOpacity>
+            )}
+
+            {/* Badge to indicate if it's a product or store */}
+            {item.price ? (
+              <View style={[styles.badge, styles.productBadge]}>
+                <Typography style={styles.badgeText}>Product</Typography>
+              </View>
+            ) : (
+              <View style={[styles.badge, styles.storeBadge]}>
+                <Typography style={styles.badgeText}>Store</Typography>
+              </View>
+            )}
+          </View>
         </View>
         {item.tagline ? (
           <Typography style={styles.tagline}>{item.tagline}</Typography>
@@ -123,6 +148,14 @@ const styles = StyleSheet.create({
     color: "#000",
     flex: 1,
     marginRight: 8,
+  },
+  rightContent: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  removeButton: {
+    marginRight: 8,
+    padding: 4,
   },
   badge: {
     paddingHorizontal: 8,

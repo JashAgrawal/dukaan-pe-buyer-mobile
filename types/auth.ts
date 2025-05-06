@@ -9,6 +9,7 @@ export interface User {
   id: string;
   name: string;
   mobileNumber: string;
+  phone?: string; // Added for Razorpay integration
   email?: string;
   role: 'user' | 'admin' | 'seller';
 }

@@ -69,6 +69,12 @@ export const useSearchStore = create<SearchState>()(
 
       clearRecentSearches: () => set({ recentSearches: [] }),
 
+  // Remove a specific recent search by ID
+  removeRecentSearch: (id: string) =>
+    set((state) => ({
+      recentSearches: state.recentSearches.filter(item => item.id !== id)
+    })),
+
       removeFromRecentSearches: (id) => {
         const currentSearches = get().recentSearches;
         set({

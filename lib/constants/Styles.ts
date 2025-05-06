@@ -52,8 +52,10 @@ export const COLORS = {
   BORDER: "#F0F0F0",
   WHITE: "#FFFFFF",
   SUCCESS: "#4CAF50",
+  SUCCESS_LIGHT: "#E8F5E9",
   ERROR: "#FF3B30",
   WARNING: "#FFC107",
+  WARNING_LIGHT: "#FFF8E1",
   INFO: "#2196F3",
   TRANSPARENT: "transparent",
   OVERLAY: "rgba(0, 0, 0, 0.5)",
@@ -187,7 +189,7 @@ export const TEXT_STYLES = StyleSheet.create({
     lineHeight: LINE_HEIGHTS.SM,
     color: COLORS.SUCCESS,
   },
-  
+
   // Card text styles
   cardTitle: {
     fontFamily: FONTS.SEMIBOLD,
@@ -209,7 +211,7 @@ export const TEXT_STYLES = StyleSheet.create({
     lineHeight: LINE_HEIGHTS.SM,
     color: COLORS.TEXT_MEDIUM,
   },
-  
+
   // Button text styles
   buttonPrimary: {
     fontFamily: FONTS.BOLD,
@@ -241,7 +243,7 @@ export const CONTAINER_STYLES = StyleSheet.create({
     flex: 1,
     backgroundColor: COLORS.GRAY_LIGHTEST,
   },
-  
+
   // Content containers
   contentContainer: {
     padding: SPACING.LG,
@@ -249,7 +251,7 @@ export const CONTAINER_STYLES = StyleSheet.create({
   contentContainerWithScroll: {
     paddingBottom: SPACING.HUGE,
   },
-  
+
   // Section containers
   section: {
     marginBottom: SPACING.XL,
@@ -260,7 +262,7 @@ export const CONTAINER_STYLES = StyleSheet.create({
     borderBottomColor: COLORS.BORDER,
     paddingBottom: SPACING.LG,
   },
-  
+
   // Row containers
   row: {
     flexDirection: "row",
@@ -276,7 +278,7 @@ export const CONTAINER_STYLES = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
-  
+
   // Center containers
   center: {
     justifyContent: "center",
@@ -301,7 +303,7 @@ export const CARD_STYLES = StyleSheet.create({
     marginBottom: SPACING.MD,
     ...SHADOWS.LIGHT,
   },
-  
+
   // Store card
   storeCard: {
     width: "100%",
@@ -312,7 +314,7 @@ export const CARD_STYLES = StyleSheet.create({
     maxWidth: 300,
     ...SHADOWS.LIGHT,
   },
-  
+
   // Small store card
   smallStoreCard: {
     width: "100%",
@@ -323,7 +325,7 @@ export const CARD_STYLES = StyleSheet.create({
     marginBottom: SPACING.MD,
     ...SHADOWS.LIGHT,
   },
-  
+
   // Info card
   infoCard: {
     backgroundColor: COLORS.WHITE,
@@ -334,7 +336,7 @@ export const CARD_STYLES = StyleSheet.create({
     marginBottom: SPACING.MD,
     ...SHADOWS.LIGHT,
   },
-  
+
   // Image container in cards
   imageContainer: {
     width: "100%",
@@ -351,7 +353,7 @@ export const CARD_STYLES = StyleSheet.create({
     height: "100%",
     resizeMode: "cover",
   },
-  
+
   // Card content container
   cardContent: {
     padding: SPACING.MD,
@@ -369,7 +371,7 @@ export const BUTTON_STYLES = StyleSheet.create({
     justifyContent: "center",
     paddingHorizontal: SPACING.LG,
   },
-  
+
   // Secondary button
   secondaryButton: {
     backgroundColor: COLORS.WHITE,
@@ -381,12 +383,12 @@ export const BUTTON_STYLES = StyleSheet.create({
     justifyContent: "center",
     paddingHorizontal: SPACING.LG,
   },
-  
+
   // Icon button
   iconButton: {
     padding: SPACING.SM,
   },
-  
+
   // Favorite button
   favoriteButton: {
     position: "absolute",
@@ -424,7 +426,7 @@ export const HEADER_STYLES = StyleSheet.create({
     borderBottomColor: COLORS.BORDER,
     backgroundColor: COLORS.WHITE,
   },
-  
+
   // App header
   appHeader: {
     backgroundColor: COLORS.WHITE,
@@ -433,7 +435,7 @@ export const HEADER_STYLES = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: COLORS.BORDER,
   },
-  
+
   // Header with back button
   headerWithBack: {
     flexDirection: "row",
@@ -443,12 +445,12 @@ export const HEADER_STYLES = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: COLORS.BORDER,
   },
-  
+
   // Back button
   backButton: {
     marginRight: SPACING.LG,
   },
-  
+
   // Header title
   headerTitle: {
     fontFamily: FONTS.SEMIBOLD,
@@ -466,7 +468,7 @@ export const BADGE_STYLES = StyleSheet.create({
     borderRadius: BORDER_RADIUS.XS,
     backgroundColor: COLORS.PRIMARY_LIGHT,
   },
-  
+
   // Status badges
   successBadge: {
     paddingVertical: SPACING.XS,
@@ -486,7 +488,7 @@ export const BADGE_STYLES = StyleSheet.create({
     borderRadius: BORDER_RADIUS.XS,
     backgroundColor: COLORS.WARNING,
   },
-  
+
   // Badge text
   badgeText: {
     fontFamily: FONTS.MEDIUM,
@@ -508,7 +510,7 @@ export const INPUT_STYLES = StyleSheet.create({
     fontSize: FONT_SIZES.MD,
     color: COLORS.TEXT_DARK,
   },
-  
+
   // Input with icon
   inputWithIcon: {
     flexDirection: "row",
@@ -519,7 +521,7 @@ export const INPUT_STYLES = StyleSheet.create({
     borderRadius: BORDER_RADIUS.SM,
     paddingHorizontal: SPACING.LG,
   },
-  
+
   // Search input
   searchInput: {
     height: 48,
@@ -532,7 +534,7 @@ export const INPUT_STYLES = StyleSheet.create({
     color: COLORS.TEXT_DARK,
     backgroundColor: COLORS.GRAY_LIGHTEST,
   },
-  
+
   // Input label
   inputLabel: {
     fontFamily: FONTS.MEDIUM,
@@ -540,7 +542,7 @@ export const INPUT_STYLES = StyleSheet.create({
     color: COLORS.TEXT_MEDIUM,
     marginBottom: SPACING.XS,
   },
-  
+
   // Error message
   errorMessage: {
     fontFamily: FONTS.REGULAR,
@@ -559,7 +561,7 @@ export const DIVIDER_STYLES = StyleSheet.create({
     width: "100%",
     marginVertical: SPACING.MD,
   },
-  
+
   // Vertical divider
   vertical: {
     width: 1,

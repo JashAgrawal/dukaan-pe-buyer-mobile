@@ -1,0 +1,114 @@
+{
+    "success": true,
+    "data": {
+      "_id": "681a588266e21806ddb6eeb7",
+      "orderNumber": "#250507-0007",
+      "cartSnapshot": {
+        "_id": "681a588266e21806ddb6eeb3",
+        "originalCartId": "681a587e66e21806ddb6ee77",
+        "user": "67f503d9f480935daf6ce346",
+        "store": "67fe1247a24f883b65266bd7",
+        "items": [
+          {
+            "product": "67fe124aa24f883b65266efa",
+            "quantity": 1,
+            "variant": null,
+            "size": null,
+            "effectivePrice": 3270,
+            "price": 6289,
+            "discountAmt": 3019,
+            "discountPercentage": 48,
+            "couponDiscount": 0,
+            "couponDiscountPercentage": 0,
+            "offerDiscount": 0,
+            "offerDiscountPercentage": 0,
+            "_id": "681a587e66e21806ddb6ee79"
+          }
+        ],
+        "coupon": null,
+        "offer": null,
+        "totalAmount": 6289,
+        "totalDiscount": 3019,
+        "couponDiscount": 0,
+        "offerDiscount": 0,
+        "deliveryCharges": 0,
+        "payableAmount": 3270,
+        "createdAt": "2025-05-06T18:44:18.907Z",
+        "updatedAt": "2025-05-06T18:44:18.907Z",
+        "__v": 0
+      },
+      "user": "67f503d9f480935daf6ce346",
+      "store": "67fe1247a24f883b65266bd7",
+      "items": [
+        {
+          "product": "67fe124aa24f883b65266efa",
+          "quantity": 1,
+          "price": 6289,
+          "discountedPrice": 3270,
+          "totalPrice": 3270,
+          "status": "active",
+          "_id": "681a588266e21806ddb6eeb8"
+        }
+      ],
+      "paymentType": "cod",
+      "paymentStatus": "pending",
+      "totalWithoutDiscount": 6289,
+      "totalPayableAmount": 3270,
+      "totalDiscount": 3019,
+      "couponDiscount": 0,
+      "offerDiscount": 0,
+      "coupon": null,
+      "offer": null,
+      "deliveryCharges": 0,
+      "orderStatus": "pending",
+      "isDelivery": true,
+      "deliveryType": "home_delivery",
+      "deliveryAddressId": {
+        "location": {
+          "type": "Point",
+          "coordinates": [
+            73.0569548,
+            19.304758
+          ]
+        },
+        "_id": "681a1934ab84a48dbf52d457",
+        "user": "67f503d9f480935daf6ce346",
+        "country": "India",
+        "state": "Maharashtra",
+        "city": "Bhiwandi",
+        "pincode": "421308",
+        "houseDetails": "202, shanti smruti bldg ",
+        "streetAddress": "Bhave compound ",
+        "directionToReach": "Left from shivaji chowk",
+        "googleFetchedAddress": "Chatrapati Shivaji Maharaj Chowk, Bhiwandi, Maharashtra, 421308, India",
+        "type": "home",
+        "isDefault": true,
+        "isDeleted": false,
+        "deletedAt": null,
+        "createdAt": "2025-05-06T14:14:12.273Z",
+        "updatedAt": "2025-05-06T14:14:12.273Z",
+        "__v": 0
+      },
+      "isActive": true,
+      "createdAt": "2025-05-06T18:44:18.923Z",
+      "updatedAt": "2025-05-06T18:44:18.936Z",
+      "__v": 0,
+      "deliveryTrackingId": {
+        "_id": "681a588266e21806ddb6eeba",
+        "order": "681a588266e21806ddb6eeb7",
+        "currentStatus": "pending",
+        "statusUpdates": [
+          {
+            "status": "pending",
+            "timestamp": "2025-05-06T18:44:18.929Z",
+            "description": "Order has been placed",
+            "_id": "681a588266e21806ddb6eebb"
+          }
+        ],
+        "isActive": true,
+        "createdAt": "2025-05-06T18:44:18.930Z",
+        "updatedAt": "2025-05-06T18:44:18.930Z",
+        "__v": 0
+      }
+    }
+  }
