@@ -49,7 +49,7 @@ export default function CartProvider({ children }: CartProviderProps) {
   console.log("CartProvider - extracted summary:", JSON.stringify(summary, null, 2));
 
   // Only show the cart for the active store
-  const isCurrentStoreCart = cart && storeId && cart.store === storeId;
+  const isCurrentStoreCart = cart && storeId && cart.store._id === storeId;
   console.log("CartProvider - isCurrentStoreCart:", isCurrentStoreCart);
   console.log("CartProvider - cart store:", cart?.store);
   console.log("CartProvider - active storeId:", storeId);
