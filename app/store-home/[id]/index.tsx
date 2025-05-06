@@ -13,6 +13,8 @@ import { Typography, H1, Body1 } from "@/components/ui/Typography";
 import Animated, { FadeInRight } from "react-native-reanimated";
 import { useActiveStoreStore } from "@/stores/activeStoreStore";
 import { useSearchStore } from "@/stores/useSearchStore";
+import { useCartStore } from "@/stores/cartStore";
+import { useAuthStore } from "@/stores/authStore";
 import storeService from "@/lib/api/services/storeService";
 import StoreHomeHeader from "@/components/store-home/StoreHomeHeader";
 import ScrollAwareWrapper from "@/components/ui/ScrollAwareWrapper";
@@ -31,10 +33,16 @@ export default function StoreHomePage() {
   const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(null);
 
   // Get active store from store
-  const { activeStore, setActiveStore } = useActiveStoreStore();
+  const { activeStore, setActiveStore, clearActiveStore } = useActiveStoreStore();
 
   // Get search store for product search
   const { productResults } = useSearchStore();
+
+  // Get cart store for fetching cart
+  const fetchCart = useCartStore(state => state.fetchCart);
+
+  // Get auth state to check if user is authenticated
+  const { isAuthenticated } = useAuthStore();
 
   // Use a ref to track if we've already loaded this store
   const loadedStoreIdRef = useRef<string | null>(null);
@@ -108,6 +116,12 @@ export default function StoreHomePage() {
     router.back();
   };
 
+  // Handle home button press - clear active store and navigate to home
+  const handleHomePress = () => {
+    clearActiveStore();
+    router.navigate("/(tabs)");
+  };
+
   // Search functionality is now handled in the search screen
 
   // Handle category selection
@@ -123,6 +137,27 @@ export default function StoreHomePage() {
       productsQuery.fetchNextPage();
     }
   }, [productsQuery]);
+
+  // Fetch cart when the store-home page loads or when the active storeId changes
+  useEffect(() => {
+    const fetchCartData = async () => {
+      try {
+        if (isAuthenticated && activeStore?._id) {
+          console.log("StoreHomePage - Fetching cart for store:", activeStore._id);
+
+          // Clear any existing cart data first to prevent stale data
+          useCartStore.getState().clearCart();
+
+          // Then fetch the cart for the current store
+          await fetchCart(activeStore._id);
+        }
+      } catch (error) {
+        console.error("StoreHomePage - Error fetching cart:", error);
+      }
+    };
+
+    fetchCartData();
+  }, [isAuthenticated, activeStore?._id, fetchCart]);
 
   // Products are already filtered by the search store or by category in the query
 
@@ -184,6 +219,7 @@ export default function StoreHomePage() {
             storeId={storeId}
             onBackPress={handleBackPress}
             onSearchPress={() => router.push(`/store-home/${storeId}/search`)}
+            onHomePress={handleHomePress}
           />
         }
       >
@@ -220,7 +256,7 @@ export default function StoreHomePage() {
               isFetchingNextPage={productsQuery.isFetchingNextPage}
             />
           </Animated.View>
-        </View>        
+        </View>
 
         {/* New Arrivals Section */}
         <View style={styles.sectionContainer}>

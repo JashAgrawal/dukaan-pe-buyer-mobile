@@ -8,13 +8,13 @@ import { useOrder } from "@/lib/api/hooks/useOrder";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 
 export default function OrderSuccessScreen() {
-  const { orderId } = useLocalSearchParams<{ orderId: string }>();
+  const { orderId,storeId } = useLocalSearchParams<{ orderId: string, storeId: string }>();
   const { data: orderData, isLoading, error } = useOrder(orderId || "");
 
   // Redirect to home if no orderId is provided
   useEffect(() => {
     if (!orderId) {
-      router.replace("/");
+      router.replace(`/store-home/${storeId}`);
     }
   }, [orderId]);
 
@@ -23,7 +23,7 @@ export default function OrderSuccessScreen() {
   };
 
   const handleContinueShopping = () => {
-    router.replace("/");
+    router.replace(`/store-home/${storeId}`);
   };
 
   if (isLoading) {

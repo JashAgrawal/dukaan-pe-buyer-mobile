@@ -7,6 +7,7 @@ import {
   StyleSheet,
   Image,
   Keyboard,
+  ScrollView,
 } from "react-native";
 import {
   router,
@@ -151,7 +152,7 @@ export default function OtpScreen() {
   };
 
   return (
-    <View style={styles.container}>
+    <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>
       <StatusBar style="light" />
 
       {/* Header with gradient background */}
@@ -238,7 +239,7 @@ export default function OtpScreen() {
           {verifyOtpMutation.isPending ? "Verifying..." : "Submit"}
         </Text>
       </TouchableOpacity>
-    </View>
+    </ScrollView>
   );
 }
 
@@ -250,6 +251,10 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#FFFFFF",
+  },
+  contentContainer: {
+    flexGrow: 1,
+    paddingBottom: 20,
   },
   header: {
     height: 300,

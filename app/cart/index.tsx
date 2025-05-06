@@ -1,10 +1,9 @@
 import React, { useState, useEffect } from "react";
-import { View, StyleSheet, ScrollView, ActivityIndicator, Alert } from "react-native";
+import { View, StyleSheet, ScrollView, ActivityIndicator, Alert, TouchableOpacity } from "react-native";
 import { StatusBar } from "expo-status-bar";
 import { router, useLocalSearchParams } from "expo-router";
 import { COLORS, SPACING } from "@/lib/constants/Styles";
 import { Typography } from "@/components/ui/Typography";
-import { useCart, useRemoveCartItem } from "@/lib/api/hooks/useCart";
 import { useLocationStore } from "@/stores/locationStore";
 import { useGetUserAddresses } from "@/lib/api/services/addressService";
 import { Address } from "@/types/address";
@@ -13,6 +12,8 @@ import { useCreateOrder, useCreateRazorpayOrder, useVerifyPayment } from "@/lib/
 import { RazorpaySuccessResponse, RazorpayErrorResponse } from "@/lib/utils/razorpay";
 import RazorpayCheckout from 'react-native-razorpay';
 import { useAuthStore } from "@/stores/authStore";
+import { useActiveStoreStore } from "@/stores/activeStoreStore";
+import { useCartStore } from "@/stores/cartStore";
 
 // Import cart components
 import CartHeader from "@/components/cart/CartHeader";
@@ -28,6 +29,7 @@ import DeliveryOptionsSection from "@/components/cart/DeliveryOptionsSection";
 import DeliveryMethodSection, { DeliveryMethod } from "@/components/cart/DeliveryMethodSection";
 import BillSummarySection from "@/components/cart/BillSummarySection";
 import PaymentOptions from "@/components/cart/PaymentOptions";
+import CustomerNotesSection from "@/components/cart/CustomerNotesSection";
 
 // Import modal components
 import CouponModal from "@/components/cart/modals/CouponModal";
@@ -78,8 +80,16 @@ export default function CartScreen() {
   // State for selected delivery address
   const [deliveryAddress, setDeliveryAddress] = useState<Address | null>(null);
 
-  const { data: cartData, isLoading: isLoadingCart, error } = useCart();
-  const removeCartItem = useRemoveCartItem();
+  // Get active store from store (used in useEffect for fetching cart)
+
+  // Get cart data from Zustand store
+  const {
+    cart: cartData,
+    summary: cartSummary,
+    isLoading: isLoadingCart,
+    error: cartError,
+    removeCartItem
+  } = useCartStore();
 
   // Order and payment mutations
   const createOrder = useCreateOrder();
@@ -100,6 +110,24 @@ export default function CartScreen() {
       setDeliveryAddress(defaultAddress || userAddresses[0]);
     }
   }, [selectedAddress, userAddresses]);
+
+  // Fetch cart data when the cart page loads
+  useEffect(() => {
+    const fetchCartData = async () => {
+      try {
+        console.log("Cart page - Fetching cart data on page load");
+        const { activeStore } = useActiveStoreStore.getState();
+        if (activeStore?._id) {
+          console.log("Cart page - Fetching cart for store:", activeStore._id);
+          await useCartStore.getState().fetchCart(activeStore._id);
+        }
+      } catch (error) {
+        console.error("Cart page - Error fetching cart:", error);
+      }
+    };
+
+    fetchCartData();
+  }, []);
 
   // Handle retry payment if retryOrderId is provided
   useEffect(() => {
@@ -136,6 +164,7 @@ export default function CartScreen() {
   // State for modal data
   const [tipAmount, setTipAmount] = useState(0);
   const [deliveryInstructions, setDeliveryInstructions] = useState("");
+  const [customerNotes, setCustomerNotes] = useState("");
 
   // Handle back button press
   const handleBackPress = () => {
@@ -143,8 +172,9 @@ export default function CartScreen() {
   };
 
   // Handle remove item from cart
-  const handleRemoveItem = (itemId: string) => {
-    removeCartItem.mutate({ itemId });
+  const handleRemoveItem = (productId: string) => {
+    console.log("Cart page - removing item with product ID:", productId);
+    removeCartItem({ itemId: productId });
   };
 
   // Handle add product to cart
@@ -166,6 +196,25 @@ export default function CartScreen() {
   // Handle add more items press
   const handleAddMorePress = () => {
     router.back(); // Go back to store or product listing
+  };
+
+  // Handle manual refresh of cart data
+  const [isRefreshing, setIsRefreshing] = useState(false);
+
+  const handleRefreshCart = async () => {
+    try {
+      setIsRefreshing(true);
+      console.log("Cart page - Manually refreshing cart");
+      const { activeStore } = useActiveStoreStore.getState();
+      if (activeStore?._id) {
+        console.log("Cart page - Manually refreshing cart for store:", activeStore._id);
+        await useCartStore.getState().fetchCart(activeStore._id);
+      }
+    } catch (error) {
+      console.error("Cart page - Error refreshing cart:", error);
+    } finally {
+      setIsRefreshing(false);
+    }
   };
 
   // This function is used directly in the JSX
@@ -227,7 +276,7 @@ export default function CartScreen() {
       });
 
       // Navigate to success page
-      router.replace(`/order/success?orderId=${orderId}`);
+      router.replace(`/order/success?orderId=${orderId}&storeId=${cartData?.store._id}`);
     } catch (error: any) {
       console.error("Payment processing error:", error);
 
@@ -236,7 +285,8 @@ export default function CartScreen() {
         pathname: "/order/failure",
         params: {
           orderId,
-          errorMessage: error.description || error.message || "Payment failed"
+          errorMessage: error.description || error.message || "Payment failed",
+          storeId: cartData?.store._id || "",
         }
       });
     } finally {
@@ -255,13 +305,20 @@ export default function CartScreen() {
         return;
       }
 
+      // Check if cart data is available
+      if (!cartData) {
+        throw new Error("Cart data is not available");
+      }
+
       // Create order first
       const orderData = {
-        cartId: cart._id,
+        cartId: cartData._id,
         paymentType: 'card' as PaymentType,
         deliveryAddressId: isDelivery ? deliveryAddress?._id : undefined,
         isDelivery,
         deliveryType,
+        specialNoteBuyer: customerNotes || undefined,
+        specialNoteSeller: deliveryInstructions || undefined,
       };
 
       const orderResponse = await createOrder.mutateAsync(orderData);
@@ -289,13 +346,20 @@ export default function CartScreen() {
     try {
       setIsProcessingOrder(true);
 
+      // Check if cart data is available
+      if (!cartData) {
+        throw new Error("Cart data is not available");
+      }
+
       // Create order with COD payment type
       const orderData = {
-        cartId: cart._id,
+        cartId: cartData._id,
         paymentType: 'cod' as PaymentType,
         deliveryAddressId: isDelivery ? deliveryAddress?._id : undefined,
         isDelivery,
         deliveryType,
+        specialNoteBuyer: customerNotes || undefined,
+        specialNoteSeller: deliveryInstructions || undefined,
       };
 
       const orderResponse = await createOrder.mutateAsync(orderData);
@@ -307,7 +371,7 @@ export default function CartScreen() {
       }
 
       // Navigate to success page
-      router.replace(`/order/success?orderId=${responseData.order._id}`);
+      router.replace(`/order/success?orderId=${responseData.order._id}&storeId=${cartData?.store._id}`);
     } catch (error: any) {
       console.error("Error in COD payment flow:", error);
       Alert.alert(
@@ -338,38 +402,36 @@ export default function CartScreen() {
 
   // Calculate savings
   const calculateSavings = () => {
-    if (!cartData?.data?.summary) return 0;
+    if (!cartSummary) return 0;
 
-    const summary = cartData.data.summary;
-    return summary.productDiscount + summary.couponDiscount + summary.offerDiscount;
+    return cartSummary.productDiscount + cartSummary.couponDiscount + cartSummary.offerDiscount;
   };
 
   // Prepare bill items
   const getBillItems = () => {
-    if (!cartData?.data?.cart || !cartData?.data?.summary) return [];
+    if (!cartData || !cartSummary) return [];
 
-    const summary = cartData.data.summary;
     const items: BillItemType[] = [
-      { label: "Item Total", value: summary.subtotal },
+      { label: "Item Total", value: cartSummary.subtotal },
     ];
 
     // Add product discount if any
-    if (summary.productDiscount > 0) {
-      items.push({ label: "Product Discount", value: summary.productDiscount, isDiscount: true });
+    if (cartSummary.productDiscount > 0) {
+      items.push({ label: "Product Discount", value: cartSummary.productDiscount, isDiscount: true });
     }
 
     // Add coupon discount if any
-    if (summary.couponDiscount > 0) {
-      items.push({ label: "Coupon Discount", value: summary.couponDiscount, isDiscount: true });
+    if (cartSummary.couponDiscount > 0) {
+      items.push({ label: "Coupon Discount", value: cartSummary.couponDiscount, isDiscount: true });
     }
 
     // Add offer discount if any
-    if (summary.offerDiscount > 0) {
-      items.push({ label: "Offer Discount", value: summary.offerDiscount, isDiscount: true });
+    if (cartSummary.offerDiscount > 0) {
+      items.push({ label: "Offer Discount", value: cartSummary.offerDiscount, isDiscount: true });
     }
 
     // Add GST (calculated as 5% of the total)
-    const gstAmount = Math.round(summary.subtotal * 0.05 * 100) / 100;
+    const gstAmount = Math.round(cartSummary.subtotal * 0.05 * 100) / 100;
     items.push({ label: "GST (5%)", value: gstAmount });
 
     // Add delivery fee (free for now)
@@ -389,7 +451,7 @@ export default function CartScreen() {
   }
 
   // Render error state
-  if (error) {
+  if (cartError) {
     return (
       <View style={[styles.container, styles.centerContainer]}>
         <StatusBar style="dark" />
@@ -401,11 +463,15 @@ export default function CartScreen() {
   }
 
   // Render empty cart state
-  if (!cartData?.data?.cart || cartData.data.cart.items.length === 0) {
+  if (!cartData || !cartData.items || cartData.items.length === 0) {
     return (
       <View style={styles.container}>
         <StatusBar style="dark" />
-        <CartHeader onBackPress={handleBackPress} />
+        <CartHeader
+          onBackPress={handleBackPress}
+          onRefresh={handleRefreshCart}
+          isRefreshing={isRefreshing}
+        />
 
         <View style={styles.centerContainer}>
           <Typography style={styles.emptyCartText}>
@@ -415,9 +481,80 @@ export default function CartScreen() {
       </View>
     );
   }
-  const cart = cartData.data.cart;
-  console.log(cart)
-  const summary = cartData.data.summary;
+
+  // We have a valid cart at this point
+  const cart = cartData;
+  console.log(cart);
+
+  // Make sure we have a summary
+  if (!cartSummary) {
+    console.log("Cart page - No cart summary available");
+
+    // State for refresh button loading
+    const [isRefreshing, setIsRefreshing] = useState(false);
+
+    // Try to fetch the cart again
+    useEffect(() => {
+      const fetchCartData = async () => {
+        try {
+          const { activeStore } = useActiveStoreStore.getState();
+          if (activeStore?._id) {
+            console.log("Cart page - Attempting to fetch cart for store:", activeStore._id);
+            await useCartStore.getState().fetchCart(activeStore._id);
+          }
+        } catch (error) {
+          console.error("Cart page - Error fetching cart:", error);
+        }
+      };
+
+      fetchCartData();
+    }, []);
+
+    // Handle refresh button press
+    const handleRefresh = async () => {
+      try {
+        setIsRefreshing(true);
+        const { activeStore } = useActiveStoreStore.getState();
+        if (activeStore?._id) {
+          console.log("Cart page - Manually refreshing cart for store:", activeStore._id);
+          await useCartStore.getState().fetchCart(activeStore._id);
+        }
+      } catch (error) {
+        console.error("Cart page - Error refreshing cart:", error);
+      } finally {
+        setIsRefreshing(false);
+      }
+    };
+
+    return (
+      <View style={[styles.container, styles.centerContainer]}>
+        <StatusBar style="dark" />
+        <CartHeader
+          onBackPress={handleBackPress}
+          onRefresh={handleRefreshCart}
+          isRefreshing={isRefreshing}
+        />
+        <Typography style={styles.errorText}>
+          Error loading cart summary.
+        </Typography>
+        <TouchableOpacity
+          style={styles.refreshButton}
+          onPress={handleRefresh}
+          disabled={isRefreshing}
+        >
+          {isRefreshing ? (
+            <ActivityIndicator size="small" color="#FFFFFF" />
+          ) : (
+            <Typography style={styles.refreshButtonText}>
+              Refresh Cart
+            </Typography>
+          )}
+        </TouchableOpacity>
+      </View>
+    );
+  }
+
+  const summary = cartSummary;
   const savings = calculateSavings();
   const freeDeliveryAmount = 25; // Mocked value
   const billItems = getBillItems();
@@ -430,6 +567,8 @@ export default function CartScreen() {
       <CartHeader
         onBackPress={handleBackPress}
         savingsAmount={savings}
+        onRefresh={handleRefreshCart}
+        isRefreshing={isRefreshing}
       />
 
       <ScrollView
@@ -494,6 +633,14 @@ export default function CartScreen() {
           selectedOptionId={selectedDeliveryOption}
           onSelectOption={setSelectedDeliveryOption}
           onAddDetailsPress={() => setIsGiftModalVisible(true)}
+        />
+
+        {/* Customer Notes Section */}
+        <CustomerNotesSection
+          notes={customerNotes}
+          onNotesChange={setCustomerNotes}
+          placeholder="Add any special instructions or notes for your order..."
+          maxLength={200}
         />
 
         {/* Bill Summary Section */}
@@ -601,6 +748,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: COLORS.ERROR,
     textAlign: "center",
+    marginBottom: SPACING.MD,
   },
   emptyCartText: {
     fontSize: 18,
@@ -613,5 +761,17 @@ const styles = StyleSheet.create({
   scrollContent: {
     padding: SPACING.MD,
     paddingBottom: 100, // Extra padding at bottom for payment options
+  },
+  refreshButton: {
+    backgroundColor: COLORS.PRIMARY,
+    paddingVertical: SPACING.SM,
+    paddingHorizontal: SPACING.MD,
+    borderRadius: 8,
+    marginTop: SPACING.MD,
+  },
+  refreshButtonText: {
+    color: "#FFFFFF",
+    fontSize: 16,
+    fontWeight: "600",
   },
 });

@@ -2,6 +2,7 @@ import { create } from "zustand";
 import { Store } from "@/types/store";
 import { router } from "expo-router";
 import storeService from "@/lib/api/services/storeService";
+import { useCartStore } from "./cartStore";
 
 // Define the ActiveStore store state
 interface ActiveStoreState {
@@ -26,11 +27,19 @@ export const useActiveStoreStore = create<ActiveStoreState>()((set) => ({
 
   // Set active store
   setActiveStore: (store) => {
+    // Clear the cart when setting a new active store
+    const currentStore = useActiveStoreStore.getState().activeStore;
+    if (currentStore && currentStore._id !== store._id) {
+      console.log("Clearing cart when switching from store", currentStore._id, "to", store._id);
+      useCartStore.getState().clearCart();
+    }
     set({ activeStore: store, error: null });
   },
 
   // Clear active store
   clearActiveStore: () => {
+    // Also clear the cart when clearing the active store
+    useCartStore.getState().clearCart();
     set({ activeStore: null, error: null });
   },
 
@@ -38,6 +47,13 @@ export const useActiveStoreStore = create<ActiveStoreState>()((set) => ({
   setActiveStoreById: async (storeId) => {
     try {
       set({ isLoading: true, error: null });
+
+      // Clear the cart when setting a new active store by ID
+      const currentStore = useActiveStoreStore.getState().activeStore;
+      if (currentStore && currentStore._id !== storeId) {
+        console.log("Clearing cart when switching from store", currentStore._id, "to", storeId);
+        useCartStore.getState().clearCart();
+      }
 
       // Fetch store data from API
       const storeData = await storeService.getStoreById(storeId);
@@ -59,6 +75,13 @@ export const useActiveStoreStore = create<ActiveStoreState>()((set) => ({
     try {
       set({ isLoading: true, error: null });
       console.log("Visiting store with ID:", storeId);
+
+      // Clear the cart when visiting a new store
+      const currentStore = useActiveStoreStore.getState().activeStore;
+      if (currentStore && currentStore._id !== storeId) {
+        console.log("Clearing cart when switching from store", currentStore._id, "to", storeId);
+        useCartStore.getState().clearCart();
+      }
 
       // Fetch store data from API
       const storeData = await storeService.getStoreById(storeId);

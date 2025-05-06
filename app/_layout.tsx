@@ -21,16 +21,18 @@ import "@/stores/authStore";
 import "@/stores/locationStore";
 import "@/stores/useSearchStore";
 import "@/stores/activeStoreStore";
+import "@/stores/cartStore";
 
 // Import components
 import LocationDetector from "@/components/location/LocationDetector";
 import FontProvider from "@/components/providers/FontProvider";
-import CartProvider from "@/components/providers/CartProvider";
+import FloatingCartButtonZustand from "@/components/cart/FloatingCartButtonZustand";
 import { TabBarProvider } from "@/components/ui/TabBarContext";
 
 // Import hooks
 import { useSearchInit } from "@/hooks/useSearchInit";
 import { useCategoriesInit } from "@/hooks/useCategoriesInit";
+import { useCartInit } from "@/hooks/useCartInit";
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
@@ -38,9 +40,10 @@ SplashScreen.preventAutoHideAsync();
 export default function RootLayout() {
   const colorScheme = useColorScheme();
 
-  // Initialize search store and categories
+  // Initialize search store, categories, and cart
   useSearchInit();
   useCategoriesInit();
+  useCartInit();
   const [loaded] = useFonts({
     // Load Jost font family with weight-specific TTF files
     "Jost-Regular": require("../assets/fonts/Jost-Regular.ttf"),
@@ -76,7 +79,6 @@ export default function RootLayout() {
       <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
         <TabBarProvider>
           <FontProvider>
-            <CartProvider>
               <Stack
                 screenOptions={{
                   headerShown: false,
@@ -93,8 +95,8 @@ export default function RootLayout() {
                 <Stack.Screen name="+not-found" />
               </Stack>
               <LocationDetector />
+              <FloatingCartButtonZustand />
               <StatusBar style="auto" />
-            </CartProvider>
           </FontProvider>
         </TabBarProvider>
       </ThemeProvider>

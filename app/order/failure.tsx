@@ -7,9 +7,10 @@ import { COLORS, SPACING, BORDER_RADIUS } from "@/lib/constants/Styles";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 
 export default function OrderFailureScreen() {
-  const { orderId, errorMessage } = useLocalSearchParams<{ 
+  const { orderId,storeId, errorMessage } = useLocalSearchParams<{ 
     orderId: string;
     errorMessage: string;
+    storeId: string;
   }>();
 
   const handleRetryPayment = () => {
@@ -26,7 +27,7 @@ export default function OrderFailureScreen() {
   };
 
   const handleContinueShopping = () => {
-    router.replace("/");
+    router.replace(`/store-home/${storeId}`);
   };
 
   return (

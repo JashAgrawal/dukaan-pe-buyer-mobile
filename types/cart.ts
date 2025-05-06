@@ -30,6 +30,7 @@ export interface CartCoupon {
 export interface Cart {
   _id: string;
   user: string;
+  store: {"_id": string, "logo": string, "name": string};
   items: CartItem[];
   totalItems: number;
   totalAmount: number;

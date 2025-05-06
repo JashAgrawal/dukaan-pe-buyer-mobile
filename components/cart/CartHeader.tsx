@@ -1,5 +1,5 @@
 import React from "react";
-import { View, StyleSheet, TouchableOpacity } from "react-native";
+import { View, StyleSheet, TouchableOpacity, ActivityIndicator } from "react-native";
 import { Typography } from "@/components/ui/Typography";
 import { COLORS, SPACING } from "@/lib/constants/Styles";
 import { MaterialIcons } from "@expo/vector-icons";
@@ -8,9 +8,11 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 interface CartHeaderProps {
   onBackPress: () => void;
   savingsAmount?: number;
+  onRefresh?: () => void;
+  isRefreshing?: boolean;
 }
 
-export default function CartHeader({ onBackPress, savingsAmount }: CartHeaderProps) {
+export default function CartHeader({ onBackPress, savingsAmount, onRefresh, isRefreshing }: CartHeaderProps) {
   const insets = useSafeAreaInsets();
 
   return (
@@ -22,7 +24,21 @@ export default function CartHeader({ onBackPress, savingsAmount }: CartHeaderPro
 
         <Typography style={styles.title}>Your Cart</Typography>
 
-        <View style={styles.placeholder} />
+        {onRefresh ? (
+          <TouchableOpacity
+            style={styles.refreshButton}
+            onPress={onRefresh}
+            disabled={isRefreshing}
+          >
+            {isRefreshing ? (
+              <ActivityIndicator size="small" color={COLORS.PRIMARY_DARK} />
+            ) : (
+              <MaterialIcons name="refresh" size={24} color={COLORS.PRIMARY_DARK} />
+            )}
+          </TouchableOpacity>
+        ) : (
+          <View style={styles.placeholder} />
+        )}
       </View>
 
       {savingsAmount !== undefined && savingsAmount > 0 && (
@@ -59,6 +75,13 @@ const styles = StyleSheet.create({
   },
   placeholder: {
     width: 24,
+  },
+  refreshButton: {
+    padding: 8,
+    width: 40,
+    height: 40,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   savingsBadge: {
     alignSelf: "flex-end",

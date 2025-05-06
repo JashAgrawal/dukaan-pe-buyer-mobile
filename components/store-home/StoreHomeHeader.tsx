@@ -8,7 +8,7 @@ import {
 } from "react-native";
 import { Typography } from "@/components/ui/Typography";
 import { getImageUrl } from "@/lib/helpers";
-import { Ionicons } from "@expo/vector-icons";
+import { Ionicons, MaterialIcons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import SearchBar from "@/components/search/SearchBar";
 
@@ -20,6 +20,7 @@ interface StoreHomeHeaderProps {
   storeId: string;
   onBackPress?: () => void;
   onSearchPress?: () => void;
+  onHomePress?: () => void;
 }
 
 export default function StoreHomeHeader({
@@ -30,6 +31,7 @@ export default function StoreHomeHeader({
   storeId,
   onBackPress,
   onSearchPress,
+  onHomePress,
 }: StoreHomeHeaderProps) {
   const handleBackPress = () => {
     if (onBackPress) {
@@ -78,12 +80,22 @@ export default function StoreHomeHeader({
           </View>
         </View>
 
-        {tableNumber !== undefined && tableNumber !== null && (
-          <View style={styles.tableContainer}>
-            <Typography style={styles.tableLabel}>Table</Typography>
-            <Typography style={styles.tableNumber}>{tableNumber}</Typography>
-          </View>
-        )}
+        <View style={styles.rightContainer}>
+          {tableNumber !== undefined && tableNumber !== null && (
+            <View style={styles.tableContainer}>
+              <Typography style={styles.tableLabel}>Table</Typography>
+              <Typography style={styles.tableNumber}>{tableNumber}</Typography>
+            </View>
+          )}
+
+          <TouchableOpacity
+            style={styles.homeButton}
+            onPress={onHomePress}
+            activeOpacity={0.7}
+          >
+            <MaterialIcons name="home" size={20} color="#8A3FFC" />
+          </TouchableOpacity>
+        </View>
       </View>
 
       {/* Search bar */}
@@ -181,5 +193,18 @@ const styles = StyleSheet.create({
     marginLeft: 6,
     fontFamily: "Jost-Medium",
     color: "#000000",
+  },
+  rightContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  homeButton: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: "#F2F2F7",
+    justifyContent: "center",
+    alignItems: "center",
+    marginLeft: 12,
   },
 });

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { View, StyleSheet, TouchableOpacity, Dimensions } from "react-native";
 import { Typography } from "@/components/ui/Typography";
 import { COLORS, SPACING, BORDER_RADIUS } from "@/lib/constants/Styles";
@@ -6,33 +6,28 @@ import { Feather } from "@expo/vector-icons";
 import { router, usePathname } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useActiveStoreStore } from "@/stores/activeStoreStore";
-
-interface FloatingCartButtonProps {
-  itemCount: number;
-  totalAmount: number;
-  hasFreeDelivery?: boolean;
-}
+import { useCartStore } from "@/stores/cartStore";
 
 const { width } = Dimensions.get("window");
 
-export default function FloatingCartButton({
-  itemCount,
-  totalAmount,
-  hasFreeDelivery = false,
-}: FloatingCartButtonProps) {
+export default function FloatingCartButtonZustand() {
   const insets = useSafeAreaInsets();
   const { activeStore } = useActiveStoreStore();
+  const { cart, summary } = useCartStore();
   const pathname = usePathname();
-
-  console.log("FloatingCartButton - itemCount:", itemCount);
-  console.log("FloatingCartButton - totalAmount:", totalAmount);
-  console.log("FloatingCartButton - activeStore:", activeStore ? activeStore._id : "none");
-  console.log("FloatingCartButton - pathname:", pathname);
 
   // Check if the current path is one of the allowed paths
   const isAllowedPath = () => {
     // For debugging
     console.log("Current pathname:", pathname);
+
+    // Cart page - don't show floating button on cart page
+    if (pathname === "/cart") {
+      return false;
+    }
+    if(pathname.includes("/order")){
+      return false;
+    }
 
     // Store Home page
     if (pathname.match(/^\/store-home\/[^\/]+$/)) {
@@ -58,14 +53,9 @@ export default function FloatingCartButton({
       return true;
     }
 
-    // Product detail page
+    // Product detail page - don't show floating button on product page
     if (pathname.match(/^\/product\/[^\/]+$/)) {
-      console.log("Matched product detail page");
-      return true;
-    }
-
-    // Cart page - don't show floating button on cart page
-    if (pathname === "/cart") {
+      console.log("On product detail page, not showing floating button");
       return false;
     }
 
@@ -80,9 +70,13 @@ export default function FloatingCartButton({
     router.push("/cart");
   };
 
+  // Calculate values from cart data
+  const itemCount = cart?.items.length || 0;
+  const totalAmount = summary?.total || 0;
+  const hasFreeDelivery = totalAmount >= 500; // Example threshold
+
   // Don't show if no items, no active store, or not on an allowed page
   const shouldShow = itemCount > 0 && !!activeStore && isAllowedPath();
-  console.log("FloatingCartButton - shouldShow:", shouldShow);
 
   if (!shouldShow) {
     return null;
@@ -116,7 +110,7 @@ export default function FloatingCartButton({
             {activeStore?.name || "Store"}
           </Typography>
           <Typography style={styles.itemCount}>
-            {itemCount || "1"} {itemCount === 1 ? "Item" : "Items"} | ₹{totalAmount ? totalAmount.toFixed(2) : "0.00"}
+            {itemCount} {itemCount === 1 ? "Item" : "Items"} | ₹{totalAmount.toFixed(2)}
           </Typography>
         </View>
 

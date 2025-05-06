@@ -7,6 +7,7 @@ import {
   StyleSheet,
   Image,
   Linking,
+  ScrollView,
 } from "react-native";
 import { router } from "expo-router";
 import { useRequestOtp } from "@/lib/api/services/authService";
@@ -51,7 +52,7 @@ export default function PhoneScreen() {
   };
 
   return (
-    <View style={styles.container}>
+    <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>
       <StatusBar style="light" />
 
       {/* Header with gradient background */}
@@ -125,7 +126,7 @@ export default function PhoneScreen() {
           </Text>
         </Text>
       </View>
-    </View>
+    </ScrollView>
   );
 }
 
@@ -137,6 +138,10 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#FFFFFF",
+  },
+  contentContainer: {
+    flexGrow: 1,
+    paddingBottom: 20,
   },
   header: {
     height: 300,

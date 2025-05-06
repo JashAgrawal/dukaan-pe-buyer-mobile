@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { View, StyleSheet, Image, TouchableOpacity, Modal } from "react-native";
 import { Typography } from "@/components/ui/Typography";
 import { getImageUrl } from "@/lib/helpers";
@@ -10,6 +10,7 @@ import { useUpdateCartItem } from "@/lib/api/hooks/useCart";
 import { MaterialIcons, Ionicons } from "@expo/vector-icons";
 import ImageViewer from "@/components/ui/ImageViewer";
 import { router } from "expo-router";
+import { useCartStore } from "@/stores/cartStore";
 
 interface CartItemProps {
   item: CartItemType;
@@ -21,6 +22,27 @@ interface CartItemProps {
 export default function CartItem({ item, onRemove, coupon, offerDiscount = 0 }: CartItemProps) {
   const updateCartItem = useUpdateCartItem();
   const [imageViewerVisible, setImageViewerVisible] = useState(false);
+  const [localQuantity, setLocalQuantity] = useState(item.quantity);
+  const { cart } = useCartStore();
+
+  // Update local quantity when cart data changes
+  useEffect(() => {
+    if (cart && cart.items) {
+      // Find the matching item in the cart
+      const productId = typeof item.product === 'string' ? item.product : item.product._id;
+      const updatedItem = cart.items.find(cartItem => {
+        const cartItemProductId = typeof cartItem.product === 'string'
+          ? cartItem.product
+          : cartItem.product._id;
+        return cartItemProductId === productId;
+      });
+
+      if (updatedItem) {
+        console.log('CartItem - useEffect - Updated quantity from cart:', updatedItem.quantity);
+        setLocalQuantity(updatedItem.quantity);
+      }
+    }
+  }, [cart, item]);
 
   // Extract product data
   const product = typeof item.product === 'string'
@@ -39,15 +61,35 @@ export default function CartItem({ item, onRemove, coupon, offerDiscount = 0 }: 
 
   // Handle quantity change
   const handleQuantityChange = (newQuantity: number) => {
+    // Get the product ID
+    const productId = typeof product === 'string' ? product : product._id;
+    console.log('CartItem - handleQuantityChange - Current quantity:', localQuantity);
+    console.log('CartItem - handleQuantityChange - New quantity:', newQuantity);
+    console.log('CartItem - handleQuantityChange - Product ID:', productId);
+
     if (newQuantity === 0 && onRemove) {
-      console.log('Removing item from cart:', item._id);
-      onRemove(typeof product === 'string' ? product : product._id);
+      console.log('Removing item from cart, product ID:', productId);
+      onRemove(productId);
       return;
     }
 
+    // Update local quantity immediately for better UX
+    setLocalQuantity(newQuantity);
+
+    console.log('CartItem - Calling updateCartItem.mutate with:', { itemId: productId, quantity: newQuantity });
     updateCartItem.mutate({
-      itemId: typeof product === 'string' ? product : product._id ,
+      itemId: productId, // Use product ID for cart operations
       quantity: newQuantity
+    }, {
+      onSuccess: (data) => {
+        console.log('CartItem - updateCartItem success - Response:', JSON.stringify(data, null, 2));
+        // The cart will be updated via the useEffect hook when the cart store is updated
+      },
+      onError: (error) => {
+        console.error('CartItem - updateCartItem error:', error);
+        // Revert to the previous quantity on error
+        setLocalQuantity(item.quantity);
+      }
     });
   };
 
@@ -145,7 +187,11 @@ export default function CartItem({ item, onRemove, coupon, offerDiscount = 0 }: 
         {onRemove && (
           <TouchableOpacity
             style={styles.removeButton}
-            onPress={() => onRemove(typeof product === 'string' ? product : product._id)}
+            onPress={() => {
+              const productId = typeof product === 'string' ? product : product._id;
+              console.log('Remove button pressed, product ID:', productId);
+              onRemove(productId);
+            }}
             hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
           >
             <MaterialIcons name="delete-outline" size={20} color={COLORS.ERROR} />
@@ -155,7 +201,7 @@ export default function CartItem({ item, onRemove, coupon, offerDiscount = 0 }: 
         {/* Quantity selector */}
         <View style={styles.quantityContainer}>
           <QuantitySelector
-            value={item.quantity}
+            value={localQuantity}
             onChange={handleQuantityChange}
           />
         </View>

@@ -11,10 +11,10 @@ import { router } from "expo-router";
 import { Typography } from "@/components/ui/Typography";
 import { getImageUrl } from "@/lib/helpers";
 import { Ionicons } from "@expo/vector-icons";
-import { useAddToCart, useUpdateCartItem, useRemoveCartItem } from "@/lib/api/hooks/useCart";
 import { useAuth } from "@/hooks/useAuth";
-import useIsProductInCart from "@/hooks/useIsProductInCart";
 import { useActiveStoreStore } from "@/stores/activeStoreStore";
+import { useCartStore } from "@/stores/cartStore";
+import useIsProductInCartZustand from "@/hooks/useIsProductInCartZustand";
 
 interface SlimProductCardProps {
   id: string;
@@ -48,12 +48,10 @@ export default function SlimProductCard({
   onPress,
 }: SlimProductCardProps) {
   const [isAddingToCart, setIsAddingToCart] = useState(false);
-  const addToCart = useAddToCart();
-  const updateCartItem = useUpdateCartItem();
-  const removeCartItem = useRemoveCartItem();
   const { isAuthenticated } = useAuth();
-  const {activeStore} = useActiveStoreStore()
-  const { isInCart, quantity, cartItemId } = useIsProductInCart(id);
+  const { activeStore } = useActiveStoreStore();
+  const { addToCart, updateCartItem, removeCartItem } = useCartStore();
+  const { isInCart, quantity, cartItemId } = useIsProductInCartZustand(id);
 
   const handlePress = () => {
     if (onPress) {
@@ -67,95 +65,90 @@ export default function SlimProductCard({
   const handleAddToCart = (e: React.TouchEvent<HTMLElement> | React.MouseEvent<HTMLElement, MouseEvent>) => {
     e.stopPropagation();
 
+    // Check if user is authenticated
     if (!isAuthenticated) {
       router.push("/auth/phone");
+      return;
+    }
+
+    // Check if there's an active store
+    if (!activeStore || !activeStore._id) {
+      console.error("No active store selected");
       return;
     }
 
     setIsAddingToCart(true);
 
     // If product is already in cart, increment quantity
-    if (isInCart && cartItemId) {
-      // Use the cart item ID
-      updateCartItem.mutate(
-        {
-          itemId: id,
-          quantity: quantity + 1,
-        },
-        {
-          onSuccess: () => {
-            setIsAddingToCart(false);
-          },
-          onError: (error) => {
-            console.error("Error updating cart item:", error);
-            setIsAddingToCart(false);
-          },
-        }
-      );
+    if (isInCart && id) {
+      updateCartItem({
+        itemId: id,
+        quantity: quantity + 1,
+      })
+        .then(() => {
+          setIsAddingToCart(false);
+        })
+        .catch((error) => {
+          console.error("Error updating cart item:", error);
+          setIsAddingToCart(false);
+        });
     } else {
       // Add new item to cart
-      addToCart.mutate(
-        {
-          product: id,
-          store: activeStore?._id || "",
-          quantity: 1,
-        },
-        {
-          onSuccess: () => {
-            setIsAddingToCart(false);
-          },
-          onError: (error) => {
-            console.error("Error adding to cart:", error);
-            setIsAddingToCart(false);
-          },
-        }
-      );
+      addToCart({
+        product: id,
+        store: activeStore._id,
+        quantity: 1,
+      })
+        .then(() => {
+          setIsAddingToCart(false);
+        })
+        .catch((error) => {
+          console.error("Error adding to cart:", error);
+          setIsAddingToCart(false);
+        });
     }
   };
 
   const handleUpdateQuantity = (newQuantity: number) => {
+    // Check if user is authenticated
     if (!isAuthenticated) {
       router.push("/auth/phone");
       return;
     }
 
+    // Check if we have a valid cart item ID
+    if (!id) {
+      console.error("No cart item ID available");
+      return;
+    }
+
     setIsAddingToCart(true);
 
-    if (newQuantity === 0 && cartItemId) {
+    if (newQuantity === 0) {
       // Remove item from cart
-      removeCartItem.mutate(
-        {
-          itemId: id,
-        },
-        {
-          onSuccess: () => {
-            setIsAddingToCart(false);
-          },
-          onError: (error) => {
-            console.error("Error removing cart item:", error);
-            setIsAddingToCart(false);
-          },
-        }
-      );
+      removeCartItem({
+        itemId: id,
+      })
+        .then(() => {
+          setIsAddingToCart(false);
+        })
+        .catch((error) => {
+          console.error("Error removing cart item:", error);
+          setIsAddingToCart(false);
+        });
     } else {
       // Update quantity
-      if (cartItemId) {
-        updateCartItem.mutate(
-          {
-            itemId: id,
-            quantity: newQuantity,
-          },
-        {
-          onSuccess: () => {
-            setIsAddingToCart(false);
-          },
-          onError: (error) => {
-            console.error("Error updating cart item:", error);
-            setIsAddingToCart(false);
-          },
-        }
-      );
-      }
+      updateCartItem({
+        itemId: id,
+        quantity: newQuantity,
+      })
+        .then(() => {
+          setIsAddingToCart(false);
+        })
+        .catch((error) => {
+          console.error("Error updating cart item:", error);
+          setIsAddingToCart(false);
+        });
     }
   };
 

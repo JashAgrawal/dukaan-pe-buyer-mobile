@@ -7,22 +7,35 @@ import { useCartContext } from "@/components/providers/CartProvider";
  */
 export const useIsProductInCart = (productId: string) => {
   const { cart } = useCartContext();
+  console.log("useIsProductInCart - cart:", cart); // this is coming as null
 
   if (!cart || !cart.items || cart.items.length === 0) {
-    return { isInCart: false, quantity: 0 };
+    return { isInCart: false, quantity: 0, cartItemId: '' };
   }
 
   const cartItem = cart.items.find(item => {
     if (typeof item.product === 'string') {
-      return item.product === productId;
+      const match = item.product === productId;
+      return match;
     }
-    return item.product._id === productId;
+    const match = item.product._id === productId;
+    return match;
   });
 
+
+  // If we found a cart item, make sure we return the correct cartItemId
+  if (cartItem) {
+    return {
+      isInCart: true,
+      quantity: cartItem.quantity,
+      cartItemId: cartItem._id,
+    };
+  }
+
   return {
-    isInCart: !!cartItem,
-    quantity: cartItem ? cartItem.quantity : 0,
-    cartItemId: cartItem ? cartItem._id : '',
+    isInCart: false,
+    quantity: 0,
+    cartItemId: '',
   };
 };
 

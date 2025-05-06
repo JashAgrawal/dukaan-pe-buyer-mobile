@@ -1,0 +1,98 @@
+{
+    "status": "success",
+    "data": {
+      "cart": {
+        "_id": "681a82e6d6b5a1a7c47c5075",
+        "user": "67f503d9f480935daf6ce346",
+        "store": {
+          "_id": "67fe1247a24f883b65266bd7",
+          "name": "Jones, Bartoletti and Pfeffer",
+          "logo": "/static/images/uploads/storeLogo.png"
+        },
+        "items": [
+          {
+            "product": {
+              "_id": "67fe124aa24f883b65266efe",
+              "name": "Incredible Granite Chips",
+              "mainImage": "/static/images/uploads/storeorproductMainImage.png",
+              "price": 5866,
+              "sellingPrice": 4869,
+              "inventory": 43
+            },
+            "quantity": 1,
+            "variant": null,
+            "size": null,
+            "effectivePrice": 4869,
+            "price": 5866,
+            "discountAmt": 997,
+            "discountPercentage": 17,
+            "couponDiscount": 0,
+            "couponDiscountPercentage": 0,
+            "offerDiscount": 0,
+            "offerDiscountPercentage": 0,
+            "_id": "681a82e6d6b5a1a7c47c5077"
+          },
+          {
+            "product": {
+              "_id": "67fe124aa24f883b65266f11",
+              "name": "Unbranded Metal Car",
+              "mainImage": "/static/images/uploads/storeorproductMainImage.png",
+              "price": 567,
+              "sellingPrice": 318,
+              "inventory": 106
+            },
+            "quantity": 1,
+            "variant": null,
+            "size": null,
+            "effectivePrice": 318,
+            "price": 567,
+            "discountAmt": 249,
+            "discountPercentage": 44,
+            "couponDiscount": 0,
+            "couponDiscountPercentage": 0,
+            "offerDiscount": 0,
+            "offerDiscountPercentage": 0,
+            "_id": "681a854fd6b5a1a7c47c51e4"
+          },
+          {
+            "product": {
+              "_id": "67fe124aa24f883b65266f12",
+              "name": "Handmade Bronze Hat",
+              "mainImage": "/static/images/uploads/storeorproductMainImage.png",
+              "price": 2027,
+              "sellingPrice": 1236,
+              "inventory": 52
+            },
+            "quantity": 1,
+            "variant": null,
+            "size": null,
+            "effectivePrice": 1236,
+            "price": 2027,
+            "discountAmt": 791,
+            "discountPercentage": 39,
+            "couponDiscount": 0,
+            "couponDiscountPercentage": 0,
+            "offerDiscount": 0,
+            "offerDiscountPercentage": 0,
+            "_id": "681a859ad6b5a1a7c47c5260"
+          }
+        ],
+        "coupon": null,
+        "offer": null,
+        "isActive": true,
+        "state": "active",
+        "isDeleted": false,
+        "deletedAt": null,
+        "createdAt": "2025-05-06T21:45:10.940Z",
+        "updatedAt": "2025-05-06T21:56:42.404Z",
+        "__v": 3
+      },
+      "summary": {
+        "subtotal": 8460,
+        "productDiscount": 2037,
+        "couponDiscount": 0,
+        "offerDiscount": 0,
+        "total": 6423
+      }
+    }
+  }

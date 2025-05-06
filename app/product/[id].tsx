@@ -19,10 +19,9 @@ import productService from "@/lib/api/services/productService";
 import { Product } from "@/types/product";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import SlimProductCard from "@/components/product/SlimProductCard";
-import { useAddToCart, useUpdateCartItem, useRemoveCartItem } from "@/lib/api/hooks/useCart";
 import { useAuth } from "@/hooks/useAuth";
-import useIsProductInCart from "@/hooks/useIsProductInCart";
-import useCartContext from "@/hooks/useCartContext";
+import { useCartStore } from "@/stores/cartStore";
+import useIsProductInCartZustand from "@/hooks/useIsProductInCartZustand";
 import QuantitySelector from "@/components/cart/QuantitySelector";
 
 const { width, height } = Dimensions.get("window");
@@ -45,11 +44,8 @@ export default function ProductDetailsScreen() {
 
   // Cart related hooks
   const { isAuthenticated } = useAuth();
-  const addToCart = useAddToCart();
-  const updateCartItem = useUpdateCartItem();
-  const removeCartItem = useRemoveCartItem();
-  const { isInCart, quantity, cartItemId } = useIsProductInCart(id as string);
-  const { cart } = useCartContext();
+  const { addToCart, updateCartItem, removeCartItem, cart } = useCartStore();
+  const { isInCart, quantity } = useIsProductInCartZustand(id as string);
 
   // Fetch product details
   useEffect(() => {
@@ -199,40 +195,32 @@ export default function ProductDetailsScreen() {
     setIsAddingToCart(true);
 
     // If product is already in cart, increment quantity
-    if (isInCart && cartItemId) {
-      updateCartItem.mutate(
-        {
-          itemId: cartItemId,
-          quantity: quantity + 1,
-        },
-        {
-          onSuccess: () => {
-            setIsAddingToCart(false);
-          },
-          onError: (error) => {
-            console.error("Error updating cart item:", error);
-            setIsAddingToCart(false);
-          },
-        }
-      );
+    if (isInCart) {
+      updateCartItem({
+        itemId: id as string, // Use product ID instead of cart item ID
+        quantity: quantity + 1,
+      })
+        .then(() => {
+          setIsAddingToCart(false);
+        })
+        .catch((error: Error) => {
+          console.error("Error updating cart item:", error);
+          setIsAddingToCart(false);
+        });
     } else {
       // Add new item to cart
-      addToCart.mutate(
-        {
-          product: product._id,
-          quantity: 1,
-          store: product.store_id,
-        },
-        {
-          onSuccess: () => {
-            setIsAddingToCart(false);
-          },
-          onError: (error) => {
-            console.error("Error adding to cart:", error);
-            setIsAddingToCart(false);
-          },
-        }
-      );
+      addToCart({
+        product: product._id,
+        quantity: 1,
+        store: product.store_id,
+      })
+        .then(() => {
+          setIsAddingToCart(false);
+        })
+        .catch((error: Error) => {
+          console.error("Error adding to cart:", error);
+          setIsAddingToCart(false);
+        });
     }
   };
 
@@ -244,40 +232,36 @@ export default function ProductDetailsScreen() {
     }
 
     setIsAddingToCart(true);
+    console.log("Product page - handleQuantityChange - product id:", id);
+    console.log("Product page - handleQuantityChange - newQuantity:", newQuantity);
 
-    if (newQuantity === 0 && cartItemId) {
-      // Remove item from cart
-      removeCartItem.mutate(
-        {
-          itemId: product?._id || "",
-        },
-        {
-          onSuccess: () => {
-            setIsAddingToCart(false);
-          },
-          onError: (error) => {
-            console.error("Error removing cart item:", error);
-            setIsAddingToCart(false);
-          },
-        }
-      );
-    } else if (cartItemId) {
-      // Update quantity
-      updateCartItem.mutate(
-        {
-          itemId: product?._id || "",
-          quantity: newQuantity,
-        },
-        {
-          onSuccess: () => {
-            setIsAddingToCart(false);
-          },
-          onError: (error) => {
-            console.error("Error updating cart item:", error);
-            setIsAddingToCart(false);
-          },
-        }
-      );
+    if (newQuantity === 0) {
+      // Remove item from cart using product ID
+      removeCartItem({
+        itemId: id as string, // Use product ID instead of cart item ID
+      })
+        .then(() => {
+          console.log("Product page - item removed successfully");
+          setIsAddingToCart(false);
+        })
+        .catch((error: Error) => {
+          console.error("Error removing cart item:", error);
+          setIsAddingToCart(false);
+        });
+    } else {
+      // Update quantity using product ID
+      updateCartItem({
+        itemId: id as string, // Use product ID instead of cart item ID
+        quantity: newQuantity,
+      })
+        .then(() => {
+          console.log("Product page - quantity updated successfully");
+          setIsAddingToCart(false);
+        })
+        .catch((error: Error) => {
+          console.error("Error updating cart item:", error);
+          setIsAddingToCart(false);
+        });
     }
   };
 

@@ -37,7 +37,7 @@ export const paymentService = {
   verifyPayment: async (data: PaymentVerificationRequest): Promise<PaymentVerificationResponse> => {
     try {
       const response = await apiClient.post<PaymentVerificationResponse>(
-        "/payments/verify-payment", 
+        "/payments/verify", 
         data
       );
       return response.data;
