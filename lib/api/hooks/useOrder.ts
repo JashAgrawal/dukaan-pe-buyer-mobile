@@ -9,7 +9,7 @@ import { PaymentVerificationRequest } from "@/types/payment";
  */
 export const useCreateOrder = () => {
   const queryClient = useQueryClient();
-  
+
   return useMutation({
     mutationFn: (data: CreateOrderRequest) => orderService.createOrder(data),
     onSuccess: () => {
@@ -41,13 +41,24 @@ export const useOrder = (id: string) => {
 };
 
 /**
+ * Hook for getting order details with expanded information
+ */
+export const useOrderDetails = (id: string) => {
+  return useQuery({
+    queryKey: ["orderDetails", id],
+    queryFn: () => orderService.getOrderById(id),
+    enabled: !!id, // Only run the query if id is provided
+  });
+};
+
+/**
  * Hook for cancelling an order
  */
 export const useCancelOrder = () => {
   const queryClient = useQueryClient();
-  
+
   return useMutation({
-    mutationFn: ({ id, reason }: { id: string; reason: string }) => 
+    mutationFn: ({ id, reason }: { id: string; reason: string }) =>
       orderService.cancelOrder(id, reason),
     onSuccess: (data, variables) => {
       // Invalidate the specific order query and the orders list
@@ -62,7 +73,7 @@ export const useCancelOrder = () => {
  */
 export const useCreateRazorpayOrder = () => {
   return useMutation({
-    mutationFn: ({ orderId }: { orderId: string }) => 
+    mutationFn: ({ orderId }: { orderId: string }) =>
       paymentService.createRazorpayOrder({ orderId }),
   });
 };
@@ -72,9 +83,9 @@ export const useCreateRazorpayOrder = () => {
  */
 export const useVerifyPayment = () => {
   const queryClient = useQueryClient();
-  
+
   return useMutation({
-    mutationFn: (data: PaymentVerificationRequest) => 
+    mutationFn: (data: PaymentVerificationRequest) =>
       paymentService.verifyPayment(data),
     onSuccess: (data) => {
       // Invalidate the specific order query and the orders list

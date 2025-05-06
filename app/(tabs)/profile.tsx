@@ -6,6 +6,7 @@ import { IconSymbol } from "@/components/ui/IconSymbol";
 import { Typography, H1 } from "@/components/ui/Typography";
 import ShortAppHeader from "@/components/ui/ShortAppHeader";
 import ScrollAwareWrapper from "@/components/ui/ScrollAwareWrapper";
+import { router } from "expo-router";
 
 export default function ProfileScreen() {
   const { user, logout } = useAuth();
@@ -63,7 +64,10 @@ export default function ProfileScreen() {
             <IconSymbol name="chevron.right" size={20} color="#999999" />
           </TouchableOpacity>
 
-          <TouchableOpacity style={styles.optionItem}>
+          <TouchableOpacity
+            style={styles.optionItem}
+            onPress={() => router.push("/orders")}
+          >
             <IconSymbol name="bag.fill" size={24} color="#8A3FFC" />
             <Typography style={styles.optionText}>Orders</Typography>
             <IconSymbol name="chevron.right" size={20} color="#999999" />
